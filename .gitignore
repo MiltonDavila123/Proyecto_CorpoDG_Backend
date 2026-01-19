@@ -1,0 +1,21 @@
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# Archivos de Python (compilados)
+*.py[cod]
+__pycache__/
+
+# Base de datos local (Railway usará Postgres, no esta)
+db.sqlite3
+
+# Variables de entorno (Contraseñas y Secret Keys)
+.env
+
+# Archivos de configuración de editores
+.vscode/
+.idea/
+
+# Static files (se generarán en el servidor)
+staticfiles/
