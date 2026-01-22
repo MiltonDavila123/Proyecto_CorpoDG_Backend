@@ -74,8 +74,12 @@ WSGI_APPLICATION = 'corpodg.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'prueba',
+        'USER': 'postgres',
+        'PASSWORD' : 'Luftwaffe1939',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
