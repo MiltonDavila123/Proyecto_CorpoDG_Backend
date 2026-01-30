@@ -3,7 +3,6 @@ from django.db import models
 
 class Cliente(models.Model):
     """Modelo para almacenar información básica del cliente"""
-    #Creamos los modelos del Cliente
     nombre_completo = models.CharField(max_length=50)
     email = models.EmailField(max_length=80, unique=True)
     telefono = models.CharField(max_length=15)
