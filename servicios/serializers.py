@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Mensaje
+from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
 from .notifications import enviar_whatsapp_contacto, enviar_correo_contacto
 
 
@@ -106,6 +106,13 @@ class HotelSerializer(serializers.ModelSerializer):
 
 class VueloSerializer(serializers.ModelSerializer):
     """Serializer para vuelos"""
+    aerolinea_nombre = serializers.CharField(source='aerolinea.nombre', read_only=True)
+    aerolinea_logo = serializers.URLField(source='aerolinea.logo_url', read_only=True)
+    origen_nombre = serializers.CharField(source='origen.nombre', read_only=True)
+    origen_pais = serializers.CharField(source='origen.pais.nombre', read_only=True)
+    destino_nombre = serializers.CharField(source='destino.nombre', read_only=True)
+    destino_pais = serializers.CharField(source='destino.pais.nombre', read_only=True)
+    
     class Meta:
         model = Vuelo
         fields = '__all__'
@@ -115,6 +122,8 @@ class VueloSerializer(serializers.ModelSerializer):
 class RentaAutoSerializer(serializers.ModelSerializer):
     """Serializer para renta de autos"""
     caracteristicas_lista = serializers.SerializerMethodField()
+    ciudad_nombre = serializers.CharField(source='ciudad.nombre', read_only=True)
+    ciudad_pais = serializers.CharField(source='ciudad.pais.nombre', read_only=True)
     
     class Meta:
         model = RentaAuto
@@ -125,9 +134,167 @@ class RentaAutoSerializer(serializers.ModelSerializer):
         return [c.strip() for c in obj.caracteristicas.split(',') if c.strip()]
 
 
-class MensajeSerializer(serializers.ModelSerializer):
-    """Serializer para mensajes de contacto"""
+# =====================================================
+# SERIALIZERS PARA PAQUETES TURÍSTICOS
+# =====================================================
+
+class CiudadSerializer(serializers.ModelSerializer):
+    """Serializer para ciudades"""
+    pais_nombre = serializers.CharField(source='pais.nombre', read_only=True)
+    region_nombre = serializers.CharField(source='pais.region.get_nombre_display', read_only=True)
+    ubicacion_completa = serializers.ReadOnlyField()
+    
     class Meta:
-        model = Mensaje
+        model = Ciudad
+        fields = ['id', 'nombre', 'codigo_aeropuerto', 'es_capital', 'imagen_url', 'pais', 'pais_nombre', 'region_nombre', 'ubicacion_completa', 'activo']
+
+
+class PaisRegionSerializer(serializers.ModelSerializer):
+    """Serializer para países/destinos de cada región"""
+    region_nombre = serializers.CharField(source='region.get_nombre_display', read_only=True)
+    ciudades = CiudadSerializer(many=True, read_only=True)
+    cantidad_ciudades = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PaisRegion
+        fields = ['id', 'nombre', 'codigo_pais', 'bandera_url', 'region', 'region_nombre', 'ciudades', 'cantidad_ciudades', 'activo']
+    
+    def get_cantidad_ciudades(self, obj):
+        return obj.ciudades.filter(activo=True).count()
+
+
+class PaisRegionListSerializer(serializers.ModelSerializer):
+    """Serializer simplificado para listado de países"""
+    region_nombre = serializers.CharField(source='region.get_nombre_display', read_only=True)
+    cantidad_ciudades = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PaisRegion
+        fields = ['id', 'nombre', 'codigo_pais', 'bandera_url', 'region', 'region_nombre', 'cantidad_ciudades', 'activo']
+    
+    def get_cantidad_ciudades(self, obj):
+        return obj.ciudades.filter(activo=True).count()
+
+
+class RegionSerializer(serializers.ModelSerializer):
+    """Serializer para regiones"""
+    nombre_display = serializers.CharField(source='get_nombre_display', read_only=True)
+    paises = PaisRegionSerializer(many=True, read_only=True)
+    cantidad_paquetes = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Region
+        fields = ['id', 'nombre', 'nombre_display', 'descripcion', 'imagen_url', 'activo', 'orden', 'paises', 'cantidad_paquetes']
+    
+    def get_cantidad_paquetes(self, obj):
+        return obj.paquetes.filter(activo=True).count()
+
+
+class RegionListSerializer(serializers.ModelSerializer):
+    """Serializer simplificado para listado de regiones"""
+    nombre_display = serializers.CharField(source='get_nombre_display', read_only=True)
+    cantidad_paises = serializers.SerializerMethodField()
+    cantidad_paquetes = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Region
+        fields = ['id', 'nombre', 'nombre_display', 'imagen_url', 'activo', 'orden', 'cantidad_paises', 'cantidad_paquetes']
+    
+    def get_cantidad_paises(self, obj):
+        return obj.paises.filter(activo=True).count()
+    
+    def get_cantidad_paquetes(self, obj):
+        return obj.paquetes.filter(activo=True).count()
+
+
+class AerolineaSerializer(serializers.ModelSerializer):
+    """Serializer para aerolíneas"""
+    class Meta:
+        model = Aerolinea
+        fields = ['id', 'nombre', 'logo_url', 'activo']
+
+
+class PaqueteTuristicoListSerializer(serializers.ModelSerializer):
+    """Serializer para listado de paquetes (Cards) - Incluye todos los campos"""
+    region_nombre = serializers.CharField(source='region.get_nombre_display', read_only=True)
+    pais_nombre = serializers.CharField(source='pais_destino.nombre', read_only=True)
+    pais_bandera = serializers.URLField(source='pais_destino.bandera_url', read_only=True)
+    ciudad_nombre = serializers.CharField(source='ciudad_destino.nombre', read_only=True, allow_null=True)
+    aerolinea_nombre = serializers.CharField(source='aerolinea.nombre', read_only=True)
+    aerolinea_logo = serializers.URLField(source='aerolinea.logo_url', read_only=True)
+    texto_paquete = serializers.ReadOnlyField()
+    destino_completo = serializers.ReadOnlyField()
+    
+    # Campos para los iconos de "Paquete incluye"
+    paquete_incluye = serializers.SerializerMethodField()
+    
+    # Lugares destacados como lista
+    lugares_destacados_lista = serializers.SerializerMethodField()
+    
+    # Labels legibles para choices
+    tipo_paquete_display = serializers.CharField(source='get_tipo_paquete_display', read_only=True)
+    temporada_display = serializers.CharField(source='get_temporada_display', read_only=True)
+    tipo_viaje_display = serializers.CharField(source='get_tipo_viaje_display', read_only=True)
+    
+    class Meta:
+        model = PaqueteTuristico
         fields = '__all__'
-        read_only_fields = ['fecha_envio', 'leido', 'respondido']
+        read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
+    
+    def get_paquete_incluye(self, obj):
+        return {
+            'vuelo': obj.incluye_vuelo,
+            'hotel': obj.incluye_hotel,
+            'alimentacion': obj.incluye_alimentacion,
+            'traslados': obj.incluye_traslados,
+            'tours': obj.incluye_tours,
+            'seguro': obj.incluye_seguro,
+        }
+    
+    def get_lugares_destacados_lista(self, obj):
+        if obj.lugares_destacados:
+            return [l.strip() for l in obj.lugares_destacados.split(',') if l.strip()]
+        return []
+
+
+class PaqueteTuristicoDetailSerializer(serializers.ModelSerializer):
+    """Serializer completo para detalle de paquete"""
+    region_nombre = serializers.CharField(source='region.get_nombre_display', read_only=True)
+    pais_nombre = serializers.CharField(source='pais_destino.nombre', read_only=True)
+    pais_bandera = serializers.URLField(source='pais_destino.bandera_url', read_only=True)
+    ciudad_nombre = serializers.CharField(source='ciudad_destino.nombre', read_only=True, allow_null=True)
+    aerolinea_nombre = serializers.CharField(source='aerolinea.nombre', read_only=True)
+    aerolinea_logo = serializers.URLField(source='aerolinea.logo_url', read_only=True)
+    texto_paquete = serializers.ReadOnlyField()
+    destino_completo = serializers.ReadOnlyField()
+    
+    # Campos para los iconos de "Paquete incluye"
+    paquete_incluye = serializers.SerializerMethodField()
+    
+    # Lugares destacados como lista
+    lugares_destacados_lista = serializers.SerializerMethodField()
+    
+    # Labels legibles para choices
+    tipo_paquete_display = serializers.CharField(source='get_tipo_paquete_display', read_only=True)
+    temporada_display = serializers.CharField(source='get_temporada_display', read_only=True)
+    tipo_viaje_display = serializers.CharField(source='get_tipo_viaje_display', read_only=True)
+    
+    class Meta:
+        model = PaqueteTuristico
+        fields = '__all__'
+        read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
+    
+    def get_paquete_incluye(self, obj):
+        return {
+            'vuelo': obj.incluye_vuelo,
+            'hotel': obj.incluye_hotel,
+            'alimentacion': obj.incluye_alimentacion,
+            'traslados': obj.incluye_traslados,
+            'tours': obj.incluye_tours,
+            'seguro': obj.incluye_seguro,
+        }
+    
+    def get_lugares_destacados_lista(self, obj):
+        if obj.lugares_destacados:
+            return [l.strip() for l in obj.lugares_destacados.split(',') if l.strip()]
+        return []
