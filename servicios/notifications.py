@@ -163,7 +163,7 @@ def enviar_correo_html(destinatarios, asunto, mensaje_texto, mensaje_html,
         asunto (str): Asunto del correo
         mensaje_texto (str): Versión en texto plano del mensaje
         mensaje_html (str): Versión HTML del mensaje
-        from_email (str, optional): Email remitente. Default: 'no-reply@corpodg.com'
+        from_email (str, optional): Email remitente. Default: settings.EMAIL_HOST_USER
         adjuntar_logo (bool): Si adjuntar el logo de la empresa
     
     Returns:
@@ -171,7 +171,7 @@ def enviar_correo_html(destinatarios, asunto, mensaje_texto, mensaje_html,
     """
     try:
         if from_email is None:
-            from_email = 'CorpoDG_NoContestar@outlook.com'
+            from_email = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
         
         if isinstance(destinatarios, str):
             destinatarios = [destinatarios]
@@ -225,7 +225,7 @@ def enviar_correo_contacto(cliente_nombre, cliente_email, cliente_telefono, mens
         dict: {'success': bool, 'message': str}
     """
     if destinatarios is None:
-        destinatarios = ['miltondaviladt@gmail.com', 'CorpoDG_NoContestar@outlook.com']
+        destinatarios = ['miltondaviladt@gmail.com']
     
     mensaje_texto = f"""
 NUEVO CONTACTO:
