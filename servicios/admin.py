@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django import forms
+from django.core.exceptions import ValidationError
+import re
 from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
 
 
@@ -54,12 +56,40 @@ class HotelAdmin(admin.ModelAdmin):
         return field
 
 
+class VueloAdminForm(forms.ModelForm):
+    """Form personalizado para validar restricciones del Vuelo"""
+    
+    class Meta:
+        model = Vuelo
+        fields = '__all__'
+    
+    def clean_pdf_url(self):
+        """Valida que el PDF URL sea de Google Drive"""
+        pdf_url = self.cleaned_data.get('pdf_url')
+        
+        # Si está vacío, está permitido
+        if not pdf_url:
+            return pdf_url
+        
+        # Validar patrón de Google Drive
+        google_drive_pattern = r'^https://drive\.google\.com/file/d/[a-zA-Z0-9_-]+/(view|edit|preview)(\?.*)?$'
+        
+        if not re.match(google_drive_pattern, pdf_url):
+            raise ValidationError(
+                'El PDF debe ser un enlace válido de Google Drive. '
+                'Ejemplo: https://drive.google.com/file/d/ID_DEL_ARCHIVO/view'
+            )
+        
+        return pdf_url
+
+
 @admin.register(Vuelo)
 class VueloAdmin(admin.ModelAdmin):
-    list_display = ['aerolinea', 'origen', 'destino', 'tipo_vuelo', 'numero_vuelo', 'duracion', 'precio', 'moneda', 'disponible']
-    list_filter = ['tipo_vuelo', 'disponible', 'aerolinea', 'origen__pais__region', 'destino__pais__region']
+    form = VueloAdminForm
+    list_display = ['aerolinea', 'origen', 'destino', 'tipo_vuelo', 'numero_vuelo', 'duracion', 'precio', 'moneda', 'destacado', 'disponible']
+    list_filter = ['tipo_vuelo', 'destacado', 'disponible', 'aerolinea', 'origen__pais__region', 'destino__pais__region']
     search_fields = ['aerolinea__nombre', 'origen__nombre', 'destino__nombre', 'numero_vuelo']
-    list_editable = ['disponible']
+    list_editable = ['destacado', 'disponible']
     autocomplete_fields = ['aerolinea', 'origen', 'destino']
 
 
@@ -152,8 +182,55 @@ class AerolineaAdmin(admin.ModelAdmin):
     cantidad_vuelos.short_description = 'Vuelos'
 
 
+class PaqueteTuristicoAdminForm(forms.ModelForm):
+    """Form personalizado para validar restricciones del PaqueteTuristico"""
+    
+    class Meta:
+        model = PaqueteTuristico
+        fields = '__all__'
+    
+    def clean_pdf_url(self):
+        """Valida que el PDF URL sea de Google Drive"""
+        pdf_url = self.cleaned_data.get('pdf_url')
+        
+        # Si está vacío, está permitido
+        if not pdf_url:
+            return pdf_url
+        
+        # Validar patrón de Google Drive
+        google_drive_pattern = r'^https://drive\.google\.com/file/d/[a-zA-Z0-9_-]+/(view|edit|preview)(\?.*)?$'
+        
+        if not re.match(google_drive_pattern, pdf_url):
+            raise ValidationError(
+                'El PDF debe ser un enlace válido de Google Drive. '
+                'Ejemplo: https://drive.google.com/file/d/ID_DEL_ARCHIVO/view'
+            )
+        
+        return pdf_url
+    
+    def clean_ubicacion_mapa_url(self):
+        """Valida que la ubicación del mapa sea de OpenStreetMap"""
+        ubicacion_mapa_url = self.cleaned_data.get('ubicacion_mapa_url')
+        
+        # Si está vacío, está permitido
+        if not ubicacion_mapa_url:
+            return ubicacion_mapa_url
+        
+        # Validar patrón de OpenStreetMap
+        openstreetmap_pattern = r'^https://(www\.)?openstreetmap\.org/.*'
+        
+        if not re.match(openstreetmap_pattern, ubicacion_mapa_url):
+            raise ValidationError(
+                'La ubicación del mapa debe ser un enlace válido de OpenStreetMap. '
+                'Ejemplo: https://www.openstreetmap.org/#map=11/4.6497/-74.1165'
+            )
+        
+        return ubicacion_mapa_url
+
+
 @admin.register(PaqueteTuristico)
 class PaqueteTuristicoAdmin(admin.ModelAdmin):
+    form = PaqueteTuristicoAdminForm
     list_display = ['titulo', 'region', 'pais_destino', 'precio', 'duracion_dias', 'duracion_noches', 'tipo_paquete', 'destacado', 'activo']
     list_filter = ['region', 'tipo_paquete', 'temporada', 'destacado', 'activo', 'aerolinea']
     search_fields = ['titulo', 'titulo_detalle', 'descripcion_corta', 'descripcion_extensa', 'pais_destino__nombre']

@@ -20,6 +20,23 @@ def validate_google_drive_pdf(value):
     return value
 
 
+def validate_openstreetmap_url(value):
+    """Validador para asegurar que sea un link de OpenStreetMap válido"""
+    if not value:
+        return value
+    
+    # Patrón para validar links de OpenStreetMap
+    openstreetmap_pattern = r'^https://(www\.)?openstreetmap\.org/.*'
+    
+    if not re.match(openstreetmap_pattern, value):
+        raise ValidationError(
+            'El link debe ser un URL válido de OpenStreetMap. '
+            'Ejemplo: https://www.openstreetmap.org/#map=11/4.6497/-74.1165'
+        )
+    
+    return value
+
+
 def normalize_google_drive_url(url):
     """Normaliza la URL de Google Drive para que termine en /preview"""
     if not url:
@@ -159,6 +176,7 @@ class Vuelo(GoogleDrivePDFMixin, models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     imagen_url = models.URLField(max_length=500, blank=True, null=True)
     moneda = models.CharField(max_length=3, default='USD')
+    destacado = models.BooleanField(default=False, help_text="Marcar como vuelo destacado")
     disponible = models.BooleanField(default=True)
     pdf_url = models.URLField(max_length=500, blank=True, null=True, validators=[validate_google_drive_pdf], help_text="URL del PDF de Google Drive (se convertirá a /preview automáticamente)")
     mensaje_reserva = models.TextField(blank=True, help_text="Mensaje predefinido para reserva/contacto")
@@ -168,7 +186,7 @@ class Vuelo(GoogleDrivePDFMixin, models.Model):
     class Meta:
         verbose_name = 'Vuelo'
         verbose_name_plural = 'Vuelos'
-        ordering = ['aerolinea', 'origen', 'destino']
+        ordering = ['-destacado', 'aerolinea', 'origen', 'destino']
 
     def __str__(self):
         return f"{self.aerolinea.nombre}: {self.origen.nombre} → {self.destino.nombre}"
@@ -383,7 +401,7 @@ class PaqueteTuristico(GoogleDrivePDFMixin, models.Model):
     precio_aplica_hasta = models.DateField(null=True, blank=True, help_text="Fecha hasta que aplica el precio")
     
     # === INFORMACIÓN DEL DESTINO (Para sidebar) ===
-    ubicacion_mapa_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL de imagen del mapa")
+    ubicacion_mapa_url = models.URLField(max_length=500, blank=True, null=True, validators=[validate_openstreetmap_url], help_text="URL de OpenStreetMap (#map=zoom/lat/lon)")
     idioma = models.CharField(max_length=100, blank=True, help_text="Ej: Oficial Inglés USA")
     moneda_local = models.CharField(max_length=100, blank=True, help_text="Ej: Dólar Americano")
     lugares_destacados = models.TextField(blank=True, help_text="Lugares destacados separados por comas")
