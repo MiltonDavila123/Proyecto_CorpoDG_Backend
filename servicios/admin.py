@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.html import format_html
 import re
 from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
 
@@ -109,15 +110,17 @@ class RentaAutoAdmin(admin.ModelAdmin):
 class PaisRegionInline(admin.TabularInline):
     """Inline para agregar países directamente desde la región"""
     model = PaisRegion
-    extra = 3
-    fields = ['nombre', 'codigo_pais', 'bandera_url', 'activo']
+    extra = 1
+    fields = ['nombre', 'nombre_en', 'codigo_iso', 'codigo_iso3', 'capital', 'bandera_svg', 'activo']
+    show_change_link = True
 
 
 class CiudadInline(admin.TabularInline):
     """Inline para agregar ciudades directamente desde el país"""
     model = Ciudad
-    extra = 3
-    fields = ['nombre', 'codigo_aeropuerto', 'es_capital', 'imagen_url', 'activo']
+    extra = 1
+    fields = ['nombre', 'codigo_ciudad', 'latitud', 'longitud', 'es_capital', 'activo']
+    show_change_link = True
 
 
 @admin.register(Region)
@@ -145,29 +148,73 @@ class RegionAdmin(admin.ModelAdmin):
 
 @admin.register(PaisRegion)
 class PaisRegionAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'region', 'codigo_pais', 'cantidad_ciudades', 'activo']
+    list_display = ['nombre', 'region', 'codigo_iso', 'capital', 'cantidad_ciudades', 'activo']
     list_filter = ['region', 'activo']
-    search_fields = ['nombre', 'region__nombre']
+    search_fields = ['nombre', 'nombre_en', 'codigo_iso', 'codigo_iso3', 'capital', 'region__nombre']
     list_editable = ['activo']
     inlines = [CiudadInline]
+    readonly_fields = ['bandera_preview']
+    
+    fieldsets = (
+        ('Información Básica', {
+            'fields': ('region', 'nombre', 'nombre_en', 'capital')
+        }),
+        ('Códigos ISO', {
+            'fields': ('codigo_iso', 'codigo_iso3')
+        }),
+        ('Banderas', {
+            'fields': ('bandera_png', 'bandera_svg', 'bandera_preview'),
+            'classes': ('collapse',)
+        }),
+        ('Estado', {
+            'fields': ('activo',)
+        }),
+    )
     
     def cantidad_ciudades(self, obj):
         return obj.ciudades.count()
     cantidad_ciudades.short_description = 'Ciudades'
+    
+    def bandera_preview(self, obj):
+        if obj.bandera_svg or obj.bandera_png:
+            url = obj.bandera_svg or obj.bandera_png
+            return format_html('<img src="{}" style="max-height: 30px; max-width: 50px;" />', url)
+        return '-'
+    bandera_preview.short_description = 'Vista previa'
 
 
 @admin.register(Ciudad)
 class CiudadAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'pais', 'get_region', 'codigo_aeropuerto', 'es_capital', 'activo']
+    list_display = ['nombre', 'pais', 'get_region', 'codigo_ciudad', 'es_capital', 'coordenadas', 'activo']
     list_filter = ['pais__region', 'pais', 'es_capital', 'activo']
-    search_fields = ['nombre', 'pais__nombre', 'codigo_aeropuerto']
+    search_fields = ['nombre', 'pais__nombre', 'codigo_ciudad']
     list_editable = ['es_capital', 'activo']
     autocomplete_fields = ['pais']
+    
+    fieldsets = (
+        ('Información Básica', {
+            'fields': ('pais', 'nombre', 'codigo_ciudad', 'es_capital')
+        }),
+        ('Coordenadas', {
+            'fields': ('latitud', 'longitud'),
+            'classes': ('collapse',)
+        }),
+        ('Otros', {
+            'fields': ('imagen_url', 'activo'),
+            'classes': ('collapse',)
+        }),
+    )
     
     def get_region(self, obj):
         return obj.pais.region.get_nombre_display()
     get_region.short_description = 'Región'
     get_region.admin_order_field = 'pais__region'
+    
+    def coordenadas(self, obj):
+        if obj.latitud and obj.longitud:
+            return f"{obj.latitud:.4f}, {obj.longitud:.4f}"
+        return '-'
+    coordenadas.short_description = 'Coordenadas'
 
 
 @admin.register(Aerolinea)
@@ -235,11 +282,8 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
     list_filter = ['region', 'tipo_paquete', 'temporada', 'destacado', 'activo', 'aerolinea']
     search_fields = ['titulo', 'titulo_detalle', 'descripcion_corta', 'descripcion_extensa', 'pais_destino__nombre']
     list_editable = ['destacado', 'activo']
-    autocomplete_fields = ['aerolinea']  # Solo aerolinea, los demás usan filtros dinámicos
+    autocomplete_fields = ['region', 'pais_destino', 'ciudad_destino', 'aerolinea']
     date_hierarchy = 'fecha_creacion'
-    
-    class Media:
-        js = ('servicios/js/paquete_filtros.js',)
     
     fieldsets = (
         ('Información del Card (Vista previa)', {

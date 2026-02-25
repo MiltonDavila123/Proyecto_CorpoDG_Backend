@@ -249,6 +249,7 @@ class Region(models.Model):
         ('medio_oriente', 'Medio Oriente'),
         ('africa', 'África'),
         ('asia', 'Asia'),
+        ('oceania', 'Oceanía'),
         ('ecuador', 'Ecuador'),
     ]
     
@@ -270,9 +271,13 @@ class Region(models.Model):
 class PaisRegion(models.Model):
     """Modelo para los países/destinos dentro de cada región"""
     region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='paises')
-    nombre = models.CharField(max_length=100)
-    codigo_pais = models.CharField(max_length=3, blank=True, help_text="Código ISO del país (ej: USA, ECU)")
-    bandera_url = models.URLField(max_length=500, blank=True, null=True)
+    nombre = models.CharField(max_length=100, help_text="Nombre en español")
+    nombre_en = models.CharField(max_length=100, blank=True, help_text="Nombre en inglés")
+    codigo_iso = models.CharField(max_length=2, blank=True, help_text="Código ISO de 2 letras (ej: US, EC)")
+    codigo_iso3 = models.CharField(max_length=3, blank=True, help_text="Código ISO de 3 letras (ej: USA, ECU)")
+    capital = models.CharField(max_length=100, blank=True, help_text="Capital del país")
+    bandera_png = models.URLField(max_length=500, blank=True, null=True, help_text="URL de la bandera PNG")
+    bandera_svg = models.URLField(max_length=500, blank=True, null=True, help_text="URL de la bandera SVG")
     activo = models.BooleanField(default=True)
     
     class Meta:
@@ -283,13 +288,20 @@ class PaisRegion(models.Model):
     
     def __str__(self):
         return f"{self.nombre} ({self.region.get_nombre_display()})"
+    
+    @property
+    def bandera_url(self):
+        """Compatibilidad: retorna la URL de bandera preferida (SVG o PNG)"""
+        return self.bandera_svg or self.bandera_png
 
 
 class Ciudad(models.Model):
     """Modelo para ciudades dentro de cada país"""
     pais = models.ForeignKey(PaisRegion, on_delete=models.CASCADE, related_name='ciudades')
     nombre = models.CharField(max_length=100)
-    codigo_aeropuerto = models.CharField(max_length=5, blank=True, help_text="Código IATA del aeropuerto principal (ej: GYE, UIO)")
+    codigo_ciudad = models.CharField(max_length=5, blank=True, help_text="Código ISO de la ciudad (ej: GYE, UIO)")
+    latitud = models.FloatField(null=True, blank=True, help_text="Latitud de la ciudad")
+    longitud = models.FloatField(null=True, blank=True, help_text="Longitud de la ciudad")
     es_capital = models.BooleanField(default=False)
     imagen_url = models.URLField(max_length=500, blank=True, null=True)
     activo = models.BooleanField(default=True)
@@ -298,10 +310,15 @@ class Ciudad(models.Model):
         verbose_name = 'Ciudad'
         verbose_name_plural = 'Ciudades'
         ordering = ['pais', '-es_capital', 'nombre']
-        unique_together = ['pais', 'nombre']
+        unique_together = ['pais', 'codigo_ciudad']
     
     def __str__(self):
         return f"{self.nombre}, {self.pais.nombre}"
+    
+    @property
+    def codigo_aeropuerto(self):
+        """Compatibilidad: alias para codigo_ciudad"""
+        return self.codigo_ciudad
     
     @property
     def ubicacion_completa(self):
@@ -319,7 +336,7 @@ class Aerolinea(models.Model):
     activo = models.BooleanField(default=True)
     
     class Meta:
-        verbose_name = 'Aerolínea'
+        verbose_name = 'Aerolínea'  
         verbose_name_plural = 'Aerolíneas'
         ordering = ['nombre']
     

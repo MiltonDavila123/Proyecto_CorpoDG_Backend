@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from django.db.models import Count
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
@@ -122,9 +123,23 @@ class RentaAutoViewSet(viewsets.ModelViewSet):
 
 class RegionViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet para regiones (solo lectura)"""
-    queryset = Region.objects.filter(activo=True)
-    serializer_class = RegionSerializer  # Siempre incluir países y ciudades
     
+    # 1. OPTIMIZACIÓN DE CONSULTA (SQL):
+    # Usamos annotate para que la base de datos cuente los países y paquetes.
+    # Esto evita traer los objetos a memoria.
+    queryset = Region.objects.annotate(
+        total_paises=Count('paises', distinct=True),
+        total_paquetes=Count('paquetes', distinct=True)
+    ).filter(activo=True).order_by('orden')
+    
+    # 2. SELECCIÓN DINÁMICA DE SERIALIZER:
+    def get_serializer_class(self):
+        # Si la petición es para ver la lista (api/regiones/), usa el ligero
+        if self.action == 'list':
+            return RegionListSerializer
+        # Si es para ver un detalle (api/regiones/1/), usa el pesado
+        return RegionSerializer
+
     @action(detail=True, methods=['get'])
     def paises(self, request, pk=None):
         """Obtener países de una región específica"""

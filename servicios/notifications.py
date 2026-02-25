@@ -225,7 +225,7 @@ def enviar_correo_contacto(cliente_nombre, cliente_email, cliente_telefono, mens
         dict: {'success': bool, 'message': str}
     """
     if destinatarios is None:
-        destinatarios = ['miltondaviladt@gmail.com']
+        destinatarios = ['miltondaviladt@gmail.com', 'milton.davila.torres@udla.edu.ec']
     
     mensaje_texto = f"""
 NUEVO CONTACTO:
@@ -268,7 +268,7 @@ MENSAJE:
                 </tr>
                 <tr>
                     <td style="padding: 10px; background-color: #f9f9f9; font-weight: bold;">Teléfono:</td>
-                    <td style="padding: 10px; background-color: #f9f9f9;"><a href="tel:{cliente_telefono}" style="color: #B8860B;">{cliente_telefono}</a></td>
+                    <td style="padding: 10px; background-color: #f9f9f9;"><a href="https://wa.me/593{cliente_telefono}" target="_blank" style="color: #B8860B;">{cliente_telefono}</a></td>
                 </tr>
             </table>
             
@@ -290,7 +290,7 @@ MENSAJE:
     
     return enviar_correo_html(
         destinatarios=destinatarios,
-        asunto='NUEVO CLIENTE LISTO PARA CONTACTO DESDE LA WEB',
+        asunto='CLIENTE QUIERE CONTACTARSE DESDE LA WEB',
         mensaje_texto=mensaje_texto,
         mensaje_html=mensaje_html,
         adjuntar_logo=True

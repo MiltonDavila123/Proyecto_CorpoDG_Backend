@@ -143,10 +143,11 @@ class CiudadSerializer(serializers.ModelSerializer):
     pais_nombre = serializers.CharField(source='pais.nombre', read_only=True)
     region_nombre = serializers.CharField(source='pais.region.get_nombre_display', read_only=True)
     ubicacion_completa = serializers.ReadOnlyField()
+    codigo_aeropuerto = serializers.CharField(source='codigo_ciudad', read_only=True)  # Alias para compatibilidad
     
     class Meta:
         model = Ciudad
-        fields = ['id', 'nombre', 'codigo_aeropuerto', 'es_capital', 'imagen_url', 'pais', 'pais_nombre', 'region_nombre', 'ubicacion_completa', 'activo']
+        fields = ['id', 'nombre', 'codigo_ciudad', 'codigo_aeropuerto', 'latitud', 'longitud', 'es_capital', 'imagen_url', 'pais', 'pais_nombre', 'region_nombre', 'ubicacion_completa', 'activo']
 
 
 class PaisRegionSerializer(serializers.ModelSerializer):
@@ -154,10 +155,11 @@ class PaisRegionSerializer(serializers.ModelSerializer):
     region_nombre = serializers.CharField(source='region.get_nombre_display', read_only=True)
     ciudades = CiudadSerializer(many=True, read_only=True)
     cantidad_ciudades = serializers.SerializerMethodField()
+    bandera_url = serializers.ReadOnlyField()  # Propiedad del modelo
     
     class Meta:
         model = PaisRegion
-        fields = ['id', 'nombre', 'codigo_pais', 'bandera_url', 'region', 'region_nombre', 'ciudades', 'cantidad_ciudades', 'activo']
+        fields = ['id', 'nombre', 'nombre_en', 'codigo_iso', 'codigo_iso3', 'capital', 'bandera_png', 'bandera_svg', 'bandera_url', 'region', 'region_nombre', 'ciudades', 'cantidad_ciudades', 'activo']
     
     def get_cantidad_ciudades(self, obj):
         return obj.ciudades.filter(activo=True).count()
@@ -167,10 +169,11 @@ class PaisRegionListSerializer(serializers.ModelSerializer):
     """Serializer simplificado para listado de países"""
     region_nombre = serializers.CharField(source='region.get_nombre_display', read_only=True)
     cantidad_ciudades = serializers.SerializerMethodField()
+    bandera_url = serializers.ReadOnlyField()  # Propiedad del modelo
     
     class Meta:
         model = PaisRegion
-        fields = ['id', 'nombre', 'codigo_pais', 'bandera_url', 'region', 'region_nombre', 'cantidad_ciudades', 'activo']
+        fields = ['id', 'nombre', 'nombre_en', 'codigo_iso', 'capital', 'bandera_url', 'region', 'region_nombre', 'cantidad_ciudades', 'activo']
     
     def get_cantidad_ciudades(self, obj):
         return obj.ciudades.filter(activo=True).count()

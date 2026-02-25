@@ -1,0 +1,2245 @@
+{
+  "caribe": [
+    {
+      "nombre_es": "Anguilla",
+      "nombre_en": "Anguilla",
+      "codigo_iso": "AI",
+      "codigo_iso3": "AIA",
+      "capital": "The Valley",
+      "bandera_png": "https://flagcdn.com/w320/ai.png",
+      "bandera_svg": "https://flagcdn.com/ai.svg"
+    },
+    {
+      "nombre_es": "Antigua y Barbuda",
+      "nombre_en": "Antigua and Barbuda",
+      "codigo_iso": "AG",
+      "codigo_iso3": "ATG",
+      "capital": "Saint John's",
+      "bandera_png": "https://flagcdn.com/w320/ag.png",
+      "bandera_svg": "https://flagcdn.com/ag.svg"
+    },
+    {
+      "nombre_es": "Aruba",
+      "nombre_en": "Aruba",
+      "codigo_iso": "AW",
+      "codigo_iso3": "ABW",
+      "capital": "Oranjestad",
+      "bandera_png": "https://flagcdn.com/w320/aw.png",
+      "bandera_svg": "https://flagcdn.com/aw.svg"
+    },
+    {
+      "nombre_es": "Bahamas",
+      "nombre_en": "Bahamas",
+      "codigo_iso": "BS",
+      "codigo_iso3": "BHS",
+      "capital": "Nassau",
+      "bandera_png": "https://flagcdn.com/w320/bs.png",
+      "bandera_svg": "https://flagcdn.com/bs.svg"
+    },
+    {
+      "nombre_es": "Barbados",
+      "nombre_en": "Barbados",
+      "codigo_iso": "BB",
+      "codigo_iso3": "BRB",
+      "capital": "Bridgetown",
+      "bandera_png": "https://flagcdn.com/w320/bb.png",
+      "bandera_svg": "https://flagcdn.com/bb.svg"
+    },
+    {
+      "nombre_es": "Bermudas",
+      "nombre_en": "Bermuda",
+      "codigo_iso": "BM",
+      "codigo_iso3": "BMU",
+      "capital": "Hamilton",
+      "bandera_png": "https://flagcdn.com/w320/bm.png",
+      "bandera_svg": "https://flagcdn.com/bm.svg"
+    },
+    {
+      "nombre_es": "Bonaire, Sint Eustatius and Saba",
+      "nombre_en": "Bonaire, Sint Eustatius and Saba",
+      "codigo_iso": "BQ",
+      "codigo_iso3": "BES",
+      "capital": "Kralendijk",
+      "bandera_png": "https://flagcdn.com/w320/bq.png",
+      "bandera_svg": "https://flagcdn.com/bq.svg"
+    },
+    {
+      "nombre_es": "Islas Ultramarinas Menores de Estados Unidos",
+      "nombre_en": "United States Minor Outlying Islands",
+      "codigo_iso": "UM",
+      "codigo_iso3": "UMI",
+      "capital": null,
+      "bandera_png": "https://flagcdn.com/w320/um.png",
+      "bandera_svg": "https://flagcdn.com/um.svg"
+    },
+    {
+      "nombre_es": "Islas Vírgenes del Reino Unido",
+      "nombre_en": "Virgin Islands (British)",
+      "codigo_iso": "VG",
+      "codigo_iso3": "VGB",
+      "capital": "Road Town",
+      "bandera_png": "https://flagcdn.com/w320/vg.png",
+      "bandera_svg": "https://flagcdn.com/vg.svg"
+    },
+    {
+      "nombre_es": "Islas Vírgenes de los Estados Unidos",
+      "nombre_en": "Virgin Islands (U.S.)",
+      "codigo_iso": "VI",
+      "codigo_iso3": "VIR",
+      "capital": "Charlotte Amalie",
+      "bandera_png": "https://flagcdn.com/w320/vi.png",
+      "bandera_svg": "https://flagcdn.com/vi.svg"
+    },
+    {
+      "nombre_es": "Islas Caimán",
+      "nombre_en": "Cayman Islands",
+      "codigo_iso": "KY",
+      "codigo_iso3": "CYM",
+      "capital": "George Town",
+      "bandera_png": "https://flagcdn.com/w320/ky.png",
+      "bandera_svg": "https://flagcdn.com/ky.svg"
+    },
+    {
+      "nombre_es": "Cuba",
+      "nombre_en": "Cuba",
+      "codigo_iso": "CU",
+      "codigo_iso3": "CUB",
+      "capital": "Havana",
+      "bandera_png": "https://flagcdn.com/w320/cu.png",
+      "bandera_svg": "https://flagcdn.com/cu.svg"
+    },
+    {
+      "nombre_es": "Curaçao",
+      "nombre_en": "Curaçao",
+      "codigo_iso": "CW",
+      "codigo_iso3": "CUW",
+      "capital": "Willemstad",
+      "bandera_png": "https://flagcdn.com/w320/cw.png",
+      "bandera_svg": "https://flagcdn.com/cw.svg"
+    },
+    {
+      "nombre_es": "Dominica",
+      "nombre_en": "Dominica",
+      "codigo_iso": "DM",
+      "codigo_iso3": "DMA",
+      "capital": "Roseau",
+      "bandera_png": "https://flagcdn.com/w320/dm.png",
+      "bandera_svg": "https://flagcdn.com/dm.svg"
+    },
+    {
+      "nombre_es": "República Dominicana",
+      "nombre_en": "Dominican Republic",
+      "codigo_iso": "DO",
+      "codigo_iso3": "DOM",
+      "capital": "Santo Domingo",
+      "bandera_png": "https://flagcdn.com/w320/do.png",
+      "bandera_svg": "https://flagcdn.com/do.svg"
+    },
+    {
+      "nombre_es": "Islas Malvinas",
+      "nombre_en": "Falkland Islands (Malvinas)",
+      "codigo_iso": "FK",
+      "codigo_iso3": "FLK",
+      "capital": "Stanley",
+      "bandera_png": "https://flagcdn.com/w320/fk.png",
+      "bandera_svg": "https://flagcdn.com/fk.svg"
+    },
+    {
+      "nombre_es": "Guayana Francesa",
+      "nombre_en": "French Guiana",
+      "codigo_iso": "GF",
+      "codigo_iso3": "GUF",
+      "capital": "Cayenne",
+      "bandera_png": "https://flagcdn.com/w320/gf.png",
+      "bandera_svg": "https://flagcdn.com/gf.svg"
+    },
+    {
+      "nombre_es": "Grenada",
+      "nombre_en": "Grenada",
+      "codigo_iso": "GD",
+      "codigo_iso3": "GRD",
+      "capital": "St. George's",
+      "bandera_png": "https://flagcdn.com/w320/gd.png",
+      "bandera_svg": "https://flagcdn.com/gd.svg"
+    },
+    {
+      "nombre_es": "Guadalupe",
+      "nombre_en": "Guadeloupe",
+      "codigo_iso": "GP",
+      "codigo_iso3": "GLP",
+      "capital": "Basse-Terre",
+      "bandera_png": "https://flagcdn.com/w320/gp.png",
+      "bandera_svg": "https://flagcdn.com/gp.svg"
+    },
+    {
+      "nombre_es": "Haiti",
+      "nombre_en": "Haiti",
+      "codigo_iso": "HT",
+      "codigo_iso3": "HTI",
+      "capital": "Port-au-Prince",
+      "bandera_png": "https://flagcdn.com/w320/ht.png",
+      "bandera_svg": "https://flagcdn.com/ht.svg"
+    },
+    {
+      "nombre_es": "Jamaica",
+      "nombre_en": "Jamaica",
+      "codigo_iso": "JM",
+      "codigo_iso3": "JAM",
+      "capital": "Kingston",
+      "bandera_png": "https://flagcdn.com/w320/jm.png",
+      "bandera_svg": "https://flagcdn.com/jm.svg"
+    },
+    {
+      "nombre_es": "Martinica",
+      "nombre_en": "Martinique",
+      "codigo_iso": "MQ",
+      "codigo_iso3": "MTQ",
+      "capital": "Fort-de-France",
+      "bandera_png": "https://flagcdn.com/w320/mq.png",
+      "bandera_svg": "https://flagcdn.com/mq.svg"
+    },
+    {
+      "nombre_es": "Montserrat",
+      "nombre_en": "Montserrat",
+      "codigo_iso": "MS",
+      "codigo_iso3": "MSR",
+      "capital": "Plymouth",
+      "bandera_png": "https://flagcdn.com/w320/ms.png",
+      "bandera_svg": "https://flagcdn.com/ms.svg"
+    },
+    {
+      "nombre_es": "Puerto Rico",
+      "nombre_en": "Puerto Rico",
+      "codigo_iso": "PR",
+      "codigo_iso3": "PRI",
+      "capital": "San Juan",
+      "bandera_png": "https://flagcdn.com/w320/pr.png",
+      "bandera_svg": "https://flagcdn.com/pr.svg"
+    },
+    {
+      "nombre_es": "San Bartolomé",
+      "nombre_en": "Saint Barthélemy",
+      "codigo_iso": "BL",
+      "codigo_iso3": "BLM",
+      "capital": "Gustavia",
+      "bandera_png": "https://flagcdn.com/w320/bl.png",
+      "bandera_svg": "https://flagcdn.com/bl.svg"
+    },
+    {
+      "nombre_es": "San Cristóbal y Nieves",
+      "nombre_en": "Saint Kitts and Nevis",
+      "codigo_iso": "KN",
+      "codigo_iso3": "KNA",
+      "capital": "Basseterre",
+      "bandera_png": "https://flagcdn.com/w320/kn.png",
+      "bandera_svg": "https://flagcdn.com/kn.svg"
+    },
+    {
+      "nombre_es": "Santa Lucía",
+      "nombre_en": "Saint Lucia",
+      "codigo_iso": "LC",
+      "codigo_iso3": "LCA",
+      "capital": "Castries",
+      "bandera_png": "https://flagcdn.com/w320/lc.png",
+      "bandera_svg": "https://flagcdn.com/lc.svg"
+    },
+    {
+      "nombre_es": "Saint Martin",
+      "nombre_en": "Saint Martin (French part)",
+      "codigo_iso": "MF",
+      "codigo_iso3": "MAF",
+      "capital": "Marigot",
+      "bandera_png": "https://flagcdn.com/w320/mf.png",
+      "bandera_svg": "https://flagcdn.com/mf.svg"
+    },
+    {
+      "nombre_es": "San Pedro y Miquelón",
+      "nombre_en": "Saint Pierre and Miquelon",
+      "codigo_iso": "PM",
+      "codigo_iso3": "SPM",
+      "capital": "Saint-Pierre",
+      "bandera_png": "https://flagcdn.com/w320/pm.png",
+      "bandera_svg": "https://flagcdn.com/pm.svg"
+    },
+    {
+      "nombre_es": "San Vicente y Granadinas",
+      "nombre_en": "Saint Vincent and the Grenadines",
+      "codigo_iso": "VC",
+      "codigo_iso3": "VCT",
+      "capital": "Kingstown",
+      "bandera_png": "https://flagcdn.com/w320/vc.png",
+      "bandera_svg": "https://flagcdn.com/vc.svg"
+    },
+    {
+      "nombre_es": "Sint Maarten (Dutch part)",
+      "nombre_en": "Sint Maarten (Dutch part)",
+      "codigo_iso": "SX",
+      "codigo_iso3": "SXM",
+      "capital": "Philipsburg",
+      "bandera_png": "https://flagcdn.com/w320/sx.png",
+      "bandera_svg": "https://flagcdn.com/sx.svg"
+    },
+    {
+      "nombre_es": "Islas Georgias del Sur y Sandwich del Sur",
+      "nombre_en": "South Georgia and the South Sandwich Islands",
+      "codigo_iso": "GS",
+      "codigo_iso3": "SGS",
+      "capital": "King Edward Point",
+      "bandera_png": "https://flagcdn.com/w320/gs.png",
+      "bandera_svg": "https://flagcdn.com/gs.svg"
+    },
+    {
+      "nombre_es": "Trinidad y Tobago",
+      "nombre_en": "Trinidad and Tobago",
+      "codigo_iso": "TT",
+      "codigo_iso3": "TTO",
+      "capital": "Port of Spain",
+      "bandera_png": "https://flagcdn.com/w320/tt.png",
+      "bandera_svg": "https://flagcdn.com/tt.svg"
+    },
+    {
+      "nombre_es": "Islas Turks y Caicos",
+      "nombre_en": "Turks and Caicos Islands",
+      "codigo_iso": "TC",
+      "codigo_iso3": "TCA",
+      "capital": "Cockburn Town",
+      "bandera_png": "https://flagcdn.com/w320/tc.png",
+      "bandera_svg": "https://flagcdn.com/tc.svg"
+    }
+  ],
+  "sudamerica": [
+    {
+      "nombre_es": "Argentina",
+      "nombre_en": "Argentina",
+      "codigo_iso": "AR",
+      "codigo_iso3": "ARG",
+      "capital": "Buenos Aires",
+      "bandera_png": "https://flagcdn.com/w320/ar.png",
+      "bandera_svg": "https://flagcdn.com/ar.svg"
+    },
+    {
+      "nombre_es": "Bolivia",
+      "nombre_en": "Bolivia (Plurinational State of)",
+      "codigo_iso": "BO",
+      "codigo_iso3": "BOL",
+      "capital": "Sucre",
+      "bandera_png": "https://flagcdn.com/w320/bo.png",
+      "bandera_svg": "https://flagcdn.com/bo.svg"
+    },
+    {
+      "nombre_es": "Brasil",
+      "nombre_en": "Brazil",
+      "codigo_iso": "BR",
+      "codigo_iso3": "BRA",
+      "capital": "Brasília",
+      "bandera_png": "https://flagcdn.com/w320/br.png",
+      "bandera_svg": "https://flagcdn.com/br.svg"
+    },
+    {
+      "nombre_es": "Chile",
+      "nombre_en": "Chile",
+      "codigo_iso": "CL",
+      "codigo_iso3": "CHL",
+      "capital": "Santiago",
+      "bandera_png": "https://flagcdn.com/w320/cl.png",
+      "bandera_svg": "https://flagcdn.com/cl.svg"
+    },
+    {
+      "nombre_es": "Colombia",
+      "nombre_en": "Colombia",
+      "codigo_iso": "CO",
+      "codigo_iso3": "COL",
+      "capital": "Bogotá",
+      "bandera_png": "https://flagcdn.com/w320/co.png",
+      "bandera_svg": "https://flagcdn.com/co.svg"
+    },
+    {
+      "nombre_es": "Guyana",
+      "nombre_en": "Guyana",
+      "codigo_iso": "GY",
+      "codigo_iso3": "GUY",
+      "capital": "Georgetown",
+      "bandera_png": "https://flagcdn.com/w320/gy.png",
+      "bandera_svg": "https://flagcdn.com/gy.svg"
+    },
+    {
+      "nombre_es": "Paraguay",
+      "nombre_en": "Paraguay",
+      "codigo_iso": "PY",
+      "codigo_iso3": "PRY",
+      "capital": "Asunción",
+      "bandera_png": "https://flagcdn.com/w320/py.png",
+      "bandera_svg": "https://flagcdn.com/py.svg"
+    },
+    {
+      "nombre_es": "Perú",
+      "nombre_en": "Peru",
+      "codigo_iso": "PE",
+      "codigo_iso3": "PER",
+      "capital": "Lima",
+      "bandera_png": "https://flagcdn.com/w320/pe.png",
+      "bandera_svg": "https://flagcdn.com/pe.svg"
+    },
+    {
+      "nombre_es": "Surinam",
+      "nombre_en": "Suriname",
+      "codigo_iso": "SR",
+      "codigo_iso3": "SUR",
+      "capital": "Paramaribo",
+      "bandera_png": "https://flagcdn.com/w320/sr.png",
+      "bandera_svg": "https://flagcdn.com/sr.svg"
+    },
+    {
+      "nombre_es": "Uruguay",
+      "nombre_en": "Uruguay",
+      "codigo_iso": "UY",
+      "codigo_iso3": "URY",
+      "capital": "Montevideo",
+      "bandera_png": "https://flagcdn.com/w320/uy.png",
+      "bandera_svg": "https://flagcdn.com/uy.svg"
+    },
+    {
+      "nombre_es": "Venezuela",
+      "nombre_en": "Venezuela (Bolivarian Republic of)",
+      "codigo_iso": "VE",
+      "codigo_iso3": "VEN",
+      "capital": "Caracas",
+      "bandera_png": "https://flagcdn.com/w320/ve.png",
+      "bandera_svg": "https://flagcdn.com/ve.svg"
+    }
+  ],
+  "centroamerica": [
+    {
+      "nombre_es": "Belice",
+      "nombre_en": "Belize",
+      "codigo_iso": "BZ",
+      "codigo_iso3": "BLZ",
+      "capital": "Belmopan",
+      "bandera_png": "https://flagcdn.com/w320/bz.png",
+      "bandera_svg": "https://flagcdn.com/bz.svg"
+    },
+    {
+      "nombre_es": "Costa Rica",
+      "nombre_en": "Costa Rica",
+      "codigo_iso": "CR",
+      "codigo_iso3": "CRI",
+      "capital": "San José",
+      "bandera_png": "https://flagcdn.com/w320/cr.png",
+      "bandera_svg": "https://flagcdn.com/cr.svg"
+    },
+    {
+      "nombre_es": "El Salvador",
+      "nombre_en": "El Salvador",
+      "codigo_iso": "SV",
+      "codigo_iso3": "SLV",
+      "capital": "San Salvador",
+      "bandera_png": "https://flagcdn.com/w320/sv.png",
+      "bandera_svg": "https://flagcdn.com/sv.svg"
+    },
+    {
+      "nombre_es": "Guatemala",
+      "nombre_en": "Guatemala",
+      "codigo_iso": "GT",
+      "codigo_iso3": "GTM",
+      "capital": "Guatemala City",
+      "bandera_png": "https://flagcdn.com/w320/gt.png",
+      "bandera_svg": "https://flagcdn.com/gt.svg"
+    },
+    {
+      "nombre_es": "Honduras",
+      "nombre_en": "Honduras",
+      "codigo_iso": "HN",
+      "codigo_iso3": "HND",
+      "capital": "Tegucigalpa",
+      "bandera_png": "https://flagcdn.com/w320/hn.png",
+      "bandera_svg": "https://flagcdn.com/hn.svg"
+    },
+    {
+      "nombre_es": "Nicaragua",
+      "nombre_en": "Nicaragua",
+      "codigo_iso": "NI",
+      "codigo_iso3": "NIC",
+      "capital": "Managua",
+      "bandera_png": "https://flagcdn.com/w320/ni.png",
+      "bandera_svg": "https://flagcdn.com/ni.svg"
+    },
+    {
+      "nombre_es": "Panamá",
+      "nombre_en": "Panama",
+      "codigo_iso": "PA",
+      "codigo_iso3": "PAN",
+      "capital": "Panama City",
+      "bandera_png": "https://flagcdn.com/w320/pa.png",
+      "bandera_svg": "https://flagcdn.com/pa.svg"
+    }
+  ],
+  "norteamerica": [
+    {
+      "nombre_es": "Canadá",
+      "nombre_en": "Canada",
+      "codigo_iso": "CA",
+      "codigo_iso3": "CAN",
+      "capital": "Ottawa",
+      "bandera_png": "https://flagcdn.com/w320/ca.png",
+      "bandera_svg": "https://flagcdn.com/ca.svg"
+    },
+    {
+      "nombre_es": "Groenlandia",
+      "nombre_en": "Greenland",
+      "codigo_iso": "GL",
+      "codigo_iso3": "GRL",
+      "capital": "Nuuk",
+      "bandera_png": "https://flagcdn.com/w320/gl.png",
+      "bandera_svg": "https://flagcdn.com/gl.svg"
+    },
+    {
+      "nombre_es": "México",
+      "nombre_en": "Mexico",
+      "codigo_iso": "MX",
+      "codigo_iso3": "MEX",
+      "capital": "Mexico City",
+      "bandera_png": "https://flagcdn.com/w320/mx.png",
+      "bandera_svg": "https://flagcdn.com/mx.svg"
+    },
+    {
+      "nombre_es": "Estados Unidos",
+      "nombre_en": "United States of America",
+      "codigo_iso": "US",
+      "codigo_iso3": "USA",
+      "capital": "Washington, D.C.",
+      "bandera_png": "https://flagcdn.com/w320/us.png",
+      "bandera_svg": "https://flagcdn.com/us.svg"
+    }
+  ],
+  "europa": [
+    {
+      "nombre_es": "Alandia",
+      "nombre_en": "Åland Islands",
+      "codigo_iso": "AX",
+      "codigo_iso3": "ALA",
+      "capital": "Mariehamn",
+      "bandera_png": "https://flagcdn.com/w320/ax.png",
+      "bandera_svg": "https://flagcdn.com/ax.svg"
+    },
+    {
+      "nombre_es": "Albania",
+      "nombre_en": "Albania",
+      "codigo_iso": "AL",
+      "codigo_iso3": "ALB",
+      "capital": "Tirana",
+      "bandera_png": "https://flagcdn.com/w320/al.png",
+      "bandera_svg": "https://flagcdn.com/al.svg"
+    },
+    {
+      "nombre_es": "Andorra",
+      "nombre_en": "Andorra",
+      "codigo_iso": "AD",
+      "codigo_iso3": "AND",
+      "capital": "Andorra la Vella",
+      "bandera_png": "https://flagcdn.com/w320/ad.png",
+      "bandera_svg": "https://flagcdn.com/ad.svg"
+    },
+    {
+      "nombre_es": "Austria",
+      "nombre_en": "Austria",
+      "codigo_iso": "AT",
+      "codigo_iso3": "AUT",
+      "capital": "Vienna",
+      "bandera_png": "https://flagcdn.com/w320/at.png",
+      "bandera_svg": "https://flagcdn.com/at.svg"
+    },
+    {
+      "nombre_es": "Bielorrusia",
+      "nombre_en": "Belarus",
+      "codigo_iso": "BY",
+      "codigo_iso3": "BLR",
+      "capital": "Minsk",
+      "bandera_png": "https://flagcdn.com/w320/by.png",
+      "bandera_svg": "https://flagcdn.com/by.svg"
+    },
+    {
+      "nombre_es": "Bélgica",
+      "nombre_en": "Belgium",
+      "codigo_iso": "BE",
+      "codigo_iso3": "BEL",
+      "capital": "Brussels",
+      "bandera_png": "https://flagcdn.com/w320/be.png",
+      "bandera_svg": "https://flagcdn.com/be.svg"
+    },
+    {
+      "nombre_es": "Bosnia y Herzegovina",
+      "nombre_en": "Bosnia and Herzegovina",
+      "codigo_iso": "BA",
+      "codigo_iso3": "BIH",
+      "capital": "Sarajevo",
+      "bandera_png": "https://flagcdn.com/w320/ba.png",
+      "bandera_svg": "https://flagcdn.com/ba.svg"
+    },
+    {
+      "nombre_es": "Bulgaria",
+      "nombre_en": "Bulgaria",
+      "codigo_iso": "BG",
+      "codigo_iso3": "BGR",
+      "capital": "Sofia",
+      "bandera_png": "https://flagcdn.com/w320/bg.png",
+      "bandera_svg": "https://flagcdn.com/bg.svg"
+    },
+    {
+      "nombre_es": "Croacia",
+      "nombre_en": "Croatia",
+      "codigo_iso": "HR",
+      "codigo_iso3": "HRV",
+      "capital": "Zagreb",
+      "bandera_png": "https://flagcdn.com/w320/hr.png",
+      "bandera_svg": "https://flagcdn.com/hr.svg"
+    },
+    {
+      "nombre_es": "Chipre",
+      "nombre_en": "Cyprus",
+      "codigo_iso": "CY",
+      "codigo_iso3": "CYP",
+      "capital": "Nicosia",
+      "bandera_png": "https://flagcdn.com/w320/cy.png",
+      "bandera_svg": "https://flagcdn.com/cy.svg"
+    },
+    {
+      "nombre_es": "República Checa",
+      "nombre_en": "Czech Republic",
+      "codigo_iso": "CZ",
+      "codigo_iso3": "CZE",
+      "capital": "Prague",
+      "bandera_png": "https://flagcdn.com/w320/cz.png",
+      "bandera_svg": "https://flagcdn.com/cz.svg"
+    },
+    {
+      "nombre_es": "Dinamarca",
+      "nombre_en": "Denmark",
+      "codigo_iso": "DK",
+      "codigo_iso3": "DNK",
+      "capital": "Copenhagen",
+      "bandera_png": "https://flagcdn.com/w320/dk.png",
+      "bandera_svg": "https://flagcdn.com/dk.svg"
+    },
+    {
+      "nombre_es": "Estonia",
+      "nombre_en": "Estonia",
+      "codigo_iso": "EE",
+      "codigo_iso3": "EST",
+      "capital": "Tallinn",
+      "bandera_png": "https://flagcdn.com/w320/ee.png",
+      "bandera_svg": "https://flagcdn.com/ee.svg"
+    },
+    {
+      "nombre_es": "Islas Faroe",
+      "nombre_en": "Faroe Islands",
+      "codigo_iso": "FO",
+      "codigo_iso3": "FRO",
+      "capital": "Tórshavn",
+      "bandera_png": "https://flagcdn.com/w320/fo.png",
+      "bandera_svg": "https://flagcdn.com/fo.svg"
+    },
+    {
+      "nombre_es": "Finlandia",
+      "nombre_en": "Finland",
+      "codigo_iso": "FI",
+      "codigo_iso3": "FIN",
+      "capital": "Helsinki",
+      "bandera_png": "https://flagcdn.com/w320/fi.png",
+      "bandera_svg": "https://flagcdn.com/fi.svg"
+    },
+    {
+      "nombre_es": "Francia",
+      "nombre_en": "France",
+      "codigo_iso": "FR",
+      "codigo_iso3": "FRA",
+      "capital": "Paris",
+      "bandera_png": "https://flagcdn.com/w320/fr.png",
+      "bandera_svg": "https://flagcdn.com/fr.svg"
+    },
+    {
+      "nombre_es": "Alemania",
+      "nombre_en": "Germany",
+      "codigo_iso": "DE",
+      "codigo_iso3": "DEU",
+      "capital": "Berlin",
+      "bandera_png": "https://flagcdn.com/w320/de.png",
+      "bandera_svg": "https://flagcdn.com/de.svg"
+    },
+    {
+      "nombre_es": "Gibraltar",
+      "nombre_en": "Gibraltar",
+      "codigo_iso": "GI",
+      "codigo_iso3": "GIB",
+      "capital": "Gibraltar",
+      "bandera_png": "https://flagcdn.com/w320/gi.png",
+      "bandera_svg": "https://flagcdn.com/gi.svg"
+    },
+    {
+      "nombre_es": "Grecia",
+      "nombre_en": "Greece",
+      "codigo_iso": "GR",
+      "codigo_iso3": "GRC",
+      "capital": "Athens",
+      "bandera_png": "https://flagcdn.com/w320/gr.png",
+      "bandera_svg": "https://flagcdn.com/gr.svg"
+    },
+    {
+      "nombre_es": "Guernsey",
+      "nombre_en": "Guernsey",
+      "codigo_iso": "GG",
+      "codigo_iso3": "GGY",
+      "capital": "St. Peter Port",
+      "bandera_png": "https://flagcdn.com/w320/gg.png",
+      "bandera_svg": "https://flagcdn.com/gg.svg"
+    },
+    {
+      "nombre_es": "Santa Sede",
+      "nombre_en": "Vatican City",
+      "codigo_iso": "VA",
+      "codigo_iso3": "VAT",
+      "capital": "Vatican City",
+      "bandera_png": "https://flagcdn.com/w320/va.png",
+      "bandera_svg": "https://flagcdn.com/va.svg"
+    },
+    {
+      "nombre_es": "Hungría",
+      "nombre_en": "Hungary",
+      "codigo_iso": "HU",
+      "codigo_iso3": "HUN",
+      "capital": "Budapest",
+      "bandera_png": "https://flagcdn.com/w320/hu.png",
+      "bandera_svg": "https://flagcdn.com/hu.svg"
+    },
+    {
+      "nombre_es": "Islandia",
+      "nombre_en": "Iceland",
+      "codigo_iso": "IS",
+      "codigo_iso3": "ISL",
+      "capital": "Reykjavík",
+      "bandera_png": "https://flagcdn.com/w320/is.png",
+      "bandera_svg": "https://flagcdn.com/is.svg"
+    },
+    {
+      "nombre_es": "Irlanda",
+      "nombre_en": "Ireland",
+      "codigo_iso": "IE",
+      "codigo_iso3": "IRL",
+      "capital": "Dublin",
+      "bandera_png": "https://flagcdn.com/w320/ie.png",
+      "bandera_svg": "https://flagcdn.com/ie.svg"
+    },
+    {
+      "nombre_es": "Isla de Man",
+      "nombre_en": "Isle of Man",
+      "codigo_iso": "IM",
+      "codigo_iso3": "IMN",
+      "capital": "Douglas",
+      "bandera_png": "https://flagcdn.com/w320/im.png",
+      "bandera_svg": "https://flagcdn.com/im.svg"
+    },
+    {
+      "nombre_es": "Italia",
+      "nombre_en": "Italy",
+      "codigo_iso": "IT",
+      "codigo_iso3": "ITA",
+      "capital": "Rome",
+      "bandera_png": "https://flagcdn.com/w320/it.png",
+      "bandera_svg": "https://flagcdn.com/it.svg"
+    },
+    {
+      "nombre_es": "Jersey",
+      "nombre_en": "Jersey",
+      "codigo_iso": "JE",
+      "codigo_iso3": "JEY",
+      "capital": "Saint Helier",
+      "bandera_png": "https://flagcdn.com/w320/je.png",
+      "bandera_svg": "https://flagcdn.com/je.svg"
+    },
+    {
+      "nombre_es": "Letonia",
+      "nombre_en": "Latvia",
+      "codigo_iso": "LV",
+      "codigo_iso3": "LVA",
+      "capital": "Riga",
+      "bandera_png": "https://flagcdn.com/w320/lv.png",
+      "bandera_svg": "https://flagcdn.com/lv.svg"
+    },
+    {
+      "nombre_es": "Liechtenstein",
+      "nombre_en": "Liechtenstein",
+      "codigo_iso": "LI",
+      "codigo_iso3": "LIE",
+      "capital": "Vaduz",
+      "bandera_png": "https://flagcdn.com/w320/li.png",
+      "bandera_svg": "https://flagcdn.com/li.svg"
+    },
+    {
+      "nombre_es": "Lituania",
+      "nombre_en": "Lithuania",
+      "codigo_iso": "LT",
+      "codigo_iso3": "LTU",
+      "capital": "Vilnius",
+      "bandera_png": "https://flagcdn.com/w320/lt.png",
+      "bandera_svg": "https://flagcdn.com/lt.svg"
+    },
+    {
+      "nombre_es": "Luxemburgo",
+      "nombre_en": "Luxembourg",
+      "codigo_iso": "LU",
+      "codigo_iso3": "LUX",
+      "capital": "Luxembourg",
+      "bandera_png": "https://flagcdn.com/w320/lu.png",
+      "bandera_svg": "https://flagcdn.com/lu.svg"
+    },
+    {
+      "nombre_es": "Macedonia",
+      "nombre_en": "North Macedonia",
+      "codigo_iso": "MK",
+      "codigo_iso3": "MKD",
+      "capital": "Skopje",
+      "bandera_png": "https://flagcdn.com/w320/mk.png",
+      "bandera_svg": "https://flagcdn.com/mk.svg"
+    },
+    {
+      "nombre_es": "Malta",
+      "nombre_en": "Malta",
+      "codigo_iso": "MT",
+      "codigo_iso3": "MLT",
+      "capital": "Valletta",
+      "bandera_png": "https://flagcdn.com/w320/mt.png",
+      "bandera_svg": "https://flagcdn.com/mt.svg"
+    },
+    {
+      "nombre_es": "Moldavia",
+      "nombre_en": "Moldova (Republic of)",
+      "codigo_iso": "MD",
+      "codigo_iso3": "MDA",
+      "capital": "Chișinău",
+      "bandera_png": "https://flagcdn.com/w320/md.png",
+      "bandera_svg": "https://flagcdn.com/md.svg"
+    },
+    {
+      "nombre_es": "Mónaco",
+      "nombre_en": "Monaco",
+      "codigo_iso": "MC",
+      "codigo_iso3": "MCO",
+      "capital": "Monaco",
+      "bandera_png": "https://flagcdn.com/w320/mc.png",
+      "bandera_svg": "https://flagcdn.com/mc.svg"
+    },
+    {
+      "nombre_es": "Montenegro",
+      "nombre_en": "Montenegro",
+      "codigo_iso": "ME",
+      "codigo_iso3": "MNE",
+      "capital": "Podgorica",
+      "bandera_png": "https://flagcdn.com/w320/me.png",
+      "bandera_svg": "https://flagcdn.com/me.svg"
+    },
+    {
+      "nombre_es": "Países Bajos",
+      "nombre_en": "Netherlands",
+      "codigo_iso": "NL",
+      "codigo_iso3": "NLD",
+      "capital": "Amsterdam",
+      "bandera_png": "https://flagcdn.com/w320/nl.png",
+      "bandera_svg": "https://flagcdn.com/nl.svg"
+    },
+    {
+      "nombre_es": "Noruega",
+      "nombre_en": "Norway",
+      "codigo_iso": "NO",
+      "codigo_iso3": "NOR",
+      "capital": "Oslo",
+      "bandera_png": "https://flagcdn.com/w320/no.png",
+      "bandera_svg": "https://flagcdn.com/no.svg"
+    },
+    {
+      "nombre_es": "Polonia",
+      "nombre_en": "Poland",
+      "codigo_iso": "PL",
+      "codigo_iso3": "POL",
+      "capital": "Warsaw",
+      "bandera_png": "https://flagcdn.com/w320/pl.png",
+      "bandera_svg": "https://flagcdn.com/pl.svg"
+    },
+    {
+      "nombre_es": "Portugal",
+      "nombre_en": "Portugal",
+      "codigo_iso": "PT",
+      "codigo_iso3": "PRT",
+      "capital": "Lisbon",
+      "bandera_png": "https://flagcdn.com/w320/pt.png",
+      "bandera_svg": "https://flagcdn.com/pt.svg"
+    },
+    {
+      "nombre_es": "Kosovo",
+      "nombre_en": "Republic of Kosovo",
+      "codigo_iso": "XK",
+      "codigo_iso3": "UNK",
+      "capital": "Pristina",
+      "bandera_png": "https://flagcdn.com/w320/xk.png",
+      "bandera_svg": "https://flagcdn.com/xk.svg"
+    },
+    {
+      "nombre_es": "Rumania",
+      "nombre_en": "Romania",
+      "codigo_iso": "RO",
+      "codigo_iso3": "ROU",
+      "capital": "Bucharest",
+      "bandera_png": "https://flagcdn.com/w320/ro.png",
+      "bandera_svg": "https://flagcdn.com/ro.svg"
+    },
+    {
+      "nombre_es": "Rusia",
+      "nombre_en": "Russian Federation",
+      "codigo_iso": "RU",
+      "codigo_iso3": "RUS",
+      "capital": "Moscow",
+      "bandera_png": "https://flagcdn.com/w320/ru.png",
+      "bandera_svg": "https://flagcdn.com/ru.svg"
+    },
+    {
+      "nombre_es": "San Marino",
+      "nombre_en": "San Marino",
+      "codigo_iso": "SM",
+      "codigo_iso3": "SMR",
+      "capital": "City of San Marino",
+      "bandera_png": "https://flagcdn.com/w320/sm.png",
+      "bandera_svg": "https://flagcdn.com/sm.svg"
+    },
+    {
+      "nombre_es": "Serbia",
+      "nombre_en": "Serbia",
+      "codigo_iso": "RS",
+      "codigo_iso3": "SRB",
+      "capital": "Belgrade",
+      "bandera_png": "https://flagcdn.com/w320/rs.png",
+      "bandera_svg": "https://flagcdn.com/rs.svg"
+    },
+    {
+      "nombre_es": "República Eslovaca",
+      "nombre_en": "Slovakia",
+      "codigo_iso": "SK",
+      "codigo_iso3": "SVK",
+      "capital": "Bratislava",
+      "bandera_png": "https://flagcdn.com/w320/sk.png",
+      "bandera_svg": "https://flagcdn.com/sk.svg"
+    },
+    {
+      "nombre_es": "Eslovenia",
+      "nombre_en": "Slovenia",
+      "codigo_iso": "SI",
+      "codigo_iso3": "SVN",
+      "capital": "Ljubljana",
+      "bandera_png": "https://flagcdn.com/w320/si.png",
+      "bandera_svg": "https://flagcdn.com/si.svg"
+    },
+    {
+      "nombre_es": "España",
+      "nombre_en": "Spain",
+      "codigo_iso": "ES",
+      "codigo_iso3": "ESP",
+      "capital": "Madrid",
+      "bandera_png": "https://flagcdn.com/w320/es.png",
+      "bandera_svg": "https://flagcdn.com/es.svg"
+    },
+    {
+      "nombre_es": "Islas Svalbard y Jan Mayen",
+      "nombre_en": "Svalbard and Jan Mayen",
+      "codigo_iso": "SJ",
+      "codigo_iso3": "SJM",
+      "capital": "Longyearbyen",
+      "bandera_png": "https://flagcdn.com/w320/sj.png",
+      "bandera_svg": "https://flagcdn.com/sj.svg"
+    },
+    {
+      "nombre_es": "Suecia",
+      "nombre_en": "Sweden",
+      "codigo_iso": "SE",
+      "codigo_iso3": "SWE",
+      "capital": "Stockholm",
+      "bandera_png": "https://flagcdn.com/w320/se.png",
+      "bandera_svg": "https://flagcdn.com/se.svg"
+    },
+    {
+      "nombre_es": "Suiza",
+      "nombre_en": "Switzerland",
+      "codigo_iso": "CH",
+      "codigo_iso3": "CHE",
+      "capital": "Bern",
+      "bandera_png": "https://flagcdn.com/w320/ch.png",
+      "bandera_svg": "https://flagcdn.com/ch.svg"
+    },
+    {
+      "nombre_es": "Ucrania",
+      "nombre_en": "Ukraine",
+      "codigo_iso": "UA",
+      "codigo_iso3": "UKR",
+      "capital": "Kyiv",
+      "bandera_png": "https://flagcdn.com/w320/ua.png",
+      "bandera_svg": "https://flagcdn.com/ua.svg"
+    },
+    {
+      "nombre_es": "Reino Unido",
+      "nombre_en": "United Kingdom of Great Britain and Northern Ireland",
+      "codigo_iso": "GB",
+      "codigo_iso3": "GBR",
+      "capital": "London",
+      "bandera_png": "https://flagcdn.com/w320/gb.png",
+      "bandera_svg": "https://flagcdn.com/gb.svg"
+    }
+  ],
+  "medio_oriente": [
+    {
+      "nombre_es": "Bahrein",
+      "nombre_en": "Bahrain",
+      "codigo_iso": "BH",
+      "codigo_iso3": "BHR",
+      "capital": "Manama",
+      "bandera_png": "https://flagcdn.com/w320/bh.png",
+      "bandera_svg": "https://flagcdn.com/bh.svg"
+    },
+    {
+      "nombre_es": "Iran",
+      "nombre_en": "Iran (Islamic Republic of)",
+      "codigo_iso": "IR",
+      "codigo_iso3": "IRN",
+      "capital": "Tehran",
+      "bandera_png": "https://flagcdn.com/w320/ir.png",
+      "bandera_svg": "https://flagcdn.com/ir.svg"
+    },
+    {
+      "nombre_es": "Irak",
+      "nombre_en": "Iraq",
+      "codigo_iso": "IQ",
+      "codigo_iso3": "IRQ",
+      "capital": "Baghdad",
+      "bandera_png": "https://flagcdn.com/w320/iq.png",
+      "bandera_svg": "https://flagcdn.com/iq.svg"
+    },
+    {
+      "nombre_es": "Israel",
+      "nombre_en": "Israel",
+      "codigo_iso": "IL",
+      "codigo_iso3": "ISR",
+      "capital": "Jerusalem",
+      "bandera_png": "https://flagcdn.com/w320/il.png",
+      "bandera_svg": "https://flagcdn.com/il.svg"
+    },
+    {
+      "nombre_es": "Jordania",
+      "nombre_en": "Jordan",
+      "codigo_iso": "JO",
+      "codigo_iso3": "JOR",
+      "capital": "Amman",
+      "bandera_png": "https://flagcdn.com/w320/jo.png",
+      "bandera_svg": "https://flagcdn.com/jo.svg"
+    },
+    {
+      "nombre_es": "Kuwait",
+      "nombre_en": "Kuwait",
+      "codigo_iso": "KW",
+      "codigo_iso3": "KWT",
+      "capital": "Kuwait City",
+      "bandera_png": "https://flagcdn.com/w320/kw.png",
+      "bandera_svg": "https://flagcdn.com/kw.svg"
+    },
+    {
+      "nombre_es": "Líbano",
+      "nombre_en": "Lebanon",
+      "codigo_iso": "LB",
+      "codigo_iso3": "LBN",
+      "capital": "Beirut",
+      "bandera_png": "https://flagcdn.com/w320/lb.png",
+      "bandera_svg": "https://flagcdn.com/lb.svg"
+    },
+    {
+      "nombre_es": "Omán",
+      "nombre_en": "Oman",
+      "codigo_iso": "OM",
+      "codigo_iso3": "OMN",
+      "capital": "Muscat",
+      "bandera_png": "https://flagcdn.com/w320/om.png",
+      "bandera_svg": "https://flagcdn.com/om.svg"
+    },
+    {
+      "nombre_es": "Palestina",
+      "nombre_en": "Palestine, State of",
+      "codigo_iso": "PS",
+      "codigo_iso3": "PSE",
+      "capital": "Ramallah",
+      "bandera_png": "https://flagcdn.com/w320/ps.png",
+      "bandera_svg": "https://flagcdn.com/ps.svg"
+    },
+    {
+      "nombre_es": "Arabia Saudí",
+      "nombre_en": "Saudi Arabia",
+      "codigo_iso": "SA",
+      "codigo_iso3": "SAU",
+      "capital": "Riyadh",
+      "bandera_png": "https://flagcdn.com/w320/sa.png",
+      "bandera_svg": "https://flagcdn.com/sa.svg"
+    },
+    {
+      "nombre_es": "Siria",
+      "nombre_en": "Syrian Arab Republic",
+      "codigo_iso": "SY",
+      "codigo_iso3": "SYR",
+      "capital": "Damascus",
+      "bandera_png": "https://flagcdn.com/w320/sy.png",
+      "bandera_svg": "https://flagcdn.com/sy.svg"
+    },
+    {
+      "nombre_es": "Turquía",
+      "nombre_en": "Turkey",
+      "codigo_iso": "TR",
+      "codigo_iso3": "TUR",
+      "capital": "Ankara",
+      "bandera_png": "https://flagcdn.com/w320/tr.png",
+      "bandera_svg": "https://flagcdn.com/tr.svg"
+    },
+    {
+      "nombre_es": "Emiratos Árabes Unidos",
+      "nombre_en": "United Arab Emirates",
+      "codigo_iso": "AE",
+      "codigo_iso3": "ARE",
+      "capital": "Abu Dhabi",
+      "bandera_png": "https://flagcdn.com/w320/ae.png",
+      "bandera_svg": "https://flagcdn.com/ae.svg"
+    },
+    {
+      "nombre_es": "Yemen",
+      "nombre_en": "Yemen",
+      "codigo_iso": "YE",
+      "codigo_iso3": "YEM",
+      "capital": "Sana'a",
+      "bandera_png": "https://flagcdn.com/w320/ye.png",
+      "bandera_svg": "https://flagcdn.com/ye.svg"
+    }
+  ],
+  "africa": [
+    {
+      "nombre_es": "Argelia",
+      "nombre_en": "Algeria",
+      "codigo_iso": "DZ",
+      "codigo_iso3": "DZA",
+      "capital": "Algiers",
+      "bandera_png": "https://flagcdn.com/w320/dz.png",
+      "bandera_svg": "https://flagcdn.com/dz.svg"
+    },
+    {
+      "nombre_es": "Angola",
+      "nombre_en": "Angola",
+      "codigo_iso": "AO",
+      "codigo_iso3": "AGO",
+      "capital": "Luanda",
+      "bandera_png": "https://flagcdn.com/w320/ao.png",
+      "bandera_svg": "https://flagcdn.com/ao.svg"
+    },
+    {
+      "nombre_es": "Benín",
+      "nombre_en": "Benin",
+      "codigo_iso": "BJ",
+      "codigo_iso3": "BEN",
+      "capital": "Porto-Novo",
+      "bandera_png": "https://flagcdn.com/w320/bj.png",
+      "bandera_svg": "https://flagcdn.com/bj.svg"
+    },
+    {
+      "nombre_es": "Botswana",
+      "nombre_en": "Botswana",
+      "codigo_iso": "BW",
+      "codigo_iso3": "BWA",
+      "capital": "Gaborone",
+      "bandera_png": "https://flagcdn.com/w320/bw.png",
+      "bandera_svg": "https://flagcdn.com/bw.svg"
+    },
+    {
+      "nombre_es": "Territorio Británico del Océano Índico",
+      "nombre_en": "British Indian Ocean Territory",
+      "codigo_iso": "IO",
+      "codigo_iso3": "IOT",
+      "capital": "Diego Garcia",
+      "bandera_png": "https://flagcdn.com/w320/io.png",
+      "bandera_svg": "https://flagcdn.com/io.svg"
+    },
+    {
+      "nombre_es": "Burkina Faso",
+      "nombre_en": "Burkina Faso",
+      "codigo_iso": "BF",
+      "codigo_iso3": "BFA",
+      "capital": "Ouagadougou",
+      "bandera_png": "https://flagcdn.com/w320/bf.png",
+      "bandera_svg": "https://flagcdn.com/bf.svg"
+    },
+    {
+      "nombre_es": "Burundi",
+      "nombre_en": "Burundi",
+      "codigo_iso": "BI",
+      "codigo_iso3": "BDI",
+      "capital": "Gitega",
+      "bandera_png": "https://flagcdn.com/w320/bi.png",
+      "bandera_svg": "https://flagcdn.com/bi.svg"
+    },
+    {
+      "nombre_es": "Camerún",
+      "nombre_en": "Cameroon",
+      "codigo_iso": "CM",
+      "codigo_iso3": "CMR",
+      "capital": "Yaoundé",
+      "bandera_png": "https://flagcdn.com/w320/cm.png",
+      "bandera_svg": "https://flagcdn.com/cm.svg"
+    },
+    {
+      "nombre_es": "Cabo Verde",
+      "nombre_en": "Cabo Verde",
+      "codigo_iso": "CV",
+      "codigo_iso3": "CPV",
+      "capital": "Praia",
+      "bandera_png": "https://flagcdn.com/w320/cv.png",
+      "bandera_svg": "https://flagcdn.com/cv.svg"
+    },
+    {
+      "nombre_es": "República Centroafricana",
+      "nombre_en": "Central African Republic",
+      "codigo_iso": "CF",
+      "codigo_iso3": "CAF",
+      "capital": "Bangui",
+      "bandera_png": "https://flagcdn.com/w320/cf.png",
+      "bandera_svg": "https://flagcdn.com/cf.svg"
+    },
+    {
+      "nombre_es": "Chad",
+      "nombre_en": "Chad",
+      "codigo_iso": "TD",
+      "codigo_iso3": "TCD",
+      "capital": "N'Djamena",
+      "bandera_png": "https://flagcdn.com/w320/td.png",
+      "bandera_svg": "https://flagcdn.com/td.svg"
+    },
+    {
+      "nombre_es": "Comoras",
+      "nombre_en": "Comoros",
+      "codigo_iso": "KM",
+      "codigo_iso3": "COM",
+      "capital": "Moroni",
+      "bandera_png": "https://flagcdn.com/w320/km.png",
+      "bandera_svg": "https://flagcdn.com/km.svg"
+    },
+    {
+      "nombre_es": "Congo",
+      "nombre_en": "Congo",
+      "codigo_iso": "CG",
+      "codigo_iso3": "COG",
+      "capital": "Brazzaville",
+      "bandera_png": "https://flagcdn.com/w320/cg.png",
+      "bandera_svg": "https://flagcdn.com/cg.svg"
+    },
+    {
+      "nombre_es": "Congo (Rep. Dem.)",
+      "nombre_en": "Congo (Democratic Republic of the)",
+      "codigo_iso": "CD",
+      "codigo_iso3": "COD",
+      "capital": "Kinshasa",
+      "bandera_png": "https://flagcdn.com/w320/cd.png",
+      "bandera_svg": "https://flagcdn.com/cd.svg"
+    },
+    {
+      "nombre_es": "Yibuti",
+      "nombre_en": "Djibouti",
+      "codigo_iso": "DJ",
+      "codigo_iso3": "DJI",
+      "capital": "Djibouti",
+      "bandera_png": "https://flagcdn.com/w320/dj.png",
+      "bandera_svg": "https://flagcdn.com/dj.svg"
+    },
+    {
+      "nombre_es": "Egipto",
+      "nombre_en": "Egypt",
+      "codigo_iso": "EG",
+      "codigo_iso3": "EGY",
+      "capital": "Cairo",
+      "bandera_png": "https://flagcdn.com/w320/eg.png",
+      "bandera_svg": "https://flagcdn.com/eg.svg"
+    },
+    {
+      "nombre_es": "Guinea Ecuatorial",
+      "nombre_en": "Equatorial Guinea",
+      "codigo_iso": "GQ",
+      "codigo_iso3": "GNQ",
+      "capital": "Malabo",
+      "bandera_png": "https://flagcdn.com/w320/gq.png",
+      "bandera_svg": "https://flagcdn.com/gq.svg"
+    },
+    {
+      "nombre_es": "Eritrea",
+      "nombre_en": "Eritrea",
+      "codigo_iso": "ER",
+      "codigo_iso3": "ERI",
+      "capital": "Asmara",
+      "bandera_png": "https://flagcdn.com/w320/er.png",
+      "bandera_svg": "https://flagcdn.com/er.svg"
+    },
+    {
+      "nombre_es": "Etiopía",
+      "nombre_en": "Ethiopia",
+      "codigo_iso": "ET",
+      "codigo_iso3": "ETH",
+      "capital": "Addis Ababa",
+      "bandera_png": "https://flagcdn.com/w320/et.png",
+      "bandera_svg": "https://flagcdn.com/et.svg"
+    },
+    {
+      "nombre_es": "Tierras Australes y Antárticas Francesas",
+      "nombre_en": "French Southern Territories",
+      "codigo_iso": "TF",
+      "codigo_iso3": "ATF",
+      "capital": "Port-aux-Français",
+      "bandera_png": "https://flagcdn.com/w320/tf.png",
+      "bandera_svg": "https://flagcdn.com/tf.svg"
+    },
+    {
+      "nombre_es": "Gabón",
+      "nombre_en": "Gabon",
+      "codigo_iso": "GA",
+      "codigo_iso3": "GAB",
+      "capital": "Libreville",
+      "bandera_png": "https://flagcdn.com/w320/ga.png",
+      "bandera_svg": "https://flagcdn.com/ga.svg"
+    },
+    {
+      "nombre_es": "Gambia",
+      "nombre_en": "Gambia",
+      "codigo_iso": "GM",
+      "codigo_iso3": "GMB",
+      "capital": "Banjul",
+      "bandera_png": "https://flagcdn.com/w320/gm.png",
+      "bandera_svg": "https://flagcdn.com/gm.svg"
+    },
+    {
+      "nombre_es": "Ghana",
+      "nombre_en": "Ghana",
+      "codigo_iso": "GH",
+      "codigo_iso3": "GHA",
+      "capital": "Accra",
+      "bandera_png": "https://flagcdn.com/w320/gh.png",
+      "bandera_svg": "https://flagcdn.com/gh.svg"
+    },
+    {
+      "nombre_es": "Guinea",
+      "nombre_en": "Guinea",
+      "codigo_iso": "GN",
+      "codigo_iso3": "GIN",
+      "capital": "Conakry",
+      "bandera_png": "https://flagcdn.com/w320/gn.png",
+      "bandera_svg": "https://flagcdn.com/gn.svg"
+    },
+    {
+      "nombre_es": "Guinea-Bisáu",
+      "nombre_en": "Guinea-Bissau",
+      "codigo_iso": "GW",
+      "codigo_iso3": "GNB",
+      "capital": "Bissau",
+      "bandera_png": "https://flagcdn.com/w320/gw.png",
+      "bandera_svg": "https://flagcdn.com/gw.svg"
+    },
+    {
+      "nombre_es": "Costa de Marfil",
+      "nombre_en": "Ivory Coast",
+      "codigo_iso": "CI",
+      "codigo_iso3": "CIV",
+      "capital": "Yamoussoukro",
+      "bandera_png": "https://flagcdn.com/w320/ci.png",
+      "bandera_svg": "https://flagcdn.com/ci.svg"
+    },
+    {
+      "nombre_es": "Kenia",
+      "nombre_en": "Kenya",
+      "codigo_iso": "KE",
+      "codigo_iso3": "KEN",
+      "capital": "Nairobi",
+      "bandera_png": "https://flagcdn.com/w320/ke.png",
+      "bandera_svg": "https://flagcdn.com/ke.svg"
+    },
+    {
+      "nombre_es": "Lesotho",
+      "nombre_en": "Lesotho",
+      "codigo_iso": "LS",
+      "codigo_iso3": "LSO",
+      "capital": "Maseru",
+      "bandera_png": "https://flagcdn.com/w320/ls.png",
+      "bandera_svg": "https://flagcdn.com/ls.svg"
+    },
+    {
+      "nombre_es": "Liberia",
+      "nombre_en": "Liberia",
+      "codigo_iso": "LR",
+      "codigo_iso3": "LBR",
+      "capital": "Monrovia",
+      "bandera_png": "https://flagcdn.com/w320/lr.png",
+      "bandera_svg": "https://flagcdn.com/lr.svg"
+    },
+    {
+      "nombre_es": "Libia",
+      "nombre_en": "Libya",
+      "codigo_iso": "LY",
+      "codigo_iso3": "LBY",
+      "capital": "Tripoli",
+      "bandera_png": "https://flagcdn.com/w320/ly.png",
+      "bandera_svg": "https://flagcdn.com/ly.svg"
+    },
+    {
+      "nombre_es": "Madagascar",
+      "nombre_en": "Madagascar",
+      "codigo_iso": "MG",
+      "codigo_iso3": "MDG",
+      "capital": "Antananarivo",
+      "bandera_png": "https://flagcdn.com/w320/mg.png",
+      "bandera_svg": "https://flagcdn.com/mg.svg"
+    },
+    {
+      "nombre_es": "Malawi",
+      "nombre_en": "Malawi",
+      "codigo_iso": "MW",
+      "codigo_iso3": "MWI",
+      "capital": "Lilongwe",
+      "bandera_png": "https://flagcdn.com/w320/mw.png",
+      "bandera_svg": "https://flagcdn.com/mw.svg"
+    },
+    {
+      "nombre_es": "Mali",
+      "nombre_en": "Mali",
+      "codigo_iso": "ML",
+      "codigo_iso3": "MLI",
+      "capital": "Bamako",
+      "bandera_png": "https://flagcdn.com/w320/ml.png",
+      "bandera_svg": "https://flagcdn.com/ml.svg"
+    },
+    {
+      "nombre_es": "Mauritania",
+      "nombre_en": "Mauritania",
+      "codigo_iso": "MR",
+      "codigo_iso3": "MRT",
+      "capital": "Nouakchott",
+      "bandera_png": "https://flagcdn.com/w320/mr.png",
+      "bandera_svg": "https://flagcdn.com/mr.svg"
+    },
+    {
+      "nombre_es": "Mauricio",
+      "nombre_en": "Mauritius",
+      "codigo_iso": "MU",
+      "codigo_iso3": "MUS",
+      "capital": "Port Louis",
+      "bandera_png": "https://flagcdn.com/w320/mu.png",
+      "bandera_svg": "https://flagcdn.com/mu.svg"
+    },
+    {
+      "nombre_es": "Mayotte",
+      "nombre_en": "Mayotte",
+      "codigo_iso": "YT",
+      "codigo_iso3": "MYT",
+      "capital": "Mamoudzou",
+      "bandera_png": "https://flagcdn.com/w320/yt.png",
+      "bandera_svg": "https://flagcdn.com/yt.svg"
+    },
+    {
+      "nombre_es": "Marruecos",
+      "nombre_en": "Morocco",
+      "codigo_iso": "MA",
+      "codigo_iso3": "MAR",
+      "capital": "Rabat",
+      "bandera_png": "https://flagcdn.com/w320/ma.png",
+      "bandera_svg": "https://flagcdn.com/ma.svg"
+    },
+    {
+      "nombre_es": "Mozambique",
+      "nombre_en": "Mozambique",
+      "codigo_iso": "MZ",
+      "codigo_iso3": "MOZ",
+      "capital": "Maputo",
+      "bandera_png": "https://flagcdn.com/w320/mz.png",
+      "bandera_svg": "https://flagcdn.com/mz.svg"
+    },
+    {
+      "nombre_es": "Namibia",
+      "nombre_en": "Namibia",
+      "codigo_iso": "NA",
+      "codigo_iso3": "NAM",
+      "capital": "Windhoek",
+      "bandera_png": "https://flagcdn.com/w320/na.png",
+      "bandera_svg": "https://flagcdn.com/na.svg"
+    },
+    {
+      "nombre_es": "Níger",
+      "nombre_en": "Niger",
+      "codigo_iso": "NE",
+      "codigo_iso3": "NER",
+      "capital": "Niamey",
+      "bandera_png": "https://flagcdn.com/w320/ne.png",
+      "bandera_svg": "https://flagcdn.com/ne.svg"
+    },
+    {
+      "nombre_es": "Nigeria",
+      "nombre_en": "Nigeria",
+      "codigo_iso": "NG",
+      "codigo_iso3": "NGA",
+      "capital": "Abuja",
+      "bandera_png": "https://flagcdn.com/w320/ng.png",
+      "bandera_svg": "https://flagcdn.com/ng.svg"
+    },
+    {
+      "nombre_es": "Reunión",
+      "nombre_en": "Réunion",
+      "codigo_iso": "RE",
+      "codigo_iso3": "REU",
+      "capital": "Saint-Denis",
+      "bandera_png": "https://flagcdn.com/w320/re.png",
+      "bandera_svg": "https://flagcdn.com/re.svg"
+    },
+    {
+      "nombre_es": "Ruanda",
+      "nombre_en": "Rwanda",
+      "codigo_iso": "RW",
+      "codigo_iso3": "RWA",
+      "capital": "Kigali",
+      "bandera_png": "https://flagcdn.com/w320/rw.png",
+      "bandera_svg": "https://flagcdn.com/rw.svg"
+    },
+    {
+      "nombre_es": "Santa Helena",
+      "nombre_en": "Saint Helena, Ascension and Tristan da Cunha",
+      "codigo_iso": "SH",
+      "codigo_iso3": "SHN",
+      "capital": "Jamestown",
+      "bandera_png": "https://flagcdn.com/w320/sh.png",
+      "bandera_svg": "https://flagcdn.com/sh.svg"
+    },
+    {
+      "nombre_es": "Santo Tomé y Príncipe",
+      "nombre_en": "Sao Tome and Principe",
+      "codigo_iso": "ST",
+      "codigo_iso3": "STP",
+      "capital": "São Tomé",
+      "bandera_png": "https://flagcdn.com/w320/st.png",
+      "bandera_svg": "https://flagcdn.com/st.svg"
+    },
+    {
+      "nombre_es": "Senegal",
+      "nombre_en": "Senegal",
+      "codigo_iso": "SN",
+      "codigo_iso3": "SEN",
+      "capital": "Dakar",
+      "bandera_png": "https://flagcdn.com/w320/sn.png",
+      "bandera_svg": "https://flagcdn.com/sn.svg"
+    },
+    {
+      "nombre_es": "Seychelles",
+      "nombre_en": "Seychelles",
+      "codigo_iso": "SC",
+      "codigo_iso3": "SYC",
+      "capital": "Victoria",
+      "bandera_png": "https://flagcdn.com/w320/sc.png",
+      "bandera_svg": "https://flagcdn.com/sc.svg"
+    },
+    {
+      "nombre_es": "Sierra Leone",
+      "nombre_en": "Sierra Leone",
+      "codigo_iso": "SL",
+      "codigo_iso3": "SLE",
+      "capital": "Freetown",
+      "bandera_png": "https://flagcdn.com/w320/sl.png",
+      "bandera_svg": "https://flagcdn.com/sl.svg"
+    },
+    {
+      "nombre_es": "Somalia",
+      "nombre_en": "Somalia",
+      "codigo_iso": "SO",
+      "codigo_iso3": "SOM",
+      "capital": "Mogadishu",
+      "bandera_png": "https://flagcdn.com/w320/so.png",
+      "bandera_svg": "https://flagcdn.com/so.svg"
+    },
+    {
+      "nombre_es": "República de Sudáfrica",
+      "nombre_en": "South Africa",
+      "codigo_iso": "ZA",
+      "codigo_iso3": "ZAF",
+      "capital": "Pretoria",
+      "bandera_png": "https://flagcdn.com/w320/za.png",
+      "bandera_svg": "https://flagcdn.com/za.svg"
+    },
+    {
+      "nombre_es": "Sudán",
+      "nombre_en": "Sudan",
+      "codigo_iso": "SD",
+      "codigo_iso3": "SDN",
+      "capital": "Khartoum",
+      "bandera_png": "https://flagcdn.com/w320/sd.png",
+      "bandera_svg": "https://flagcdn.com/sd.svg"
+    },
+    {
+      "nombre_es": "Sudán del Sur",
+      "nombre_en": "South Sudan",
+      "codigo_iso": "SS",
+      "codigo_iso3": "SSD",
+      "capital": "Juba",
+      "bandera_png": "https://flagcdn.com/w320/ss.png",
+      "bandera_svg": "https://flagcdn.com/ss.svg"
+    },
+    {
+      "nombre_es": "Suazilandia",
+      "nombre_en": "Swaziland",
+      "codigo_iso": "SZ",
+      "codigo_iso3": "SWZ",
+      "capital": "Mbabane",
+      "bandera_png": "https://flagcdn.com/w320/sz.png",
+      "bandera_svg": "https://flagcdn.com/sz.svg"
+    },
+    {
+      "nombre_es": "Tanzania",
+      "nombre_en": "Tanzania, United Republic of",
+      "codigo_iso": "TZ",
+      "codigo_iso3": "TZA",
+      "capital": "Dodoma",
+      "bandera_png": "https://flagcdn.com/w320/tz.png",
+      "bandera_svg": "https://flagcdn.com/tz.svg"
+    },
+    {
+      "nombre_es": "Togo",
+      "nombre_en": "Togo",
+      "codigo_iso": "TG",
+      "codigo_iso3": "TGO",
+      "capital": "Lomé",
+      "bandera_png": "https://flagcdn.com/w320/tg.png",
+      "bandera_svg": "https://flagcdn.com/tg.svg"
+    },
+    {
+      "nombre_es": "Túnez",
+      "nombre_en": "Tunisia",
+      "codigo_iso": "TN",
+      "codigo_iso3": "TUN",
+      "capital": "Tunis",
+      "bandera_png": "https://flagcdn.com/w320/tn.png",
+      "bandera_svg": "https://flagcdn.com/tn.svg"
+    },
+    {
+      "nombre_es": "Uganda",
+      "nombre_en": "Uganda",
+      "codigo_iso": "UG",
+      "codigo_iso3": "UGA",
+      "capital": "Kampala",
+      "bandera_png": "https://flagcdn.com/w320/ug.png",
+      "bandera_svg": "https://flagcdn.com/ug.svg"
+    },
+    {
+      "nombre_es": "Sahara Occidental",
+      "nombre_en": "Western Sahara",
+      "codigo_iso": "EH",
+      "codigo_iso3": "ESH",
+      "capital": "El Aaiún",
+      "bandera_png": "https://flagcdn.com/w320/eh.png",
+      "bandera_svg": "https://flagcdn.com/eh.svg"
+    },
+    {
+      "nombre_es": "Zambia",
+      "nombre_en": "Zambia",
+      "codigo_iso": "ZM",
+      "codigo_iso3": "ZMB",
+      "capital": "Lusaka",
+      "bandera_png": "https://flagcdn.com/w320/zm.png",
+      "bandera_svg": "https://flagcdn.com/zm.svg"
+    },
+    {
+      "nombre_es": "Zimbabue",
+      "nombre_en": "Zimbabwe",
+      "codigo_iso": "ZW",
+      "codigo_iso3": "ZWE",
+      "capital": "Harare",
+      "bandera_png": "https://flagcdn.com/w320/zw.png",
+      "bandera_svg": "https://flagcdn.com/zw.svg"
+    }
+  ],
+  "asia": [
+    {
+      "nombre_es": "Afganistán",
+      "nombre_en": "Afghanistan",
+      "codigo_iso": "AF",
+      "codigo_iso3": "AFG",
+      "capital": "Kabul",
+      "bandera_png": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_the_Taliban.svg/320px-Flag_of_the_Taliban.svg.png",
+      "bandera_svg": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg"
+    },
+    {
+      "nombre_es": "Armenia",
+      "nombre_en": "Armenia",
+      "codigo_iso": "AM",
+      "codigo_iso3": "ARM",
+      "capital": "Yerevan",
+      "bandera_png": "https://flagcdn.com/w320/am.png",
+      "bandera_svg": "https://flagcdn.com/am.svg"
+    },
+    {
+      "nombre_es": "Azerbaiyán",
+      "nombre_en": "Azerbaijan",
+      "codigo_iso": "AZ",
+      "codigo_iso3": "AZE",
+      "capital": "Baku",
+      "bandera_png": "https://flagcdn.com/w320/az.png",
+      "bandera_svg": "https://flagcdn.com/az.svg"
+    },
+    {
+      "nombre_es": "Bangladesh",
+      "nombre_en": "Bangladesh",
+      "codigo_iso": "BD",
+      "codigo_iso3": "BGD",
+      "capital": "Dhaka",
+      "bandera_png": "https://flagcdn.com/w320/bd.png",
+      "bandera_svg": "https://flagcdn.com/bd.svg"
+    },
+    {
+      "nombre_es": "Bután",
+      "nombre_en": "Bhutan",
+      "codigo_iso": "BT",
+      "codigo_iso3": "BTN",
+      "capital": "Thimphu",
+      "bandera_png": "https://flagcdn.com/w320/bt.png",
+      "bandera_svg": "https://flagcdn.com/bt.svg"
+    },
+    {
+      "nombre_es": "Brunei",
+      "nombre_en": "Brunei Darussalam",
+      "codigo_iso": "BN",
+      "codigo_iso3": "BRN",
+      "capital": "Bandar Seri Begawan",
+      "bandera_png": "https://flagcdn.com/w320/bn.png",
+      "bandera_svg": "https://flagcdn.com/bn.svg"
+    },
+    {
+      "nombre_es": "Camboya",
+      "nombre_en": "Cambodia",
+      "codigo_iso": "KH",
+      "codigo_iso3": "KHM",
+      "capital": "Phnom Penh",
+      "bandera_png": "https://flagcdn.com/w320/kh.png",
+      "bandera_svg": "https://flagcdn.com/kh.svg"
+    },
+    {
+      "nombre_es": "China",
+      "nombre_en": "China",
+      "codigo_iso": "CN",
+      "codigo_iso3": "CHN",
+      "capital": "Beijing",
+      "bandera_png": "https://flagcdn.com/w320/cn.png",
+      "bandera_svg": "https://flagcdn.com/cn.svg"
+    },
+    {
+      "nombre_es": "Georgia",
+      "nombre_en": "Georgia",
+      "codigo_iso": "GE",
+      "codigo_iso3": "GEO",
+      "capital": "Tbilisi",
+      "bandera_png": "https://flagcdn.com/w320/ge.png",
+      "bandera_svg": "https://flagcdn.com/ge.svg"
+    },
+    {
+      "nombre_es": "Hong Kong",
+      "nombre_en": "Hong Kong",
+      "codigo_iso": "HK",
+      "codigo_iso3": "HKG",
+      "capital": "City of Victoria",
+      "bandera_png": "https://flagcdn.com/w320/hk.png",
+      "bandera_svg": "https://flagcdn.com/hk.svg"
+    },
+    {
+      "nombre_es": "India",
+      "nombre_en": "India",
+      "codigo_iso": "IN",
+      "codigo_iso3": "IND",
+      "capital": "New Delhi",
+      "bandera_png": "https://flagcdn.com/w320/in.png",
+      "bandera_svg": "https://flagcdn.com/in.svg"
+    },
+    {
+      "nombre_es": "Indonesia",
+      "nombre_en": "Indonesia",
+      "codigo_iso": "ID",
+      "codigo_iso3": "IDN",
+      "capital": "Jakarta",
+      "bandera_png": "https://flagcdn.com/w320/id.png",
+      "bandera_svg": "https://flagcdn.com/id.svg"
+    },
+    {
+      "nombre_es": "Japón",
+      "nombre_en": "Japan",
+      "codigo_iso": "JP",
+      "codigo_iso3": "JPN",
+      "capital": "Tokyo",
+      "bandera_png": "https://flagcdn.com/w320/jp.png",
+      "bandera_svg": "https://flagcdn.com/jp.svg"
+    },
+    {
+      "nombre_es": "Kazajistán",
+      "nombre_en": "Kazakhstan",
+      "codigo_iso": "KZ",
+      "codigo_iso3": "KAZ",
+      "capital": "Nur-Sultan",
+      "bandera_png": "https://flagcdn.com/w320/kz.png",
+      "bandera_svg": "https://flagcdn.com/kz.svg"
+    },
+    {
+      "nombre_es": "Kirguizistán",
+      "nombre_en": "Kyrgyzstan",
+      "codigo_iso": "KG",
+      "codigo_iso3": "KGZ",
+      "capital": "Bishkek",
+      "bandera_png": "https://flagcdn.com/w320/kg.png",
+      "bandera_svg": "https://flagcdn.com/kg.svg"
+    },
+    {
+      "nombre_es": "Laos",
+      "nombre_en": "Lao People's Democratic Republic",
+      "codigo_iso": "LA",
+      "codigo_iso3": "LAO",
+      "capital": "Vientiane",
+      "bandera_png": "https://flagcdn.com/w320/la.png",
+      "bandera_svg": "https://flagcdn.com/la.svg"
+    },
+    {
+      "nombre_es": "Macao",
+      "nombre_en": "Macao",
+      "codigo_iso": "MO",
+      "codigo_iso3": "MAC",
+      "capital": null,
+      "bandera_png": "https://flagcdn.com/w320/mo.png",
+      "bandera_svg": "https://flagcdn.com/mo.svg"
+    },
+    {
+      "nombre_es": "Malasia",
+      "nombre_en": "Malaysia",
+      "codigo_iso": "MY",
+      "codigo_iso3": "MYS",
+      "capital": "Kuala Lumpur",
+      "bandera_png": "https://flagcdn.com/w320/my.png",
+      "bandera_svg": "https://flagcdn.com/my.svg"
+    },
+    {
+      "nombre_es": "Maldivas",
+      "nombre_en": "Maldives",
+      "codigo_iso": "MV",
+      "codigo_iso3": "MDV",
+      "capital": "Malé",
+      "bandera_png": "https://flagcdn.com/w320/mv.png",
+      "bandera_svg": "https://flagcdn.com/mv.svg"
+    },
+    {
+      "nombre_es": "Mongolia",
+      "nombre_en": "Mongolia",
+      "codigo_iso": "MN",
+      "codigo_iso3": "MNG",
+      "capital": "Ulan Bator",
+      "bandera_png": "https://flagcdn.com/w320/mn.png",
+      "bandera_svg": "https://flagcdn.com/mn.svg"
+    },
+    {
+      "nombre_es": "Myanmar",
+      "nombre_en": "Myanmar",
+      "codigo_iso": "MM",
+      "codigo_iso3": "MMR",
+      "capital": "Naypyidaw",
+      "bandera_png": "https://flagcdn.com/w320/mm.png",
+      "bandera_svg": "https://flagcdn.com/mm.svg"
+    },
+    {
+      "nombre_es": "Nepal",
+      "nombre_en": "Nepal",
+      "codigo_iso": "NP",
+      "codigo_iso3": "NPL",
+      "capital": "Kathmandu",
+      "bandera_png": "https://flagcdn.com/w320/np.png",
+      "bandera_svg": "https://flagcdn.com/np.svg"
+    },
+    {
+      "nombre_es": "Corea del Norte",
+      "nombre_en": "Korea (Democratic People's Republic of)",
+      "codigo_iso": "KP",
+      "codigo_iso3": "PRK",
+      "capital": "Pyongyang",
+      "bandera_png": "https://flagcdn.com/w320/kp.png",
+      "bandera_svg": "https://flagcdn.com/kp.svg"
+    },
+    {
+      "nombre_es": "Pakistán",
+      "nombre_en": "Pakistan",
+      "codigo_iso": "PK",
+      "codigo_iso3": "PAK",
+      "capital": "Islamabad",
+      "bandera_png": "https://flagcdn.com/w320/pk.png",
+      "bandera_svg": "https://flagcdn.com/pk.svg"
+    },
+    {
+      "nombre_es": "Filipinas",
+      "nombre_en": "Philippines",
+      "codigo_iso": "PH",
+      "codigo_iso3": "PHL",
+      "capital": "Manila",
+      "bandera_png": "https://flagcdn.com/w320/ph.png",
+      "bandera_svg": "https://flagcdn.com/ph.svg"
+    },
+    {
+      "nombre_es": "Catar",
+      "nombre_en": "Qatar",
+      "codigo_iso": "QA",
+      "codigo_iso3": "QAT",
+      "capital": "Doha",
+      "bandera_png": "https://flagcdn.com/w320/qa.png",
+      "bandera_svg": "https://flagcdn.com/qa.svg"
+    },
+    {
+      "nombre_es": "Singapur",
+      "nombre_en": "Singapore",
+      "codigo_iso": "SG",
+      "codigo_iso3": "SGP",
+      "capital": "Singapore",
+      "bandera_png": "https://flagcdn.com/w320/sg.png",
+      "bandera_svg": "https://flagcdn.com/sg.svg"
+    },
+    {
+      "nombre_es": "Corea del Sur",
+      "nombre_en": "Korea (Republic of)",
+      "codigo_iso": "KR",
+      "codigo_iso3": "KOR",
+      "capital": "Seoul",
+      "bandera_png": "https://flagcdn.com/w320/kr.png",
+      "bandera_svg": "https://flagcdn.com/kr.svg"
+    },
+    {
+      "nombre_es": "Sri Lanka",
+      "nombre_en": "Sri Lanka",
+      "codigo_iso": "LK",
+      "codigo_iso3": "LKA",
+      "capital": "Sri Jayawardenepura Kotte",
+      "bandera_png": "https://flagcdn.com/w320/lk.png",
+      "bandera_svg": "https://flagcdn.com/lk.svg"
+    },
+    {
+      "nombre_es": "Taiwán",
+      "nombre_en": "Taiwan",
+      "codigo_iso": "TW",
+      "codigo_iso3": "TWN",
+      "capital": "Taipei",
+      "bandera_png": "https://flagcdn.com/w320/tw.png",
+      "bandera_svg": "https://flagcdn.com/tw.svg"
+    },
+    {
+      "nombre_es": "Tayikistán",
+      "nombre_en": "Tajikistan",
+      "codigo_iso": "TJ",
+      "codigo_iso3": "TJK",
+      "capital": "Dushanbe",
+      "bandera_png": "https://flagcdn.com/w320/tj.png",
+      "bandera_svg": "https://flagcdn.com/tj.svg"
+    },
+    {
+      "nombre_es": "Tailandia",
+      "nombre_en": "Thailand",
+      "codigo_iso": "TH",
+      "codigo_iso3": "THA",
+      "capital": "Bangkok",
+      "bandera_png": "https://flagcdn.com/w320/th.png",
+      "bandera_svg": "https://flagcdn.com/th.svg"
+    },
+    {
+      "nombre_es": "Timor Oriental",
+      "nombre_en": "Timor-Leste",
+      "codigo_iso": "TL",
+      "codigo_iso3": "TLS",
+      "capital": "Dili",
+      "bandera_png": "https://flagcdn.com/w320/tl.png",
+      "bandera_svg": "https://flagcdn.com/tl.svg"
+    },
+    {
+      "nombre_es": "Turkmenistán",
+      "nombre_en": "Turkmenistan",
+      "codigo_iso": "TM",
+      "codigo_iso3": "TKM",
+      "capital": "Ashgabat",
+      "bandera_png": "https://flagcdn.com/w320/tm.png",
+      "bandera_svg": "https://flagcdn.com/tm.svg"
+    },
+    {
+      "nombre_es": "Uzbekistán",
+      "nombre_en": "Uzbekistan",
+      "codigo_iso": "UZ",
+      "codigo_iso3": "UZB",
+      "capital": "Tashkent",
+      "bandera_png": "https://flagcdn.com/w320/uz.png",
+      "bandera_svg": "https://flagcdn.com/uz.svg"
+    },
+    {
+      "nombre_es": "Vietnam",
+      "nombre_en": "Vietnam",
+      "codigo_iso": "VN",
+      "codigo_iso3": "VNM",
+      "capital": "Hanoi",
+      "bandera_png": "https://flagcdn.com/w320/vn.png",
+      "bandera_svg": "https://flagcdn.com/vn.svg"
+    }
+  ],
+  "oceania": [
+    {
+      "nombre_es": "Samoa Americana",
+      "nombre_en": "American Samoa",
+      "codigo_iso": "AS",
+      "codigo_iso3": "ASM",
+      "capital": "Pago Pago",
+      "bandera_png": "https://flagcdn.com/w320/as.png",
+      "bandera_svg": "https://flagcdn.com/as.svg"
+    },
+    {
+      "nombre_es": "Australia",
+      "nombre_en": "Australia",
+      "codigo_iso": "AU",
+      "codigo_iso3": "AUS",
+      "capital": "Canberra",
+      "bandera_png": "https://flagcdn.com/w320/au.png",
+      "bandera_svg": "https://flagcdn.com/au.svg"
+    },
+    {
+      "nombre_es": "Isla de Navidad",
+      "nombre_en": "Christmas Island",
+      "codigo_iso": "CX",
+      "codigo_iso3": "CXR",
+      "capital": "Flying Fish Cove",
+      "bandera_png": "https://flagcdn.com/w320/cx.png",
+      "bandera_svg": "https://flagcdn.com/cx.svg"
+    },
+    {
+      "nombre_es": "Islas Cocos o Islas Keeling",
+      "nombre_en": "Cocos (Keeling) Islands",
+      "codigo_iso": "CC",
+      "codigo_iso3": "CCK",
+      "capital": "West Island",
+      "bandera_png": "https://flagcdn.com/w320/cc.png",
+      "bandera_svg": "https://flagcdn.com/cc.svg"
+    },
+    {
+      "nombre_es": "Islas Cook",
+      "nombre_en": "Cook Islands",
+      "codigo_iso": "CK",
+      "codigo_iso3": "COK",
+      "capital": "Avarua",
+      "bandera_png": "https://flagcdn.com/w320/ck.png",
+      "bandera_svg": "https://flagcdn.com/ck.svg"
+    },
+    {
+      "nombre_es": "Fiyi",
+      "nombre_en": "Fiji",
+      "codigo_iso": "FJ",
+      "codigo_iso3": "FJI",
+      "capital": "Suva",
+      "bandera_png": "https://flagcdn.com/w320/fj.png",
+      "bandera_svg": "https://flagcdn.com/fj.svg"
+    },
+    {
+      "nombre_es": "Polinesia Francesa",
+      "nombre_en": "French Polynesia",
+      "codigo_iso": "PF",
+      "codigo_iso3": "PYF",
+      "capital": "Papeetē",
+      "bandera_png": "https://flagcdn.com/w320/pf.png",
+      "bandera_svg": "https://flagcdn.com/pf.svg"
+    },
+    {
+      "nombre_es": "Guam",
+      "nombre_en": "Guam",
+      "codigo_iso": "GU",
+      "codigo_iso3": "GUM",
+      "capital": "Hagåtña",
+      "bandera_png": "https://flagcdn.com/w320/gu.png",
+      "bandera_svg": "https://flagcdn.com/gu.svg"
+    },
+    {
+      "nombre_es": "Kiribati",
+      "nombre_en": "Kiribati",
+      "codigo_iso": "KI",
+      "codigo_iso3": "KIR",
+      "capital": "South Tarawa",
+      "bandera_png": "https://flagcdn.com/w320/ki.png",
+      "bandera_svg": "https://flagcdn.com/ki.svg"
+    },
+    {
+      "nombre_es": "Islas Marshall",
+      "nombre_en": "Marshall Islands",
+      "codigo_iso": "MH",
+      "codigo_iso3": "MHL",
+      "capital": "Majuro",
+      "bandera_png": "https://flagcdn.com/w320/mh.png",
+      "bandera_svg": "https://flagcdn.com/mh.svg"
+    },
+    {
+      "nombre_es": "Micronesia",
+      "nombre_en": "Micronesia (Federated States of)",
+      "codigo_iso": "FM",
+      "codigo_iso3": "FSM",
+      "capital": "Palikir",
+      "bandera_png": "https://flagcdn.com/w320/fm.png",
+      "bandera_svg": "https://flagcdn.com/fm.svg"
+    },
+    {
+      "nombre_es": "Nauru",
+      "nombre_en": "Nauru",
+      "codigo_iso": "NR",
+      "codigo_iso3": "NRU",
+      "capital": "Yaren",
+      "bandera_png": "https://flagcdn.com/w320/nr.png",
+      "bandera_svg": "https://flagcdn.com/nr.svg"
+    },
+    {
+      "nombre_es": "Nueva Caledonia",
+      "nombre_en": "New Caledonia",
+      "codigo_iso": "NC",
+      "codigo_iso3": "NCL",
+      "capital": "Nouméa",
+      "bandera_png": "https://flagcdn.com/w320/nc.png",
+      "bandera_svg": "https://flagcdn.com/nc.svg"
+    },
+    {
+      "nombre_es": "Nueva Zelanda",
+      "nombre_en": "New Zealand",
+      "codigo_iso": "NZ",
+      "codigo_iso3": "NZL",
+      "capital": "Wellington",
+      "bandera_png": "https://flagcdn.com/w320/nz.png",
+      "bandera_svg": "https://flagcdn.com/nz.svg"
+    },
+    {
+      "nombre_es": "Niue",
+      "nombre_en": "Niue",
+      "codigo_iso": "NU",
+      "codigo_iso3": "NIU",
+      "capital": "Alofi",
+      "bandera_png": "https://flagcdn.com/w320/nu.png",
+      "bandera_svg": "https://flagcdn.com/nu.svg"
+    },
+    {
+      "nombre_es": "Isla de Norfolk",
+      "nombre_en": "Norfolk Island",
+      "codigo_iso": "NF",
+      "codigo_iso3": "NFK",
+      "capital": "Kingston",
+      "bandera_png": "https://flagcdn.com/w320/nf.png",
+      "bandera_svg": "https://flagcdn.com/nf.svg"
+    },
+    {
+      "nombre_es": "Islas Marianas del Norte",
+      "nombre_en": "Northern Mariana Islands",
+      "codigo_iso": "MP",
+      "codigo_iso3": "MNP",
+      "capital": "Saipan",
+      "bandera_png": "https://flagcdn.com/w320/mp.png",
+      "bandera_svg": "https://flagcdn.com/mp.svg"
+    },
+    {
+      "nombre_es": "Palau",
+      "nombre_en": "Palau",
+      "codigo_iso": "PW",
+      "codigo_iso3": "PLW",
+      "capital": "Ngerulmud",
+      "bandera_png": "https://flagcdn.com/w320/pw.png",
+      "bandera_svg": "https://flagcdn.com/pw.svg"
+    },
+    {
+      "nombre_es": "Papúa Nueva Guinea",
+      "nombre_en": "Papua New Guinea",
+      "codigo_iso": "PG",
+      "codigo_iso3": "PNG",
+      "capital": "Port Moresby",
+      "bandera_png": "https://flagcdn.com/w320/pg.png",
+      "bandera_svg": "https://flagcdn.com/pg.svg"
+    },
+    {
+      "nombre_es": "Islas Pitcairn",
+      "nombre_en": "Pitcairn",
+      "codigo_iso": "PN",
+      "codigo_iso3": "PCN",
+      "capital": "Adamstown",
+      "bandera_png": "https://flagcdn.com/w320/pn.png",
+      "bandera_svg": "https://flagcdn.com/pn.svg"
+    },
+    {
+      "nombre_es": "Samoa",
+      "nombre_en": "Samoa",
+      "codigo_iso": "WS",
+      "codigo_iso3": "WSM",
+      "capital": "Apia",
+      "bandera_png": "https://flagcdn.com/w320/ws.png",
+      "bandera_svg": "https://flagcdn.com/ws.svg"
+    },
+    {
+      "nombre_es": "Islas Salomón",
+      "nombre_en": "Solomon Islands",
+      "codigo_iso": "SB",
+      "codigo_iso3": "SLB",
+      "capital": "Honiara",
+      "bandera_png": "https://flagcdn.com/w320/sb.png",
+      "bandera_svg": "https://flagcdn.com/sb.svg"
+    },
+    {
+      "nombre_es": "Islas Tokelau",
+      "nombre_en": "Tokelau",
+      "codigo_iso": "TK",
+      "codigo_iso3": "TKL",
+      "capital": "Fakaofo",
+      "bandera_png": "https://flagcdn.com/w320/tk.png",
+      "bandera_svg": "https://flagcdn.com/tk.svg"
+    },
+    {
+      "nombre_es": "Tonga",
+      "nombre_en": "Tonga",
+      "codigo_iso": "TO",
+      "codigo_iso3": "TON",
+      "capital": "Nuku'alofa",
+      "bandera_png": "https://flagcdn.com/w320/to.png",
+      "bandera_svg": "https://flagcdn.com/to.svg"
+    },
+    {
+      "nombre_es": "Tuvalu",
+      "nombre_en": "Tuvalu",
+      "codigo_iso": "TV",
+      "codigo_iso3": "TUV",
+      "capital": "Funafuti",
+      "bandera_png": "https://flagcdn.com/w320/tv.png",
+      "bandera_svg": "https://flagcdn.com/tv.svg"
+    },
+    {
+      "nombre_es": "Vanuatu",
+      "nombre_en": "Vanuatu",
+      "codigo_iso": "VU",
+      "codigo_iso3": "VUT",
+      "capital": "Port Vila",
+      "bandera_png": "https://flagcdn.com/w320/vu.png",
+      "bandera_svg": "https://flagcdn.com/vu.svg"
+    },
+    {
+      "nombre_es": "Wallis y Futuna",
+      "nombre_en": "Wallis and Futuna",
+      "codigo_iso": "WF",
+      "codigo_iso3": "WLF",
+      "capital": "Mata-Utu",
+      "bandera_png": "https://flagcdn.com/w320/wf.png",
+      "bandera_svg": "https://flagcdn.com/wf.svg"
+    }
+  ],
+  "ecuador": [
+    {
+      "nombre_es": "Ecuador",
+      "nombre_en": "Ecuador",
+      "codigo_iso": "EC",
+      "codigo_iso3": "ECU",
+      "capital": "Quito",
+      "bandera_png": "https://flagcdn.com/w320/ec.png",
+      "bandera_svg": "https://flagcdn.com/ec.svg"
+    }
+  ]
+}

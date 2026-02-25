@@ -1,4 +1,6 @@
 from django.apps import AppConfig
+import json
+import os
 
 
 class ServiciosConfig(AppConfig):
@@ -14,25 +16,40 @@ class ServiciosConfig(AppConfig):
             return
             
         # Evitar doble ejecución por el reloader
-        import os
         if os.environ.get('RUN_MAIN') != 'true':
             return
         
         self._crear_datos_iniciales()
     
     def _crear_datos_iniciales(self):
-        """Crea regiones y países si no existen"""
-        from servicios.models import Region, PaisRegion
+        """Crea regiones, países y ciudades desde los archivos JSON"""
+        from servicios.models import Region, PaisRegion, Ciudad
+        from django.conf import settings
         
         # Si ya existen regiones, no hacer nada
         if Region.objects.exists():
             return
         
         print("\n" + "=" * 60)
-        print("Creando datos iniciales (regiones y países)...")
+        print("Creando datos iniciales (regiones, países y ciudades)...")
         print("=" * 60)
         
-        # Crear las regiones
+        # Rutas de los archivos JSON
+        base_dir = settings.BASE_DIR
+        paises_json_path = os.path.join(base_dir, 'nuevo_paises.json')
+        ciudades_json_path = os.path.join(base_dir, 'ciudades.json')
+        
+        # Verificar que existan los archivos
+        if not os.path.exists(paises_json_path):
+            print(f"ERROR: No se encontró {paises_json_path}")
+            return
+        if not os.path.exists(ciudades_json_path):
+            print(f"ERROR: No se encontró {ciudades_json_path}")
+            return
+        
+        # =====================================================
+        # PASO 1: Crear las regiones
+        # =====================================================
         regiones_data = [
             ('caribe', 1),
             ('sudamerica', 2),
@@ -42,64 +59,127 @@ class ServiciosConfig(AppConfig):
             ('medio_oriente', 6),
             ('africa', 7),
             ('asia', 8),
-            ('ecuador', 9),
+            ('oceania', 9),
+            ('ecuador', 10),
         ]
 
+        regiones_creadas = {}
         for nombre, orden in regiones_data:
-            Region.objects.get_or_create(nombre=nombre, defaults={'orden': orden})
-
-        # SOLO PAÍSES (sin ciudades)
-        paises_por_region = {
-            'caribe': [
-                'Aruba', 'Bahamas', 'Cuba', 'Curazao', 'Jamaica',
-                'Puerto Rico', 'República Dominicana', 'San Martín',
-                'Trinidad y Tobago', 'Islas Vírgenes'
-            ],
-            'sudamerica': [
-                'Argentina', 'Bolivia', 'Brasil', 'Chile', 'Colombia'
-                ,'Paraguay', 'Perú', 'Uruguay', 'Venezuela'
-            ],
-            'centroamerica': [
-                'Belice', 'Costa Rica', 'El Salvador', 'Guatemala',
-                'Honduras', 'Nicaragua', 'Panamá'
-            ],
-            'norteamerica': [
-                'Canadá', 'Estados Unidos', 'México'
-            ],
-            'europa': [
-                'Alemania', 'Austria', 'Bélgica', 'Croacia', 'España',
-                'Francia', 'Grecia', 'Hungría', 'Italia', 'Países Bajos',
-                'Polonia', 'Portugal', 'Reino Unido', 'República Checa',
-                'Rusia', 'Suiza', 'Turquía'
-            ],
-            'asia': [
-                'China', 'Corea del Sur', 'Filipinas', 'India', 'Indonesia',
-                'Japón', 'Malasia', 'Maldivas', 'Singapur', 'Tailandia',
-                'Vietnam'
-            ],
-            'medio_oriente': [
-                'Arabia Saudita', 'Egipto', 'Emiratos Árabes Unidos',
-                'Israel', 'Jordania', 'Qatar', 'Uzbekistán'
-            ],
-            'africa': [
-                'Egipto', 'Kenia', 'Marruecos', 'Sudáfrica', 'Tanzania'
-            ],
-            'ecuador': [
-                'Ecuador'
-            ],
-        }
-
-        for region_nombre, paises in paises_por_region.items():
-            try:
-                region = Region.objects.get(nombre=region_nombre)
-                for pais_nombre in paises:
-                    PaisRegion.objects.get_or_create(
-                        region=region,
-                        nombre=pais_nombre
-                    )
-            except Region.DoesNotExist:
-                pass
-
-        print(f"Regiones creadas: {Region.objects.count()}")
-        print(f"Países creados: {PaisRegion.objects.count()}")
+            region, created = Region.objects.get_or_create(
+                nombre=nombre, 
+                defaults={'orden': orden}
+            )
+            regiones_creadas[nombre] = region
+        
+        print(f"✓ Regiones creadas: {Region.objects.count()}")
+        
+        # =====================================================
+        # PASO 2: Cargar países desde nuevo_paises.json
+        # =====================================================
+        with open(paises_json_path, 'r', encoding='utf-8') as f:
+            paises_data = json.load(f)
+        
+        # Diccionario para mapear codigo_iso -> PaisRegion
+        paises_por_codigo = {}
+        paises_count = 0
+        
+        for region_nombre, paises_lista in paises_data.items():
+            region = regiones_creadas.get(region_nombre)
+            if not region:
+                print(f"  ADVERTENCIA: Región '{region_nombre}' no encontrada, saltando...")
+                continue
+            
+            for pais_info in paises_lista:
+                nombre_es = pais_info.get('nombre_es', '')
+                codigo_iso = pais_info.get('codigo_iso', '')
+                
+                if not nombre_es:
+                    continue
+                
+                pais, created = PaisRegion.objects.get_or_create(
+                    region=region,
+                    nombre=nombre_es,
+                    defaults={
+                        'nombre_en': pais_info.get('nombre_en', ''),
+                        'codigo_iso': codigo_iso,
+                        'codigo_iso3': pais_info.get('codigo_iso3', ''),
+                        'capital': pais_info.get('capital', '') or '',
+                        'bandera_png': pais_info.get('bandera_png', ''),
+                        'bandera_svg': pais_info.get('bandera_svg', ''),
+                    }
+                )
+                
+                # Guardar en diccionario para búsqueda rápida
+                if codigo_iso:
+                    paises_por_codigo[codigo_iso] = pais
+                
+                if created:
+                    paises_count += 1
+        
+        print(f"✓ Países creados: {paises_count}")
+        
+        # =====================================================
+        # PASO 3: Cargar ciudades desde ciudades.json
+        # =====================================================
+        with open(ciudades_json_path, 'r', encoding='utf-8') as f:
+            ciudades_data = json.load(f)
+        
+        ciudades_count = 0
+        ciudades_sin_pais = 0
+        capitales_marcadas = 0
+        
+        # Crear un set de capitales para marcarlas
+        capitales = set()
+        for paises_lista in paises_data.values():
+            for pais_info in paises_lista:
+                capital = pais_info.get('capital')
+                if capital:
+                    capitales.add(capital.lower())
+        
+        for ciudad_info in ciudades_data:
+            country_code = ciudad_info.get('country_code', '')
+            nombre = ciudad_info.get('name', '')
+            city_code = ciudad_info.get('city_code', '')
+            
+            if not country_code or not nombre:
+                continue
+            
+            # Buscar el país por código ISO
+            pais = paises_por_codigo.get(country_code)
+            
+            if not pais:
+                ciudades_sin_pais += 1
+                continue
+            
+            # Verificar si es capital
+            es_capital = nombre.lower() in capitales
+            
+            # Crear o actualizar la ciudad
+            ciudad, created = Ciudad.objects.get_or_create(
+                pais=pais,
+                codigo_ciudad=city_code,
+                defaults={
+                    'nombre': nombre,
+                    'latitud': ciudad_info.get('lat'),
+                    'longitud': ciudad_info.get('lng'),
+                    'es_capital': es_capital,
+                }
+            )
+            
+            if created:
+                ciudades_count += 1
+                if es_capital:
+                    capitales_marcadas += 1
+        
+        print(f"✓ Ciudades creadas: {ciudades_count}")
+        if capitales_marcadas > 0:
+            print(f"  └─ Capitales identificadas: {capitales_marcadas}")
+        if ciudades_sin_pais > 0:
+            print(f"  └─ Ciudades sin país relacionado (omitidas): {ciudades_sin_pais}")
+        
+        print("=" * 60)
+        print("Resumen final:")
+        print(f"  • Regiones: {Region.objects.count()}")
+        print(f"  • Países: {PaisRegion.objects.count()}")
+        print(f"  • Ciudades: {Ciudad.objects.count()}")
         print("=" * 60 + "\n")
