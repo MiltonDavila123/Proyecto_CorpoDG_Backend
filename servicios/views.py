@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status
 from django.db.models import Count, Q
+from rest_framework.views import APIView
+from .searchFlights import buscar_vuelos_sabre
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
@@ -310,6 +312,32 @@ class PaqueteTuristicoViewSet(viewsets.ReadOnlyModelViewSet):
                 })
         
         return Response(resultado)
+    
+class BuscadorVuelosSabreView(APIView):
+    """
+    Endpoint para buscar vuelos en tiempo real usando Sabre BFM.
+    Llama a tu archivo searchFlights.py
+    """
+    def post(self, request):
+        # Datos que vienen del frontend
+        data = request.data
+        
+        # Validaciones mínimas
+        if not data.get('origin') or not data.get('destination') or not data.get('date'):
+            return Response(
+                {"error": "Faltan datos obligatorios (origin, destination, date)"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Llamada a tu archivo searchFlights.py
+        resultados = buscar_vuelos_sabre(data)
+
+        # Manejo de errores
+        if isinstance(resultados, dict) and "error" in resultados:
+            codigo = resultados.get("code", 500)
+            return Response(resultados, status=codigo)
+
+        return Response(resultados, status=status.HTTP_200_OK)
 
 
 # =====================================================

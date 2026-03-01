@@ -20,6 +20,7 @@ router.register(r'paquetes', views.PaqueteTuristicoViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('contacto/', views.contacto, name='contacto'),
+    path('buscar-vuelos-live/', views.BuscadorVuelosSabreView.as_view(), name='buscar_vuelos_live'),
     # Endpoints AJAX para admin
     path('admin-ajax/paises-por-region/<int:region_id>/', views.paises_por_region, name='ajax_paises'),
     path('admin-ajax/ciudades-por-pais/<int:pais_id>/', views.ciudades_por_pais, name='ajax_ciudades'),

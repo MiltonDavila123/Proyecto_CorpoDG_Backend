@@ -163,3 +163,7 @@ WHATSAPP_PHONE_NUMBER_ID = config('WHATSAPP_PHONE_NUMBER_ID', default='')
 WHATSAPP_TEMPLATE_NAME = config('WHATSAPP_TEMPLATE_NAME', default='plantilla_contacto')
 WHATSAPP_TEMPLATE_LANGUAGE = config('WHATSAPP_TEMPLATE_LANGUAGE', default='es_EC')
 WHATSAPP_RECIPIENT_NUMBER = config('WHATSAPP_RECIPIENT_NUMBER', default='')  # Número al que se enviarán las notificaciones
+
+#SABRE API CONFIGURATION
+
+AUTH_TOKEN = config('AUTH_TOKEN', default='')
