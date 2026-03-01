@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from django.db.models import Count
+from django.db.models import Count, Q
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
@@ -215,6 +215,21 @@ class AerolineaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Aerolinea.objects.filter(activo=True)
     serializer_class = AerolineaSerializer
     
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        pais = self.request.query_params.get('pais', None)
+        search = self.request.query_params.get('search', None)
+        
+        if pais:
+            queryset = queryset.filter(pais_origen__icontains=pais)
+        if search:
+            queryset = queryset.filter(
+                Q(nombre__icontains=search) |
+                Q(codigo_iata__icontains=search) |
+                Q(codigo_icao__icontains=search)
+            )
+        return queryset
+    
     @action(detail=True, methods=['get'])
     def vuelos(self, request, pk=None):
         """Obtener vuelos de una aerolínea específica"""
@@ -300,15 +315,15 @@ class PaqueteTuristicoViewSet(viewsets.ReadOnlyModelViewSet):
 # =====================================================
 # ENDPOINTS AJAX PARA ADMIN
 # =====================================================
-
 from django.http import JsonResponse
+from .models import PaisRegion, Ciudad
 
+# Esta función busca los países
 def paises_por_region(request, region_id):
-    """Devuelve los países de una región específica para el admin"""
-    paises = PaisRegion.objects.filter(region_id=region_id, activo=True).values('id', 'nombre')
+    paises = PaisRegion.objects.filter(region_id=region_id, activo=True).values('id', 'nombre').order_by('nombre')
     return JsonResponse(list(paises), safe=False)
 
+# Esta función busca las ciudades
 def ciudades_por_pais(request, pais_id):
-    """Devuelve las ciudades de un país específico para el admin"""
-    ciudades = Ciudad.objects.filter(pais_id=pais_id, activo=True).values('id', 'nombre')
+    ciudades = Ciudad.objects.filter(pais_id=pais_id, activo=True).values('id', 'nombre').order_by('nombre')
     return JsonResponse(list(ciudades), safe=False)

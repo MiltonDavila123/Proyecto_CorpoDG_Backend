@@ -21,6 +21,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('contacto/', views.contacto, name='contacto'),
     # Endpoints AJAX para admin
-    path('admin-ajax/paises-por-region/<int:region_id>/', views.paises_por_region, name='paises_por_region'),
-    path('admin-ajax/ciudades-por-pais/<int:pais_id>/', views.ciudades_por_pais, name='ciudades_por_pais'),
+    path('admin-ajax/paises-por-region/<int:region_id>/', views.paises_por_region, name='ajax_paises'),
+    path('admin-ajax/ciudades-por-pais/<int:pais_id>/', views.ciudades_por_pais, name='ajax_ciudades'),
 ]

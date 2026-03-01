@@ -108,6 +108,8 @@ class VueloSerializer(serializers.ModelSerializer):
     """Serializer para vuelos"""
     aerolinea_nombre = serializers.CharField(source='aerolinea.nombre', read_only=True)
     aerolinea_logo = serializers.URLField(source='aerolinea.logo_url', read_only=True)
+    aerolinea_brandmark = serializers.URLField(source='aerolinea.brandmark_url', read_only=True)
+    aerolinea_iata = serializers.CharField(source='aerolinea.codigo_iata', read_only=True)
     origen_nombre = serializers.CharField(source='origen.nombre', read_only=True)
     origen_pais = serializers.CharField(source='origen.pais.nombre', read_only=True)
     destino_nombre = serializers.CharField(source='destino.nombre', read_only=True)
@@ -212,9 +214,19 @@ class RegionListSerializer(serializers.ModelSerializer):
 
 class AerolineaSerializer(serializers.ModelSerializer):
     """Serializer para aerolíneas"""
+    cantidad_vuelos = serializers.SerializerMethodField()
+    
     class Meta:
         model = Aerolinea
-        fields = ['id', 'nombre', 'logo_url', 'activo']
+        fields = [
+            'id', 'nombre', 'codigo_iata', 'codigo_icao',
+            'pais_origen', 'anio_creacion', 'base_aeropuerto',
+            'logo_url', 'brandmark_url', 'sitio_web',
+            'activo', 'cantidad_vuelos'
+        ]
+    
+    def get_cantidad_vuelos(self, obj):
+        return obj.vuelos.count()
 
 
 class PaqueteTuristicoListSerializer(serializers.ModelSerializer):
@@ -225,6 +237,8 @@ class PaqueteTuristicoListSerializer(serializers.ModelSerializer):
     ciudad_nombre = serializers.CharField(source='ciudad_destino.nombre', read_only=True, allow_null=True)
     aerolinea_nombre = serializers.CharField(source='aerolinea.nombre', read_only=True)
     aerolinea_logo = serializers.URLField(source='aerolinea.logo_url', read_only=True)
+    aerolinea_brandmark = serializers.URLField(source='aerolinea.brandmark_url', read_only=True)
+    aerolinea_iata = serializers.CharField(source='aerolinea.codigo_iata', read_only=True)
     texto_paquete = serializers.ReadOnlyField()
     destino_completo = serializers.ReadOnlyField()
     
@@ -268,6 +282,8 @@ class PaqueteTuristicoDetailSerializer(serializers.ModelSerializer):
     ciudad_nombre = serializers.CharField(source='ciudad_destino.nombre', read_only=True, allow_null=True)
     aerolinea_nombre = serializers.CharField(source='aerolinea.nombre', read_only=True)
     aerolinea_logo = serializers.URLField(source='aerolinea.logo_url', read_only=True)
+    aerolinea_brandmark = serializers.URLField(source='aerolinea.brandmark_url', read_only=True)
+    aerolinea_iata = serializers.CharField(source='aerolinea.codigo_iata', read_only=True)
     texto_paquete = serializers.ReadOnlyField()
     destino_completo = serializers.ReadOnlyField()
     

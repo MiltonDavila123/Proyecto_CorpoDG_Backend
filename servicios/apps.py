@@ -22,17 +22,24 @@ class ServiciosConfig(AppConfig):
         self._crear_datos_iniciales()
     
     def _crear_datos_iniciales(self):
-        """Crea regiones, países y ciudades desde los archivos JSON"""
-        from servicios.models import Region, PaisRegion, Ciudad
+        """Crea regiones, países, ciudades y aerolíneas desde los archivos JSON"""
+        from servicios.models import Region, PaisRegion, Ciudad, Aerolinea
         from django.conf import settings
         
-        # Si ya existen regiones, no hacer nada
-        if Region.objects.exists():
+        crear_geo = not Region.objects.exists()
+        crear_aerolineas = not Aerolinea.objects.exists()
+        
+        if not crear_geo and not crear_aerolineas:
             return
         
         print("\n" + "=" * 60)
-        print("Creando datos iniciales (regiones, países y ciudades)...")
+        print("Creando datos iniciales...")
         print("=" * 60)
+        
+        if not crear_geo:
+            # Solo cargar aerolíneas
+            self._cargar_aerolineas(settings.BASE_DIR)
+            return
         
         # Rutas de los archivos JSON
         base_dir = settings.BASE_DIR
@@ -177,9 +184,86 @@ class ServiciosConfig(AppConfig):
         if ciudades_sin_pais > 0:
             print(f"  └─ Ciudades sin país relacionado (omitidas): {ciudades_sin_pais}")
         
+        # =====================================================
+        # PASO 4: Cargar aerolíneas desde aerolineas_full_data.json
+        # =====================================================
+        self._cargar_aerolineas(base_dir)
+        
         print("=" * 60)
         print("Resumen final:")
         print(f"  • Regiones: {Region.objects.count()}")
         print(f"  • Países: {PaisRegion.objects.count()}")
         print(f"  • Ciudades: {Ciudad.objects.count()}")
+        from servicios.models import Aerolinea
+        print(f"  • Aerolíneas: {Aerolinea.objects.count()}")
         print("=" * 60 + "\n")
+
+    def _cargar_aerolineas(self, base_dir):
+        """Carga aerolíneas desde aerolineas_full_data.json preservando relaciones existentes"""
+        from servicios.models import Aerolinea
+        
+        aerolineas_json_path = os.path.join(base_dir, 'aerolineas_full_data.json')
+        
+        if not os.path.exists(aerolineas_json_path):
+            print(f"  ADVERTENCIA: No se encontró {aerolineas_json_path}")
+            return
+        
+        with open(aerolineas_json_path, 'r', encoding='utf-8') as f:
+            aerolineas_data = json.load(f)
+        
+        creadas = 0
+        actualizadas = 0
+        sin_iata = 0
+        
+        for aerolinea_info in aerolineas_data:
+            nombre = aerolinea_info.get('name', '').strip()
+            iata = aerolinea_info.get('iata', '').strip()
+            icao = aerolinea_info.get('icao', '').strip()
+            pais = aerolinea_info.get('country', '').strip()
+            anio = aerolinea_info.get('year_created', '').strip()
+            base = aerolinea_info.get('base', '').strip()
+            logo = aerolinea_info.get('logo_url', '').strip()
+            brandmark = aerolinea_info.get('brandmark_url', '').strip()
+            
+            if not nombre:
+                continue
+            
+            # Si tiene código IATA, usar como clave para update_or_create
+            # Esto preserva las relaciones FK existentes (Vuelo, PaqueteTuristico)
+            if iata:
+                aerolinea, created = Aerolinea.objects.update_or_create(
+                    codigo_iata=iata,
+                    defaults={
+                        'nombre': nombre,
+                        'codigo_icao': icao,
+                        'pais_origen': pais,
+                        'anio_creacion': anio,
+                        'base_aeropuerto': base,
+                        'logo_url': logo or None,
+                        'brandmark_url': brandmark or None,
+                    }
+                )
+            else:
+                # Sin IATA, buscar por nombre exacto o crear
+                aerolinea, created = Aerolinea.objects.update_or_create(
+                    nombre=nombre,
+                    codigo_iata='',
+                    defaults={
+                        'codigo_icao': icao,
+                        'pais_origen': pais,
+                        'anio_creacion': anio,
+                        'base_aeropuerto': base,
+                        'logo_url': logo or None,
+                        'brandmark_url': brandmark or None,
+                    }
+                )
+                sin_iata += 1
+            
+            if created:
+                creadas += 1
+            else:
+                actualizadas += 1
+        
+        print(f"✓ Aerolíneas cargadas: {creadas} nuevas, {actualizadas} actualizadas")
+        if sin_iata > 0:
+            print(f"  └─ Aerolíneas sin código IATA: {sin_iata}")

@@ -328,10 +328,14 @@ class Ciudad(models.Model):
 
 class Aerolinea(models.Model):
     """Modelo para aerolíneas"""
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=200)
     codigo_iata = models.CharField(max_length=3, blank=True, help_text="Código IATA de 2-3 letras (ej: AA, LA, AV)")
-    logo_url = models.URLField(max_length=500, blank=True, null=True)
+    codigo_icao = models.CharField(max_length=4, blank=True, help_text="Código ICAO de 3-4 letras (ej: AAL, IBE)")
     pais_origen = models.CharField(max_length=100, blank=True, help_text="País de origen de la aerolínea")
+    anio_creacion = models.CharField(max_length=10, blank=True, help_text="Año de creación de la aerolínea")
+    base_aeropuerto = models.CharField(max_length=300, blank=True, help_text="Aeropuerto base de la aerolínea")
+    logo_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL del logo completo")
+    brandmark_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL del brandmark/isotipo")
     sitio_web = models.URLField(max_length=300, blank=True, null=True)
     activo = models.BooleanField(default=True)
     

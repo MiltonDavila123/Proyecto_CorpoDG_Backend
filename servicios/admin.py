@@ -219,14 +219,60 @@ class CiudadAdmin(admin.ModelAdmin):
 
 @admin.register(Aerolinea)
 class AerolineaAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'codigo_iata', 'pais_origen', 'cantidad_vuelos', 'activo']
+    list_display = ['nombre', 'codigo_iata', 'codigo_icao', 'pais_origen', 'anio_creacion', 'logo_preview', 'cantidad_vuelos', 'activo']
     list_filter = ['activo', 'pais_origen']
-    search_fields = ['nombre', 'codigo_iata', 'pais_origen']
+    search_fields = ['nombre', 'codigo_iata', 'codigo_icao', 'pais_origen', 'base_aeropuerto']
     list_editable = ['activo']
+    
+    def get_readonly_fields(self, request, obj=None):
+        """Solo mostrar previews cuando el objeto ya existe"""
+        if obj:
+            return ['logo_preview', 'brandmark_preview']
+        return []
+    
+    def get_fieldsets(self, request, obj=None):
+        """Fieldsets dinámicos: con preview al editar, sin preview al crear"""
+        fieldsets = [
+            ('Información Básica', {
+                'fields': ('nombre', 'codigo_iata', 'codigo_icao', 'pais_origen')
+            }),
+            ('Detalles', {
+                'fields': ('anio_creacion', 'base_aeropuerto', 'sitio_web')
+            }),
+        ]
+        
+        if obj:
+            # Editando: mostrar logos con preview
+            fieldsets.append(('Logos', {
+                'fields': ('logo_url', 'logo_preview', 'brandmark_url', 'brandmark_preview'),
+            }))
+        else:
+            # Creando: solo campos de URL
+            fieldsets.append(('Logos', {
+                'fields': ('logo_url', 'brandmark_url'),
+            }))
+        
+        fieldsets.append(('Estado', {
+            'fields': ('activo',)
+        }))
+        
+        return fieldsets
     
     def cantidad_vuelos(self, obj):
         return obj.vuelos.count()
     cantidad_vuelos.short_description = 'Vuelos'
+    
+    def logo_preview(self, obj):
+        if obj.logo_url:
+            return format_html('<img src="{}" style="max-height: 30px; max-width: 120px;" />', obj.logo_url)
+        return '-'
+    logo_preview.short_description = 'Logo'
+    
+    def brandmark_preview(self, obj):
+        if obj.brandmark_url:
+            return format_html('<img src="{}" style="max-height: 30px; max-width: 50px;" />', obj.brandmark_url)
+        return '-'
+    brandmark_preview.short_description = 'Brandmark'
 
 
 class PaqueteTuristicoAdminForm(forms.ModelForm):
@@ -235,6 +281,35 @@ class PaqueteTuristicoAdminForm(forms.ModelForm):
     class Meta:
         model = PaqueteTuristico
         fields = '__all__'
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # LOGICA PARA QUE DJANGO ACEPTE LOS DATOS DEL AJAX
+        
+        # 1. Manejo de PAÍS
+        # Si hay datos POST (al guardar), cargamos el país seleccionado
+        if self.data and self.data.get('pais_destino'):
+            try:
+                pais_id = int(self.data.get('pais_destino'))
+                self.fields['pais_destino'].queryset = PaisRegion.objects.filter(pk=pais_id)
+            except (ValueError, TypeError):
+                pass # Si el dato es basura, dejamos el queryset vacío
+        # Si estamos editando un registro existente, cargamos su país actual
+        elif self.instance.pk and self.instance.pais_destino:
+            self.fields['pais_destino'].queryset = PaisRegion.objects.filter(pk=self.instance.pais_destino.pk)
+            
+        # 2. Manejo de CIUDAD
+        # Si hay datos POST (al guardar), cargamos la ciudad seleccionada
+        if self.data and self.data.get('ciudad_destino'):
+            try:
+                ciudad_id = int(self.data.get('ciudad_destino'))
+                self.fields['ciudad_destino'].queryset = Ciudad.objects.filter(pk=ciudad_id)
+            except (ValueError, TypeError):
+                pass
+        # Si estamos editando, cargamos su ciudad actual
+        elif self.instance.pk and self.instance.ciudad_destino:
+            self.fields['ciudad_destino'].queryset = Ciudad.objects.filter(pk=self.instance.ciudad_destino.pk)
     
     def clean_pdf_url(self):
         """Valida que el PDF URL sea de Google Drive"""
@@ -282,7 +357,7 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
     list_filter = ['region', 'tipo_paquete', 'temporada', 'destacado', 'activo', 'aerolinea']
     search_fields = ['titulo', 'titulo_detalle', 'descripcion_corta', 'descripcion_extensa', 'pais_destino__nombre']
     list_editable = ['destacado', 'activo']
-    autocomplete_fields = ['region', 'pais_destino', 'ciudad_destino', 'aerolinea']
+    autocomplete_fields = ['aerolinea']
     date_hierarchy = 'fecha_creacion'
     
     fieldsets = (
@@ -395,7 +470,7 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
             'fields': (
                 ('destacado', 'activo'),
             )
-        }),
+        })
     )
     
     def formfield_for_dbfield(self, db_field, request, **kwargs):
@@ -405,9 +480,34 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
         return field
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        """Filtra los países y ciudades activos"""
+        # 1. Optimización para PAÍS
         if db_field.name == 'pais_destino':
-            kwargs['queryset'] = PaisRegion.objects.filter(activo=True)
+            # Si estamos editando (tenemos un objeto ID en la URL), permitimos cargar el actual
+            # Si es nuevo, pasamos un queryset VACÍO para que no pese nada.
+            if request.resolver_match.kwargs.get('object_id'):
+                # Edición: Dejamos que Django cargue (o podrías optimizar más, pero esto es seguro)
+                kwargs['queryset'] = PaisRegion.objects.filter(activo=True)
+            else:
+                # Creación: Queryset VACÍO. El AJAX lo llenará después.
+                kwargs['queryset'] = PaisRegion.objects.none()
+
+        # 2. Optimización para CIUDAD (La más pesada)
         elif db_field.name == 'ciudad_destino':
-            kwargs['queryset'] = Ciudad.objects.filter(activo=True)
+            if request.resolver_match.kwargs.get('object_id'):
+                 # En edición, idealmente solo cargamos las ciudades del país seleccionado
+                 # Pero para no complicar el backend, cargamos todo o filtramos por el objeto actual
+                 # Truco: Cargar solo la ciudad seleccionada para que el form valide
+                 paquete_id = request.resolver_match.kwargs.get('object_id')
+                 paquete = PaqueteTuristico.objects.get(pk=paquete_id)
+                 if paquete.ciudad_destino:
+                     kwargs['queryset'] = Ciudad.objects.filter(pk=paquete.ciudad_destino.pk)
+                 else:
+                     kwargs['queryset'] = Ciudad.objects.none()
+            else:
+                # Creación: VACÍO TOTAL
+                kwargs['queryset'] = Ciudad.objects.none()
+
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    class Media:
+            js = ('servicios/js/paquete_filtros.js',)
