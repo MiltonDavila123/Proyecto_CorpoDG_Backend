@@ -166,4 +166,10 @@ WHATSAPP_RECIPIENT_NUMBER = config('WHATSAPP_RECIPIENT_NUMBER', default='')  # N
 
 #SABRE API CONFIGURATION
 
+CLIENT_ID = config('CLIENT_ID', default='')
+CLIENT_SECRET = config('CLIENT_SECRET', default='')
+SABRE_AUTH_URL = config('SABRE_AUTH_URL', default='https://api.cert.platform.sabre.com/v2/auth/token')
+SABRE_TOKEN_REFRESH_MARGIN = config('SABRE_TOKEN_REFRESH_MARGIN', default=60, cast=int)
+
+# Compatibilidad temporal para scripts antiguos.
 AUTH_TOKEN = config('AUTH_TOKEN', default='')

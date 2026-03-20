@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
+from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
 from .notifications import enviar_whatsapp_contacto, enviar_correo_contacto
 
 
@@ -117,7 +117,7 @@ class VueloSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Vuelo
-        fields = '__all__'
+        exclude = ['numero_vuelo']
         read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
 
 
@@ -227,6 +227,67 @@ class AerolineaSerializer(serializers.ModelSerializer):
     
     def get_cantidad_vuelos(self, obj):
         return obj.vuelos.count()
+
+
+class AeropuertoSerializer(serializers.ModelSerializer):
+    """Serializer para aeropuertos"""
+    pais_nombre = serializers.CharField(source='pais.nombre', read_only=True)
+    pais_codigo = serializers.CharField(source='pais.codigo_iso', read_only=True)
+    ciudad_nombre = serializers.SerializerMethodField()
+    region_nombre = serializers.CharField(source='pais.region.get_nombre_display', read_only=True)
+    ubicacion_completa = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Aeropuerto
+        fields = [
+            'id', 'codigo_iata', 'codigo_icao', 'nombre',
+            'ciudad', 'ciudad_nombre', 'pais', 'pais_nombre', 'pais_codigo',
+            'nombre_ciudad', 'region', 'region_nombre',
+            'latitud', 'longitud', 'elevacion_ft', 'zona_horaria',
+            'ubicacion_completa', 'activo'
+        ]
+    
+    def get_ciudad_nombre(self, obj):
+        if obj.ciudad:
+            return obj.ciudad.nombre
+        return obj.nombre_ciudad or None
+
+
+class AeropuertoListSerializer(serializers.ModelSerializer):
+    """Serializer simplificado para búsquedas de aeropuertos"""
+    pais_nombre = serializers.CharField(source='pais.nombre', read_only=True)
+    ciudad_nombre = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Aeropuerto
+        fields = ['id', 'codigo_iata', 'codigo_icao', 'nombre', 'ciudad_nombre', 'pais_nombre']
+    
+    def get_ciudad_nombre(self, obj):
+        if obj.ciudad:
+            return obj.ciudad.nombre
+        return obj.nombre_ciudad or None
+
+
+class AeropuertoAutocompleteSerializer(serializers.ModelSerializer):
+    """Serializer ultraligero para autocompletado de aeropuertos"""
+    label = serializers.SerializerMethodField()  # Texto a mostrar en el dropdown
+    ciudad = serializers.SerializerMethodField()  # Nombre de la ciudad
+    pais = serializers.CharField(source='pais.nombre', read_only=True)
+    
+    class Meta:
+        model = Aeropuerto
+        fields = ['id', 'codigo_iata', 'nombre', 'ciudad', 'pais', 'label']
+    
+    def get_ciudad(self, obj):
+        if obj.ciudad:
+            return obj.ciudad.nombre
+        return obj.nombre_ciudad or ''
+    
+    def get_label(self, obj):
+        """Genera el texto para mostrar en el dropdown: 'BOG - Aeropuerto El Dorado, Bogotá, Colombia'"""
+        ciudad = obj.ciudad.nombre if obj.ciudad else (obj.nombre_ciudad or '')
+        pais = obj.pais.nombre if obj.pais else ''
+        return f"{obj.codigo_iata} - {obj.nombre}, {ciudad}, {pais}"
 
 
 class PaqueteTuristicoListSerializer(serializers.ModelSerializer):

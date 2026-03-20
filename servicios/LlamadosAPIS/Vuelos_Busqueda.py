@@ -31,13 +31,13 @@ payload_A = {
                 "RPH": "1",
                 "DepartureDateTime": "2026-09-13T00:00:00",
                 "OriginLocation": {"LocationCode": "UIO"},
-                "DestinationLocation": {"LocationCode": "GYE"}
+                "DestinationLocation": {"LocationCode": "LOH"}
             },
             {
                 "RPH": "2",
                 "DepartureDateTime": "2026-09-20T00:00:00",
                 "OriginLocation": {"LocationCode": "UIO"},
-                "DestinationLocation": {"LocationCode": "GYE"}
+                "DestinationLocation": {"LocationCode": "LOH"}
             }
         ],
         "TravelPreferences": {
@@ -84,13 +84,13 @@ payload_B = {
                 "RPH": "1",
                 "DepartureDateTime": "2026-09-11T00:00:00",
                 "OriginLocation": {"LocationCode": "UIO"},
-                "DestinationLocation": {"LocationCode": "GYE"}
+                "DestinationLocation": {"LocationCode": "LOH"}
             },
             {
                 "RPH": "2",
                 "DepartureDateTime": "2026-09-18T00:00:00",
                 "OriginLocation": {"LocationCode": "UIO"},
-                "DestinationLocation": {"LocationCode": "GYE"}
+                "DestinationLocation": {"LocationCode": "LOH"}
             }
         ],
         "TravelPreferences": {

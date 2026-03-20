@@ -22,14 +22,15 @@ class ServiciosConfig(AppConfig):
         self._crear_datos_iniciales()
     
     def _crear_datos_iniciales(self):
-        """Crea regiones, países, ciudades y aerolíneas desde los archivos JSON"""
-        from servicios.models import Region, PaisRegion, Ciudad, Aerolinea
+        """Crea regiones, países, ciudades, aerolíneas y aeropuertos desde los archivos JSON"""
+        from servicios.models import Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto
         from django.conf import settings
         
         crear_geo = not Region.objects.exists()
         crear_aerolineas = not Aerolinea.objects.exists()
+        crear_aeropuertos = not Aeropuerto.objects.exists()
         
-        if not crear_geo and not crear_aerolineas:
+        if not crear_geo and not crear_aerolineas and not crear_aeropuertos:
             return
         
         print("\n" + "=" * 60)
@@ -37,14 +38,17 @@ class ServiciosConfig(AppConfig):
         print("=" * 60)
         
         if not crear_geo:
-            # Solo cargar aerolíneas
-            self._cargar_aerolineas(settings.BASE_DIR)
+            # Solo cargar aerolíneas y/o aeropuertos
+            if crear_aerolineas:
+                self._cargar_aerolineas(settings.BASE_DIR)
+            if crear_aeropuertos:
+                self._cargar_aeropuertos(settings.BASE_DIR)
             return
         
         # Rutas de los archivos JSON
         base_dir = settings.BASE_DIR
-        paises_json_path = os.path.join(base_dir, 'nuevo_paises.json')
-        ciudades_json_path = os.path.join(base_dir, 'ciudades.json')
+        paises_json_path = os.path.join(base_dir, 'servicios', 'Scripts', 'nuevo_paises.json')
+        ciudades_json_path = os.path.join(base_dir, 'servicios', 'Scripts', 'ciudades.json')
         
         # Verificar que existan los archivos
         if not os.path.exists(paises_json_path):
@@ -189,20 +193,26 @@ class ServiciosConfig(AppConfig):
         # =====================================================
         self._cargar_aerolineas(base_dir)
         
+        # =====================================================
+        # PASO 5: Cargar aeropuertos desde aeropuertos_full_data copy.json
+        # =====================================================
+        self._cargar_aeropuertos(base_dir)
+        
         print("=" * 60)
         print("Resumen final:")
         print(f"  • Regiones: {Region.objects.count()}")
         print(f"  • Países: {PaisRegion.objects.count()}")
         print(f"  • Ciudades: {Ciudad.objects.count()}")
-        from servicios.models import Aerolinea
+        from servicios.models import Aerolinea, Aeropuerto
         print(f"  • Aerolíneas: {Aerolinea.objects.count()}")
+        print(f"  • Aeropuertos: {Aeropuerto.objects.count()}")
         print("=" * 60 + "\n")
 
     def _cargar_aerolineas(self, base_dir):
         """Carga aerolíneas desde aerolineas_full_data.json preservando relaciones existentes"""
         from servicios.models import Aerolinea
         
-        aerolineas_json_path = os.path.join(base_dir, 'aerolineas_full_data.json')
+        aerolineas_json_path = os.path.join(base_dir, 'servicios', 'Scripts', 'aerolineas_full_data.json')
         
         if not os.path.exists(aerolineas_json_path):
             print(f"  ADVERTENCIA: No se encontró {aerolineas_json_path}")
@@ -267,3 +277,84 @@ class ServiciosConfig(AppConfig):
         print(f"✓ Aerolíneas cargadas: {creadas} nuevas, {actualizadas} actualizadas")
         if sin_iata > 0:
             print(f"  └─ Aerolíneas sin código IATA: {sin_iata}")
+
+    def _cargar_aeropuertos(self, base_dir):
+        """Carga aeropuertos desde aeropuertos_full_data copy.json"""
+        from servicios.models import Aeropuerto, PaisRegion, Ciudad
+        
+        aeropuertos_json_path = os.path.join(base_dir, 'servicios', 'Scripts', 'aeropuertos_full_data copy.json')
+        
+        if not os.path.exists(aeropuertos_json_path):
+            print(f"  ADVERTENCIA: No se encontró {aeropuertos_json_path}")
+            return
+        
+        with open(aeropuertos_json_path, 'r', encoding='utf-8') as f:
+            aeropuertos_data = json.load(f)
+        
+        # Crear mapas para búsqueda rápida
+        paises_por_iso = {p.codigo_iso: p for p in PaisRegion.objects.all()}
+        ciudades_por_codigo = {c.codigo_ciudad: c for c in Ciudad.objects.filter(codigo_ciudad__isnull=False).exclude(codigo_ciudad='')}
+        
+        creados = 0
+        actualizados = 0
+        sin_pais = 0
+        con_ciudad = 0
+        
+        for aeropuerto_info in aeropuertos_data:
+            iata = aeropuerto_info.get('iata', '').strip()
+            icao = aeropuerto_info.get('icao', '').strip()
+            nombre = aeropuerto_info.get('name', '').strip()
+            ciudad_nombre = aeropuerto_info.get('city', '').strip()
+            region = aeropuerto_info.get('region', '').strip()
+            country_code = aeropuerto_info.get('country', '').strip()
+            
+            # Campos opcionales
+            elevacion = aeropuerto_info.get('elevation_ft')
+            latitud = aeropuerto_info.get('latitude')
+            longitud = aeropuerto_info.get('longitude')
+            timezone = aeropuerto_info.get('timezone', '').strip()
+            
+            if not iata or not nombre:
+                continue
+            
+            # Buscar país por código ISO
+            pais = paises_por_iso.get(country_code)
+            if not pais:
+                sin_pais += 1
+                continue
+            
+            # Intentar encontrar la ciudad
+            ciudad = None
+            # Primero buscar por código IATA del aeropuerto (muchas veces coincide con código de ciudad)
+            if iata in ciudades_por_codigo:
+                ciudad = ciudades_por_codigo[iata]
+            
+            if ciudad:
+                con_ciudad += 1
+            
+            # Crear o actualizar aeropuerto
+            aeropuerto, created = Aeropuerto.objects.update_or_create(
+                codigo_iata=iata,
+                defaults={
+                    'codigo_icao': icao,
+                    'nombre': nombre,
+                    'pais': pais,
+                    'ciudad': ciudad,
+                    'nombre_ciudad': ciudad_nombre,
+                    'region': region,
+                    'latitud': latitud,
+                    'longitud': longitud,
+                    'elevacion_ft': elevacion,
+                    'zona_horaria': timezone,
+                }
+            )
+            
+            if created:
+                creados += 1
+            else:
+                actualizados += 1
+        
+        print(f"✓ Aeropuertos cargados: {creados} nuevos, {actualizados} actualizados")
+        print(f"  └─ Con ciudad vinculada: {con_ciudad}")
+        if sin_pais > 0:
+            print(f"  └─ Aeropuertos sin país (omitidos): {sin_pais}")

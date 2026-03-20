@@ -3,7 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 import re
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
+from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
 
 
 @admin.register(Cliente)
@@ -273,6 +273,38 @@ class AerolineaAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" style="max-height: 30px; max-width: 50px;" />', obj.brandmark_url)
         return '-'
     brandmark_preview.short_description = 'Brandmark'
+
+
+@admin.register(Aeropuerto)
+class AeropuertoAdmin(admin.ModelAdmin):
+    list_display = ['codigo_iata', 'codigo_icao', 'nombre', 'get_ciudad', 'pais', 'zona_horaria', 'activo']
+    list_filter = ['activo', 'pais__region', 'pais']
+    search_fields = ['codigo_iata', 'codigo_icao', 'nombre', 'nombre_ciudad', 'pais__nombre', 'ciudad__nombre']
+    list_editable = ['activo']
+    autocomplete_fields = ['ciudad', 'pais']
+    
+    fieldsets = (
+        ('Códigos', {
+            'fields': ('codigo_iata', 'codigo_icao')
+        }),
+        ('Información Básica', {
+            'fields': ('nombre', 'pais', 'ciudad', 'nombre_ciudad', 'region')
+        }),
+        ('Ubicación Geográfica', {
+            'fields': ('latitud', 'longitud', 'elevacion_ft', 'zona_horaria'),
+            'classes': ('collapse',)
+        }),
+        ('Estado', {
+            'fields': ('activo',)
+        }),
+    )
+    
+    def get_ciudad(self, obj):
+        if obj.ciudad:
+            return obj.ciudad.nombre
+        return obj.nombre_ciudad or '-'
+    get_ciudad.short_description = 'Ciudad'
+    get_ciudad.admin_order_field = 'ciudad__nombre'
 
 
 class PaqueteTuristicoAdminForm(forms.ModelForm):

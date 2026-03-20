@@ -4856,7 +4856,7 @@
             "B77W": 16,
             "B788": 10,
             "B789": 20,
-            "S92": 1,
+            "S92": 1,   
             "total": 665
         },
         "logo_url": "https://api-ninjas-data.s3.us-west-2.amazonaws.com/airline_logos/full_logo/china_southern_airlines.png",

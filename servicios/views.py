@@ -4,12 +4,13 @@ from rest_framework.views import APIView
 from .searchFlights import buscar_vuelos_sabre
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, PaqueteTuristico
+from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
 from .serializers import (
     ClienteSerializer, SolicitudSerializer, ContactoSerializer,
     DestinoSerializer, HotelSerializer, VueloSerializer,
     RentaAutoSerializer, RegionSerializer, RegionListSerializer,
     PaisRegionSerializer, PaisRegionListSerializer, CiudadSerializer, AerolineaSerializer,
+    AeropuertoSerializer, AeropuertoListSerializer, AeropuertoAutocompleteSerializer,
     PaqueteTuristicoListSerializer, PaqueteTuristicoDetailSerializer
 )
 
@@ -239,6 +240,92 @@ class AerolineaViewSet(viewsets.ReadOnlyModelViewSet):
         vuelos = aerolinea.vuelos.filter(disponible=True)
         serializer = VueloSerializer(vuelos, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def buscar_iata(self, request):
+        """
+        Buscar aerolínea por código IATA exacto.
+        Uso: GET /api/aerolineas/buscar_iata/?codigo=AV
+        """
+        codigo = request.query_params.get('codigo', '').strip().upper()
+        
+        if not codigo:
+            return Response({'error': 'Parámetro "codigo" requerido'}, status=400)
+        
+        try:
+            aerolinea = Aerolinea.objects.get(codigo_iata=codigo, activo=True)
+            serializer = AerolineaSerializer(aerolinea)
+            return Response(serializer.data)
+        except Aerolinea.DoesNotExist:
+            return Response({'error': f'Aerolínea con código IATA "{codigo}" no encontrada'}, status=404)
+
+
+class AeropuertoViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet para aeropuertos (solo lectura)"""
+    queryset = Aeropuerto.objects.filter(activo=True)
+    
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return AeropuertoListSerializer
+        return AeropuertoSerializer
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        pais_id = self.request.query_params.get('pais', None)
+        region = self.request.query_params.get('region', None)
+        ciudad_id = self.request.query_params.get('ciudad', None)
+        search = self.request.query_params.get('search', None)
+        
+        if pais_id:
+            queryset = queryset.filter(pais_id=pais_id)
+        if region:
+            queryset = queryset.filter(region__iexact=region)
+        if ciudad_id:
+            queryset = queryset.filter(ciudad_id=ciudad_id)
+        if search:
+            queryset = queryset.filter(
+                Q(nombre__icontains=search) |
+                Q(codigo_iata__icontains=search) |
+                Q(codigo_icao__icontains=search) |
+                Q(nombre_ciudad__icontains=search)
+            )
+        return queryset
+    
+    @action(detail=False, methods=['get'])
+    def autocomplete(self, request):
+        """
+        Endpoint optimizado para autocompletado de aeropuertos.
+        Busca por código IATA, ICAO, nombre, ciudad o país.
+        Devuelve máximo 10 resultados.
+        
+        Uso: GET /api/aeropuertos/autocomplete/?q=bogota
+        """
+        q = request.query_params.get('q', '').strip()
+        
+        if len(q) < 2:
+            return Response({
+                'results': [],
+                'message': 'Ingresa al menos 2 caracteres para buscar'
+            })
+        
+        # Búsqueda optimizada en múltiples campos
+        aeropuertos = Aeropuerto.objects.filter(
+            activo=True
+        ).filter(
+            Q(codigo_iata__icontains=q) |
+            Q(codigo_icao__icontains=q) |
+            Q(nombre__icontains=q) |
+            Q(nombre_ciudad__icontains=q) |
+            Q(ciudad__nombre__icontains=q) |
+            Q(pais__nombre__icontains=q)
+        ).select_related('ciudad', 'pais')[:10]  # Limita a 10 resultados
+        
+        serializer = AeropuertoAutocompleteSerializer(aeropuertos, many=True)
+        
+        return Response({
+            'results': serializer.data,
+            'count': len(serializer.data)
+        })
 
 
 class PaqueteTuristicoViewSet(viewsets.ReadOnlyModelViewSet):

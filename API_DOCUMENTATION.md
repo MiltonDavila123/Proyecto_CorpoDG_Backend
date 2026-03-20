@@ -326,14 +326,14 @@ Actualmente, las APIs están configuradas sin autenticación para facilitar el a
     "destino_nombre": "Miami",
     "destino_pais": "Estados Unidos",
     "tipo_vuelo": "directo",
-    "numero_vuelo": "LA2479",
     "duracion": "4h 30m",
     "precio": 450.0,
     "imagen_url": "https://example.com/vuelo-imagen.jpg",
     "moneda": "USD",
+    "destacado": true,
     "disponible": true,
     "pdf_url": "https://drive.google.com/file/d/vuelo123/preview",
-    "mensaje_reserva": "Me interesa el vuelo LA2479"
+    "mensaje_reserva": "Me interesa este vuelo"
   }
 ]
 ```
@@ -879,11 +879,11 @@ Estos endpoints están diseñados para ser usados en el panel de administración
 - `origen`: ForeignKey (Ciudad)
 - `destino`: ForeignKey (Ciudad)
 - `tipo_vuelo`: Choice (directo, escala)
-- `numero_vuelo`: String (20)
 - `duracion`: String (50)
 - `precio`: Decimal (10,2)
 - `imagen_url`: URL (500, opcional)
 - `moneda`: String (3, default: USD)
+- `destacado`: Boolean
 - `disponible`: Boolean
 - `pdf_url`: URL (500, opcional)
 - `mensaje_reserva`: Text (opcional)

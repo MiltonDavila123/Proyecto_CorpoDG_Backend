@@ -15,6 +15,7 @@ router.register(r'regiones', views.RegionViewSet)
 router.register(r'paises-region', views.PaisRegionViewSet)
 router.register(r'ciudades', views.CiudadViewSet)
 router.register(r'aerolineas', views.AerolineaViewSet)
+router.register(r'aeropuertos', views.AeropuertoViewSet)
 router.register(r'paquetes', views.PaqueteTuristicoViewSet)
 
 urlpatterns = [

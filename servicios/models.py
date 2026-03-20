@@ -350,6 +350,54 @@ class Aerolinea(models.Model):
         return self.nombre
 
 
+class Aeropuerto(models.Model):
+    """Modelo para aeropuertos"""
+    codigo_iata = models.CharField(max_length=3, unique=True, help_text="Código IATA del aeropuerto (ej: GYE, UIO, MIA)")
+    codigo_icao = models.CharField(max_length=4, blank=True, help_text="Código ICAO del aeropuerto (ej: SEGU, SEQU)")
+    nombre = models.CharField(max_length=200, help_text="Nombre del aeropuerto")
+    
+    # Relaciones - Ciudad es opcional, País es requerido por código ISO
+    ciudad = models.ForeignKey(
+        Ciudad, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='aeropuertos',
+        help_text="Ciudad del aeropuerto (si existe en el sistema)"
+    )
+    pais = models.ForeignKey(
+        PaisRegion,
+        on_delete=models.CASCADE,
+        related_name='aeropuertos',
+        help_text="País del aeropuerto"
+    )
+    
+    # Información geográfica
+    nombre_ciudad = models.CharField(max_length=100, blank=True, help_text="Nombre de la ciudad (del JSON original)")
+    region = models.CharField(max_length=100, blank=True, help_text="Región/Estado")
+    latitud = models.FloatField(null=True, blank=True)
+    longitud = models.FloatField(null=True, blank=True)
+    elevacion_ft = models.IntegerField(null=True, blank=True, help_text="Elevación en pies")
+    zona_horaria = models.CharField(max_length=50, blank=True, help_text="Zona horaria (ej: America/Guayaquil)")
+    
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name = 'Aeropuerto'
+        verbose_name_plural = 'Aeropuertos'
+        ordering = ['pais', 'nombre']
+    
+    def __str__(self):
+        ubicacion = self.ciudad.nombre if self.ciudad else self.nombre_ciudad or self.pais.nombre
+        return f"{self.nombre} ({self.codigo_iata}) - {ubicacion}"
+    
+    @property
+    def ubicacion_completa(self):
+        """Retorna la ubicación completa del aeropuerto"""
+        ciudad = self.ciudad.nombre if self.ciudad else self.nombre_ciudad
+        return f"{ciudad}, {self.pais.nombre}" if ciudad else self.pais.nombre
+
+
 class PaqueteTuristico(GoogleDrivePDFMixin, models.Model):
     """Modelo principal para paquetes turísticos"""
     

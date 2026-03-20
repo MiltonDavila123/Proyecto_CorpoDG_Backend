@@ -1,8 +1,24 @@
 import requests
-import json
-from django.conf import settings
+from .LlamadosAPIS.Llamado_Api_TOKEN import SabreAuthError, obtener_token_sabre
 
 SABRE_URL = "https://api.cert.platform.sabre.com/v5/offers/shop" 
+PROVEEDOR_SABRE = "sabre"
+
+
+def _construir_ids_fuente(proveedor, id_itinerario, indice):
+    proveedor_normalizado = (proveedor or "desconocido").lower()
+    id_fuente = str(id_itinerario) if id_itinerario is not None else f"idx-{indice}"
+    id_unico = f"{proveedor_normalizado}:{id_fuente}"
+    return proveedor_normalizado, id_fuente, id_unico
+
+
+def _buscar_en_sabre(payload, force_refresh=False):
+    token = obtener_token_sabre(force_refresh=force_refresh)
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    return requests.post(SABRE_URL, headers=headers, json=payload, timeout=30)
 
 def buscar_vuelos_sabre(datos):
     # --- EXTRACCIÓN DE VARIABLES ---
@@ -10,6 +26,15 @@ def buscar_vuelos_sabre(datos):
     destino = datos.get('destination')
     fecha_ida = datos.get('date')
     fecha_vuelta = datos.get('return_date')
+    
+    # --- LÍMITE DE RESULTADOS (default 20, máximo 200) ---
+    limit = min(int(datos.get('limit', 20)), 200)
+    if limit <= 50:
+        request_type = "50ITINS"
+    elif limit <= 100:
+        request_type = "100ITINS"
+    else:
+        request_type = "200ITINS"
     
     # --- LÓGICA DE TRAMOS (IDA O IDA/VUELTA) ---
     tramos = [
@@ -58,7 +83,7 @@ def buscar_vuelos_sabre(datos):
                     "PreferLevel": "Preferred"
                 }],
                 "TPA_Extensions": {
-                    "NumTrips": {"Number": 20}
+                    "NumTrips": {"Number": limit}
                 }
             },
             "TravelerInfoSummary": {
@@ -68,28 +93,35 @@ def buscar_vuelos_sabre(datos):
             },
             "TPA_Extensions": {
                 "IntelliSellTransaction": {
-                    "RequestType": {"Name": "50ITINS"}
+                    "RequestType": {"Name": request_type}
                 }
             }
         }
     }
 
-    headers = {
-        "Authorization": f"Bearer {settings.AUTH_TOKEN}",
-        "Content-Type": "application/json"
-    }
-
     try:
-        response = requests.post(SABRE_URL, headers=headers, json=payload, timeout=30)
-        raw_response = response.json()
+        response = _buscar_en_sabre(payload)
+
+        # Si Sabre devuelve 401, forzamos regeneracion de token y reintentamos una vez.
+        if response.status_code == 401:
+            response = _buscar_en_sabre(payload, force_refresh=True)
+
+        try:
+            raw_response = response.json()
+        except ValueError:
+            raw_response = {"raw_response": response.text}
 
         if response.status_code != 200:
-            return {"error": "Error en Sabre", "detail": raw_response}
+            return {
+                "error": "Error en Sabre",
+                "code": response.status_code,
+                "detail": raw_response
+            }
 
-        return procesar_respuesta(raw_response)
+        return procesar_respuesta(raw_response, proveedor=PROVEEDOR_SABRE)
 
-    except Exception as e:
-        return {"error": str(e)}
+    except (requests.RequestException, SabreAuthError, ValueError) as e:
+        return {"error": str(e), "code": 500}
 
 def formatear_duracion(minutos):
     """Convierte minutos a formato legible (ej: 2h 30m)"""
@@ -97,7 +129,7 @@ def formatear_duracion(minutos):
     mins = minutos % 60
     return f"{horas}h {mins}m"
 
-def procesar_respuesta(data_json):
+def procesar_respuesta(data_json, proveedor=PROVEEDOR_SABRE):
     """Devuelve un JSON limpio y ordenado para el Frontend"""
     try:
         resultados = []
@@ -113,12 +145,21 @@ def procesar_respuesta(data_json):
         
         itinerarios = itinerary_groups[0].get('itineraries', [])
 
-        for it in itinerarios:
+        for idx_itinerario, it in enumerate(itinerarios, start=1):
             fare = it['pricingInformation'][0]['fare']['totalFare']
             pricing_info = it['pricingInformation'][0]['fare']
+            id_original = it.get('id')
+            proveedor_actual, id_fuente, id_unico = _construir_ids_fuente(
+                proveedor,
+                id_original,
+                idx_itinerario
+            )
             
             opcion = {
-                "id": it.get('id'),
+                "id": id_original,
+                "proveedor": proveedor_actual,
+                "id_itinerario_proveedor": id_fuente,
+                "id_itinerario_unico": id_unico,
                 "precio_total": fare.get('totalPrice'),
                 "precio_base": fare.get('baseFareAmount'),
                 "impuestos": fare.get('totalTaxAmount'),
@@ -243,6 +284,15 @@ def procesar_respuesta(data_json):
             
             resultados.append(opcion)
 
+        # --- ORDENAR: menor escalas → menor duración → menor precio ---
+        def sort_key(opcion):
+            total_escalas = sum(t.get('numero_escalas', 0) for t in opcion.get('tramos', []))
+            total_duracion = sum(t.get('duracion_minutos', 0) for t in opcion.get('tramos', []))
+            precio = opcion.get('precio_total') or 0
+            return (total_escalas, total_duracion, precio)
+        
+        resultados.sort(key=sort_key)
+        
         return resultados
-    except Exception as e:
+    except (KeyError, TypeError, ValueError, IndexError) as e:  # pylint: disable=broad-exception-caught
         return {"error": f"Error procesando respuesta: {str(e)}"}
