@@ -3,7 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 import re
-from .models import Cliente, Solicitud, Destino, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico, TipoPaquete, Temporada, TipoViaje
+from .models import Cliente, Solicitud, Destino, Vuelo, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico, TipoPaquete, Temporada, TipoViaje
 
 
 @admin.register(Cliente)
@@ -125,15 +125,6 @@ class VueloAdmin(admin.ModelAdmin):
 
     class Media:
         js = ('servicios/js/vuelo_filtros.js',)
-
-
-@admin.register(RentaAuto)
-class RentaAutoAdmin(admin.ModelAdmin):
-    list_display = ['marca', 'modelo', 'tipo', 'ano', 'precio_dia', 'ciudad', 'disponible']
-    list_filter = ['tipo', 'transmision', 'disponible', 'marca', 'ciudad__pais__region']
-    search_fields = ['marca', 'modelo', 'ciudad__nombre', 'ciudad__pais__nombre']
-    list_editable = ['disponible']
-    autocomplete_fields = ['ciudad']
 
 
 # =====================================================

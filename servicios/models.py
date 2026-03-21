@@ -159,48 +159,6 @@ class Vuelo(models.Model):
         return f"{self.aerolinea.nombre}: {self.origen.nombre} → {self.destino.nombre}"
 
 
-class RentaAuto(GoogleDrivePDFMixin, models.Model):
-    """Modelo para renta de autos"""
-    TIPO_AUTO = [
-        ('economico', 'Económico'),
-        ('sedan', 'Sedán'),
-        ('suv', 'SUV'),
-        ('lujo', 'Lujo'),
-        ('van', 'Van'),
-    ]
-    
-    marca = models.CharField(max_length=100)
-    modelo = models.CharField(max_length=100)
-    tipo = models.CharField(max_length=20, choices=TIPO_AUTO)
-    ano = models.IntegerField()
-    capacidad_pasajeros = models.IntegerField()
-    transmision = models.CharField(max_length=20, choices=[('manual', 'Manual'), ('automatica', 'Automática')])
-    precio_dia = models.DecimalField(max_digits=10, decimal_places=2)
-    imagen_url = models.URLField(max_length=500)
-    
-    ciudad = models.ForeignKey(
-        'Ciudad',
-        on_delete=models.CASCADE,
-        related_name='autos_renta'
-    )
-    direccion = models.CharField(max_length=300, blank=True, help_text="Dirección específica de recogida")
-    
-    caracteristicas = models.TextField(help_text="Características separadas por comas")
-    disponible = models.BooleanField(default=True)
-    pdf_url = models.URLField(max_length=500, blank=True, null=True, validators=[validate_google_drive_pdf], help_text="URL del PDF de Google Drive (se convertirá a /preview automáticamente)")
-    mensaje_reserva = models.TextField(blank=True, help_text="Mensaje predefinido para reserva/contacto")
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Renta de Auto'
-        verbose_name_plural = 'Renta de Autos'
-        ordering = ['tipo', 'marca']
-
-    def __str__(self):
-        return f"{self.marca} {self.modelo} ({self.ano}) - {self.ciudad.nombre}"
-
-
 # =====================================================
 # MODELOS PARA PAQUETES TURÍSTICOS
 # =====================================================
