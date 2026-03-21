@@ -102,7 +102,24 @@ class Solicitud(models.Model):
 class Destino(GoogleDrivePDFMixin, models.Model):
     """Modelo para destinos turísticos"""
     nombre = models.CharField(max_length=100)
-    pais = models.CharField(max_length=100)
+    
+    pais = models.ForeignKey(
+        'PaisRegion', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='destinos_pais',
+        help_text="País del destino"
+    )
+    ciudad = models.ForeignKey(
+        'Ciudad',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='destinos_ciudad',
+        help_text="Ciudad del destino (si aplica)"
+    )
+    
     descripcion = models.TextField()
     imagen_url = models.URLField(max_length=500)
     precio_desde = models.DecimalField(max_digits=10, decimal_places=2)
@@ -113,13 +130,34 @@ class Destino(GoogleDrivePDFMixin, models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
+    def clean(self):
+        super().clean()
+        from django.core.exceptions import ValidationError
+        
+        if not self.pais and not self.ciudad:
+            raise ValidationError('Debe seleccionar al menos un país o una ciudad.')
+            
+        if self.ciudad and not self.pais:
+            # Si escoge ciudad pero no país, se autocompleta
+            self.pais = self.ciudad.pais
+            
+        if self.pais and self.ciudad:
+            # Validar que la ciudad pertenezca al país
+            if self.ciudad.pais != self.pais:
+                raise ValidationError({
+                    'ciudad': f'La ciudad seleccionada ({self.ciudad.nombre}) no pertenece a {self.pais.nombre}.'
+                })
+
     class Meta:
         verbose_name = 'Destino'
         verbose_name_plural = 'Destinos'
         ordering = ['-destacado', 'nombre']
 
     def __str__(self):
-        return f"{self.nombre}, {self.pais}"
+        ubicacion = self.pais.nombre if self.pais else ""
+        if self.ciudad:
+            ubicacion = f"{self.ciudad.nombre}, {ubicacion}" if ubicacion else self.ciudad.nombre
+        return f"{self.nombre}" + (f" ({ubicacion})" if ubicacion else "")
 
 
 class Vuelo(models.Model):

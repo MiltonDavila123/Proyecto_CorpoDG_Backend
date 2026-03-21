@@ -24,12 +24,28 @@ class SolicitudAdmin(admin.ModelAdmin):
     mensaje_corto.short_description = 'Mensaje'
 
 
+class DestinoAdminForm(forms.ModelForm):
+    class Meta:
+        model = Destino
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Asegurarnos de que ciudad y pais se pueden buscar libremente con autocomplete.
+        if 'ciudad' in self.fields:
+            self.fields['ciudad'].queryset = Ciudad.objects.all()
+
 @admin.register(Destino)
 class DestinoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'pais', 'precio_desde', 'destacado', 'activo', 'fecha_creacion']
-    list_filter = ['destacado', 'activo', 'pais']
-    search_fields = ['nombre', 'pais', 'descripcion']
+    form = DestinoAdminForm
+    list_display = ['nombre', 'pais', 'ciudad', 'precio_desde', 'destacado', 'activo', 'fecha_creacion']
+    list_filter = ['destacado', 'activo', 'pais__region', 'pais']
+    search_fields = ['nombre', 'pais__nombre', 'ciudad__nombre', 'descripcion']
     list_editable = ['destacado', 'activo']
+    autocomplete_fields = ['pais', 'ciudad']
+    
+    class Media:
+        js = ('servicios/js/destino_filtros.js',)
     
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         field = super().formfield_for_dbfield(db_field, request, **kwargs)
@@ -214,7 +230,19 @@ class CiudadAdmin(admin.ModelAdmin):
     search_fields = ['nombre', 'pais__nombre', 'codigo_ciudad']
     list_editable = ['es_capital', 'activo']
     autocomplete_fields = ['pais']
-    
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(
+            request, queryset, search_term,
+        )
+        
+        # Filtro dinámico desde peticiones Select2 en el admin (para_filtros.js)
+        pais_id = request.GET.get('pais_id')
+        if pais_id:
+            queryset = queryset.filter(pais_id=pais_id)
+            
+        return queryset, may_have_duplicates
+
     fieldsets = (
         ('Información Básica', {
             'fields': ('pais', 'nombre', 'codigo_ciudad', 'es_capital')
