@@ -122,31 +122,6 @@ class Destino(GoogleDrivePDFMixin, models.Model):
         return f"{self.nombre}, {self.pais}"
 
 
-class Hotel(GoogleDrivePDFMixin, models.Model):
-    """Modelo para hoteles"""
-    nombre = models.CharField(max_length=200)
-    destino = models.ForeignKey(Destino, on_delete=models.CASCADE, related_name='hoteles')
-    descripcion = models.TextField()
-    imagen_url = models.URLField(max_length=500)
-    direccion = models.CharField(max_length=300)
-    estrellas = models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')])
-    precio_noche = models.DecimalField(max_digits=10, decimal_places=2)
-    servicios = models.TextField(help_text="Servicios separados por comas (Wi-Fi, Piscina, etc.)")
-    disponible = models.BooleanField(default=True)
-    pdf_url = models.URLField(max_length=500, blank=True, null=True, validators=[validate_google_drive_pdf], help_text="URL del PDF de Google Drive (se convertirá a /preview automáticamente)")
-    mensaje_reserva = models.TextField(blank=True, help_text="Mensaje predefinido para reserva/contacto")
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Hotel'
-        verbose_name_plural = 'Hoteles'
-        ordering = ['destino', 'nombre']
-
-    def __str__(self):
-        return f"{self.nombre} - {self.destino.nombre}"
-
-
 class Vuelo(models.Model):
     """Modelo para vuelos"""
     aerolinea = models.ForeignKey(
@@ -392,34 +367,44 @@ class Aeropuerto(models.Model):
         return f"{ciudad}, {self.pais.nombre}" if ciudad else self.pais.nombre
 
 
+class TipoPaquete(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name = 'Tipo de Paquete'
+        verbose_name_plural = 'Tipos de Paquetes'
+
+    def __str__(self):
+        return self.nombre
+
+
+class Temporada(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name = 'Temporada'
+        verbose_name_plural = 'Temporadas'
+
+    def __str__(self):
+        return self.nombre
+
+
+class TipoViaje(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name = 'Tipo de Viaje'
+        verbose_name_plural = 'Tipos de Viajes'
+
+    def __str__(self):
+        return self.nombre
+
+
 class PaqueteTuristico(GoogleDrivePDFMixin, models.Model):
     """Modelo principal para paquetes turísticos"""
-    
-    TIPO_PAQUETE_CHOICES = [
-        ('vacaciones', 'Vacaciones'),
-        ('promo', 'Promo'),
-        ('oferta', 'Oferta'),
-        ('todo_incluido', 'Todo Incluido'),
-        ('aventura', 'Aventura'),
-        ('luna_miel', 'Luna de Miel'),
-        ('familiar', 'Familiar'),
-        ('negocios', 'Negocios'),
-    ]
-    
-    TEMPORADA_CHOICES = [
-        ('baja', 'Temporada Baja'),
-        ('media', 'Temporada Media'),
-        ('alta', 'Temporada Alta'),
-    ]
-    
-    TIPO_VIAJE_CHOICES = [
-        ('familiar', 'Viajes de familia'),
-        ('pareja', 'Viajes en pareja'),
-        ('amigos', 'Viajes con amigos'),
-        ('solo', 'Viaje solo'),
-        ('negocios', 'Viaje de negocios'),
-        ('aventura', 'Viaje de aventura'),
-    ]
     
     # === INFORMACIÓN BÁSICA DEL CARD ===
     titulo = models.CharField(max_length=200, help_text="Título del paquete para el card")
@@ -442,7 +427,7 @@ class PaqueteTuristico(GoogleDrivePDFMixin, models.Model):
     # === PRECIOS Y TIPO ===
     precio = models.DecimalField(max_digits=10, decimal_places=2, help_text="Precio desde")
     moneda = models.CharField(max_length=3, default='USD')
-    tipo_paquete = models.CharField(max_length=20, choices=TIPO_PAQUETE_CHOICES, default='vacaciones')
+    tipo_paquete = models.ForeignKey(TipoPaquete, on_delete=models.SET_NULL, null=True, blank=True, related_name='paquetes')
     
     # === DURACIÓN Y FECHAS ===
     duracion_noches = models.IntegerField(help_text="Número de noches")
@@ -458,8 +443,8 @@ class PaqueteTuristico(GoogleDrivePDFMixin, models.Model):
     descripcion_extensa = models.TextField(blank=True, help_text="Descripción completa del paquete")
     
     # === DETALLES DEL DESTINO (Lateral) ===
-    temporada = models.CharField(max_length=10, choices=TEMPORADA_CHOICES, default='baja')
-    tipo_viaje = models.CharField(max_length=20, choices=TIPO_VIAJE_CHOICES, default='familiar')
+    temporada = models.ForeignKey(Temporada, on_delete=models.SET_NULL, null=True, blank=True, related_name='paquetes')
+    tipo_viaje = models.ForeignKey(TipoViaje, on_delete=models.SET_NULL, null=True, blank=True, related_name='paquetes')
     precio_aplica_desde = models.DateField(null=True, blank=True, help_text="Fecha desde que aplica el precio")
     precio_aplica_hasta = models.DateField(null=True, blank=True, help_text="Fecha hasta que aplica el precio")
     
@@ -518,3 +503,82 @@ class PaqueteTuristico(GoogleDrivePDFMixin, models.Model):
         """Retorna la región y destino completo"""
         ciudad = self.ciudad_destino.nombre if self.ciudad_destino else self.pais_destino.nombre
         return f"{self.region.get_nombre_display()} - {ciudad}"
+
+
+# =====================================================
+# CONFIGURACIÓN DE DESTACADOS (SINGLETON)
+# =====================================================
+
+class ConfiguracionDestacados(models.Model):
+    """Modelo Singleton para configurar la cantidad y orden de los elementos destacados"""
+    
+    limite_vuelos = models.PositiveIntegerField(
+        default=10, 
+        help_text="Cantidad máxima de vuelos destacados a enviar en la API particular"
+    )
+    limite_paquetes = models.PositiveIntegerField(
+        default=10, 
+        help_text="Cantidad máxima de paquetes destacados a enviar en la API particular"
+    )
+    limite_destinos = models.PositiveIntegerField(
+        default=10, 
+        help_text="Cantidad máxima de destinos destacados a enviar en la API particular"
+    )
+
+    class Meta:
+        verbose_name = "Configuración de Destacados"
+        verbose_name_plural = "Configuración de Destacados (General)"
+
+    def __str__(self):
+        return "Configuración General de Destacados"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class OrdenVueloDestacado(models.Model):
+    configuracion = models.ForeignKey(ConfiguracionDestacados, on_delete=models.CASCADE, related_name='orden_vuelos')
+    vuelo = models.ForeignKey('Vuelo', on_delete=models.CASCADE, limit_choices_to={'destacado': True})
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden', 'id']
+        verbose_name = "Orden de Vuelo Puesto"
+        verbose_name_plural = "Orden de Vuelos"
+
+    def __str__(self):
+        return f"{self.orden} - {self.vuelo}"
+
+
+class OrdenPaqueteDestacado(models.Model):
+    configuracion = models.ForeignKey(ConfiguracionDestacados, on_delete=models.CASCADE, related_name='orden_paquetes')
+    paquete = models.ForeignKey('PaqueteTuristico', on_delete=models.CASCADE, limit_choices_to={'destacado': True})
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden', 'id']
+        verbose_name = "Orden de Paquete Puesto"
+        verbose_name_plural = "Orden de Paquetes"
+
+    def __str__(self):
+        return f"{self.orden} - {self.paquete}"
+
+
+class OrdenDestinoDestacado(models.Model):
+    configuracion = models.ForeignKey(ConfiguracionDestacados, on_delete=models.CASCADE, related_name='orden_destinos')
+    destino = models.ForeignKey('Destino', on_delete=models.CASCADE, limit_choices_to={'destacado': True})
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden', 'id']
+        verbose_name = "Orden de Destino Puesto"
+        verbose_name_plural = "Orden de Destinos"
+
+    def __str__(self):
+        return f"{self.orden} - {self.destino}"

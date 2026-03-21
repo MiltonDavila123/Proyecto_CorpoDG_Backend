@@ -20,7 +20,25 @@ class ServiciosConfig(AppConfig):
             return
         
         self._crear_datos_iniciales()
+        self._crear_tipos_paquetes()
     
+    def _crear_tipos_paquetes(self):
+        """Crea los datos iniciales de tipo de paquete, temporada y tipo de viaje"""
+        from servicios.models import TipoPaquete, Temporada, TipoViaje
+
+        tipos_paquetes = ['Vacaciones', 'Promo', 'Oferta', 'Todo Incluido', 'Aventura', 'Luna de Miel', 'Familiar', 'Negocios']
+        for tp in tipos_paquetes:
+            TipoPaquete.objects.get_or_create(nombre=tp)
+
+        temporadas = ['Temporada Baja', 'Temporada Media', 'Temporada Alta']
+        for temp in temporadas:
+            Temporada.objects.get_or_create(nombre=temp)
+
+        tipos_viajes = ['Viajes de familia', 'Viajes en pareja', 'Viajes con amigos', 'Viaje solo', 'Viaje de negocios', 'Viaje de aventura']
+        for tv in tipos_viajes:
+            TipoViaje.objects.get_or_create(nombre=tv)
+        print('✓ Tipos de paquete, temporadas y tipos de viaje inicializados.')
+
     def _crear_datos_iniciales(self):
         """Crea regiones, países, ciudades, aerolíneas y aeropuertos desde los archivos JSON"""
         from servicios.models import Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto
@@ -358,3 +376,19 @@ class ServiciosConfig(AppConfig):
         print(f"  └─ Con ciudad vinculada: {con_ciudad}")
         if sin_pais > 0:
             print(f"  └─ Aeropuertos sin país (omitidos): {sin_pais}")
+
+        # --- CARGAR DATOS PARA TIPO PAQUETE, TEMPORADA, TIPO VIAJE ---
+        from .models import TipoPaquete, Temporada, TipoViaje
+
+        tipos_paquetes = ['Vacaciones', 'Promo', 'Oferta', 'Todo Incluido', 'Aventura', 'Luna de Miel', 'Familiar', 'Negocios']
+        for tp in tipos_paquetes:
+            TipoPaquete.objects.get_or_create(nombre=tp)
+
+        temporadas = ['Temporada Baja', 'Temporada Media', 'Temporada Alta']
+        for temp in temporadas:
+            Temporada.objects.get_or_create(nombre=temp)
+
+        tipos_viajes = ['Viajes de familia', 'Viajes en pareja', 'Viajes con amigos', 'Viaje solo', 'Viaje de negocios', 'Viaje de aventura']
+        for tv in tipos_viajes:
+            TipoViaje.objects.get_or_create(nombre=tv)
+        print('✓ Tipos de paquete, temporadas y tipos de viaje inicializados.')

@@ -6,9 +6,7 @@ router = DefaultRouter()
 router.register(r'clientes', views.ClienteViewSet)
 router.register(r'solicitudes', views.SolicitudViewSet)
 router.register(r'destinos', views.DestinoViewSet)
-router.register(r'hoteles', views.HotelViewSet)
 router.register(r'vuelos', views.VueloViewSet)
-router.register(r'renta-autos', views.RentaAutoViewSet)
 
 # Paquetes Turísticos
 router.register(r'regiones', views.RegionViewSet)

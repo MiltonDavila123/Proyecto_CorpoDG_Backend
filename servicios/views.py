@@ -4,11 +4,11 @@ from rest_framework.views import APIView
 from .searchFlights import buscar_vuelos_sabre
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
+from .models import Cliente, Solicitud, Destino, Vuelo, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico, ConfiguracionDestacados, OrdenVueloDestacado, OrdenPaqueteDestacado, OrdenDestinoDestacado
 from .serializers import (
     ClienteSerializer, SolicitudSerializer, ContactoSerializer,
-    DestinoSerializer, HotelSerializer, VueloSerializer,
-    RentaAutoSerializer, RegionSerializer, RegionListSerializer,
+    DestinoSerializer, VueloSerializer,
+    RegionSerializer, RegionListSerializer,
     PaisRegionSerializer, PaisRegionListSerializer, CiudadSerializer, AerolineaSerializer,
     AeropuertoSerializer, AeropuertoListSerializer, AeropuertoAutocompleteSerializer,
     PaqueteTuristicoListSerializer, PaqueteTuristicoDetailSerializer
@@ -64,18 +64,44 @@ class DestinoViewSet(viewsets.ModelViewSet):
     queryset = Destino.objects.filter(activo=True)
     serializer_class = DestinoSerializer
 
-
-class HotelViewSet(viewsets.ModelViewSet):
-    """ViewSet para hoteles"""
-    queryset = Hotel.objects.filter(disponible=True)
-    serializer_class = HotelSerializer
-    
     def get_queryset(self):
         queryset = super().get_queryset()
-        destino_id = self.request.query_params.get('destino', None)
-        if destino_id:
-            queryset = queryset.filter(destino_id=destino_id)
+        pais_id = self.request.query_params.get('pais', None)
+        ciudad_id = self.request.query_params.get('ciudad', None)
+        destacado = self.request.query_params.get('destacado', None)
+        
+        if pais_id:
+            queryset = queryset.filter(pais_id=pais_id)
+        if ciudad_id:
+            queryset = queryset.filter(ciudad_id=ciudad_id)
+        if destacado:
+            queryset = queryset.filter(destacado=destacado.lower() in ['true', '1', 't', 'yes'])
+            
         return queryset
+
+    @action(detail=False, methods=['get'])
+    def destacados(self, request):
+        """Obtener destinos destacados (ordenados según admin general y limitados)"""
+        config = ConfiguracionDestacados.load()
+        
+        ordenados_qs = OrdenDestinoDestacado.objects.filter(
+            configuracion=config,
+            destino__activo=True,
+            destino__destacado=True
+        ).select_related('destino')
+        
+        ordenados = []
+        ordered_ids = []
+        for orden in ordenados_qs:
+            ordenados.append(orden.destino)
+            ordered_ids.append(orden.destino.id)
+            
+        restantes = self.queryset.filter(destacado=True).exclude(id__in=ordered_ids).order_by('-fecha_creacion')
+        
+        resultado_final = (ordenados + list(restantes))[:config.limite_destinos]
+        
+        serializer = self.get_serializer(resultado_final, many=True)
+        return Response(serializer.data)
 
 
 class VueloViewSet(viewsets.ModelViewSet):
@@ -101,31 +127,29 @@ class VueloViewSet(viewsets.ModelViewSet):
             )
         return queryset
 
-
-class RentaAutoViewSet(viewsets.ModelViewSet):
-    """ViewSet para renta de autos"""
-    queryset = RentaAuto.objects.filter(disponible=True)
-    serializer_class = RentaAutoSerializer
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        tipo = self.request.query_params.get('tipo', None)
-        ubicacion = self.request.query_params.get('ubicacion', None)
-        ciudad_id = self.request.query_params.get('ciudad', None)
-        pais_id = self.request.query_params.get('pais', None)
-        region_id = self.request.query_params.get('region', None)
+    @action(detail=False, methods=['get'])
+    def destacados(self, request):
+        """Obtener vuelos destacados (ordenados según admin general y limitados)"""
+        config = ConfiguracionDestacados.load()
         
-        if tipo:
-            queryset = queryset.filter(tipo=tipo)
-        if ubicacion:
-            queryset = queryset.filter(ubicacion__icontains=ubicacion)
-        if ciudad_id:
-            queryset = queryset.filter(ciudad_id=ciudad_id)
-        if pais_id:
-            queryset = queryset.filter(ciudad__pais_id=pais_id)
-        if region_id:
-            queryset = queryset.filter(ciudad__pais__region_id=region_id)
-        return queryset
+        ordenados_qs = OrdenVueloDestacado.objects.filter(
+            configuracion=config,
+            vuelo__disponible=True,
+            vuelo__destacado=True
+        ).select_related('vuelo')
+        
+        ordenados = []
+        ordered_ids = []
+        for orden in ordenados_qs:
+            ordenados.append(orden.vuelo)
+            ordered_ids.append(orden.vuelo.id)
+            
+        restantes = self.queryset.filter(destacado=True).exclude(id__in=ordered_ids).order_by('-fecha_creacion')
+        
+        resultado_final = (ordenados + list(restantes))[:config.limite_vuelos]
+        
+        serializer = self.get_serializer(resultado_final, many=True)
+        return Response(serializer.data)
 
 
 # =====================================================
@@ -361,12 +385,12 @@ class PaqueteTuristicoViewSet(viewsets.ReadOnlyModelViewSet):
         # Filtrar por tipo de paquete
         tipo = self.request.query_params.get('tipo', None)
         if tipo:
-            queryset = queryset.filter(tipo_paquete=tipo)
+            queryset = queryset.filter(tipo_paquete__nombre__iexact=tipo)
         
         # Filtrar por temporada
         temporada = self.request.query_params.get('temporada', None)
         if temporada:
-            queryset = queryset.filter(temporada=temporada)
+            queryset = queryset.filter(temporada__nombre__iexact=temporada)
         
         # Filtrar por precio máximo
         precio_max = self.request.query_params.get('precio_max', None)
@@ -387,9 +411,26 @@ class PaqueteTuristicoViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['get'])
     def destacados(self, request):
-        """Obtener solo paquetes destacados"""
-        paquetes = self.get_queryset().filter(destacado=True)
-        serializer = PaqueteTuristicoListSerializer(paquetes, many=True)
+        """Obtener paquetes destacados (ordenados según admin general y limitados)"""
+        config = ConfiguracionDestacados.load()
+        
+        ordenados_qs = OrdenPaqueteDestacado.objects.filter(
+            configuracion=config,
+            paquete__activo=True,
+            paquete__destacado=True
+        ).select_related('paquete')
+        
+        ordenados = []
+        ordered_ids = []
+        for orden in ordenados_qs:
+            ordenados.append(orden.paquete)
+            ordered_ids.append(orden.paquete.id)
+            
+        restantes = self.get_queryset().filter(destacado=True).exclude(id__in=ordered_ids).order_by('-fecha_creacion')
+        
+        resultado_final = (ordenados + list(restantes))[:config.limite_paquetes]
+        
+        serializer = PaqueteTuristicoListSerializer(resultado_final, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])

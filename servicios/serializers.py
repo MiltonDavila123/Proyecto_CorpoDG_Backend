@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
+from .models import Cliente, Solicitud, Destino, Vuelo, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
 from .notifications import enviar_whatsapp_contacto, enviar_correo_contacto
 
 
@@ -84,24 +84,13 @@ class ContactoSerializer(serializers.Serializer):
 
 class DestinoSerializer(serializers.ModelSerializer):
     """Serializer para destinos turísticos"""
+    pais_nombre = serializers.CharField(source='pais.nombre', read_only=True)
+    ciudad_nombre = serializers.CharField(source='ciudad.nombre', read_only=True)
+
     class Meta:
         model = Destino
         fields = '__all__'
         read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
-
-
-class HotelSerializer(serializers.ModelSerializer):
-    """Serializer para hoteles"""
-    destino_nombre = serializers.CharField(source='destino.nombre', read_only=True)
-    servicios_lista = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Hotel
-        fields = '__all__'
-        read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
-    
-    def get_servicios_lista(self, obj):
-        return [s.strip() for s in obj.servicios.split(',') if s.strip()]
 
 
 class VueloSerializer(serializers.ModelSerializer):
@@ -119,21 +108,6 @@ class VueloSerializer(serializers.ModelSerializer):
         model = Vuelo
         fields = '__all__'
         read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
-
-
-class RentaAutoSerializer(serializers.ModelSerializer):
-    """Serializer para renta de autos"""
-    caracteristicas_lista = serializers.SerializerMethodField()
-    ciudad_nombre = serializers.CharField(source='ciudad.nombre', read_only=True)
-    ciudad_pais = serializers.CharField(source='ciudad.pais.nombre', read_only=True)
-    
-    class Meta:
-        model = RentaAuto
-        fields = '__all__'
-        read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
-    
-    def get_caracteristicas_lista(self, obj):
-        return [c.strip() for c in obj.caracteristicas.split(',') if c.strip()]
 
 
 # =====================================================
@@ -310,9 +284,9 @@ class PaqueteTuristicoListSerializer(serializers.ModelSerializer):
     lugares_destacados_lista = serializers.SerializerMethodField()
     
     # Labels legibles para choices
-    tipo_paquete_display = serializers.CharField(source='get_tipo_paquete_display', read_only=True)
-    temporada_display = serializers.CharField(source='get_temporada_display', read_only=True)
-    tipo_viaje_display = serializers.CharField(source='get_tipo_viaje_display', read_only=True)
+    tipo_paquete_display = serializers.CharField(source='tipo_paquete.nombre', allow_null=True, read_only=True)
+    temporada_display = serializers.CharField(source='temporada.nombre', allow_null=True, read_only=True)
+    tipo_viaje_display = serializers.CharField(source='tipo_viaje.nombre', allow_null=True, read_only=True)
     
     class Meta:
         model = PaqueteTuristico
@@ -355,9 +329,9 @@ class PaqueteTuristicoDetailSerializer(serializers.ModelSerializer):
     lugares_destacados_lista = serializers.SerializerMethodField()
     
     # Labels legibles para choices
-    tipo_paquete_display = serializers.CharField(source='get_tipo_paquete_display', read_only=True)
-    temporada_display = serializers.CharField(source='get_temporada_display', read_only=True)
-    tipo_viaje_display = serializers.CharField(source='get_tipo_viaje_display', read_only=True)
+    tipo_paquete_display = serializers.CharField(source='tipo_paquete.nombre', allow_null=True, read_only=True)
+    temporada_display = serializers.CharField(source='temporada.nombre', allow_null=True, read_only=True)
+    tipo_viaje_display = serializers.CharField(source='tipo_viaje.nombre', allow_null=True, read_only=True)
     
     class Meta:
         model = PaqueteTuristico

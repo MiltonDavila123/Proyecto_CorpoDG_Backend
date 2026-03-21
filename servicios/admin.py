@@ -3,7 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 import re
-from .models import Cliente, Solicitud, Destino, Hotel, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico
+from .models import Cliente, Solicitud, Destino, Vuelo, RentaAuto, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico, TipoPaquete, Temporada, TipoViaje
 
 
 @admin.register(Cliente)
@@ -30,23 +30,6 @@ class DestinoAdmin(admin.ModelAdmin):
     list_filter = ['destacado', 'activo', 'pais']
     search_fields = ['nombre', 'pais', 'descripcion']
     list_editable = ['destacado', 'activo']
-    
-    def formfield_for_dbfield(self, db_field, request, **kwargs):
-        field = super().formfield_for_dbfield(db_field, request, **kwargs)
-        if db_field.name == 'pdf_url':
-            field.label = 'PDF URL (opcional)'
-        elif db_field.name == 'mensaje_reserva':
-            field.label = 'Mensaje reserva (opcional)'
-        return field
-
-
-@admin.register(Hotel)
-class HotelAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'destino', 'estrellas', 'precio_noche', 'disponible', 'fecha_creacion']
-    list_filter = ['estrellas', 'disponible', 'destino']
-    search_fields = ['nombre', 'descripcion', 'direccion', 'destino__nombre']
-    list_editable = ['disponible']
-    autocomplete_fields = ['destino']
     
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         field = super().formfield_for_dbfield(db_field, request, **kwargs)
@@ -593,3 +576,76 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
     
     class Media:
             js = ('servicios/js/paquete_filtros.js',)
+
+# =====================================================
+# ADMIN PARA CONFIGURACIÓN GENERAL DE DESTACADOS
+# =====================================================
+
+from .models import ConfiguracionDestacados, OrdenVueloDestacado, OrdenPaqueteDestacado, OrdenDestinoDestacado
+
+from django.forms.models import BaseInlineFormSet
+
+class BaseDestacadoInlineFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+            
+        ordenes = []
+        items = []
+        
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+                
+            orden = form.cleaned_data.get('orden')
+            # el campo de item varia segun el inline (vuelo, paquete, destino)
+            item = form.cleaned_data.get('vuelo') or form.cleaned_data.get('paquete') or form.cleaned_data.get('destino')
+            
+            if orden is not None and orden <= 0:
+                raise ValidationError("El orden debe ser mayor a 0.")
+                
+            if orden is not None:
+                if orden in ordenes:
+                    raise ValidationError(f"El orden {orden} esta repetido. Cada elemento debe tener un orden unico.")
+                ordenes.append(orden)
+                
+            if item is not None:
+                if item in items:
+                    raise ValidationError(f"El elemento {item} esta repetido. No puedes destacar el mismo elemento dos veces.")
+                items.append(item)
+
+class OrdenVueloDestacadoInline(admin.TabularInline):
+    model = OrdenVueloDestacado
+    formset = BaseDestacadoInlineFormSet
+    extra = 1
+    classes = ('collapse',)
+    autocomplete_fields = ['vuelo']
+
+class OrdenPaqueteDestacadoInline(admin.TabularInline):
+    model = OrdenPaqueteDestacado
+    formset = BaseDestacadoInlineFormSet
+    extra = 1
+    classes = ('collapse',)
+    autocomplete_fields = ['paquete']
+
+class OrdenDestinoDestacadoInline(admin.TabularInline):
+    model = OrdenDestinoDestacado
+    formset = BaseDestacadoInlineFormSet
+    extra = 1
+    classes = ('collapse',)
+    autocomplete_fields = ['destino']
+
+@admin.register(ConfiguracionDestacados)
+class ConfiguracionDestacadosAdmin(admin.ModelAdmin):
+    inlines = [OrdenVueloDestacadoInline, OrdenPaqueteDestacadoInline, OrdenDestinoDestacadoInline]
+    
+    def has_add_permission(self, request):
+        # Evitar crear más de una configuración
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+admin.site.register(TipoPaquete)
+admin.site.register(Temporada)
+admin.site.register(TipoViaje)
