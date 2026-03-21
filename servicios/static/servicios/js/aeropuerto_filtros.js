@@ -1,61 +1,74 @@
-/* Archivo: static/servicios/js/aeropuerto_filtros.js */
+﻿/* Archivo: static/servicios/js/aeropuerto_filtros.js */
 
 document.addEventListener('DOMContentLoaded', function() {
 
     var $ = (typeof django !== 'undefined' && django.jQuery) ? django.jQuery : (window.jQuery || undefined);
     if (!$) {
-        console.error("Error: jQuery no encontrado. El script de filtros no funcionará.");
+        console.error('Error: jQuery no encontrado. El script de filtros no funcionará.');
         return;
     }
 
     $(document).ready(function() {
-        console.log("Script de filtros de aeropuerto cargado correctamente."); // Debug
+        console.log('Script de interdependencia País-Ciudad para Aeropuertos (Autocomplete) cargado correctamente.');
 
-        var paisSelect = $('#id_pais');
-        var ciudadSelect = $('#id_ciudad');
+        var $pais = $('#id_pais');
+        var $ciudad = $('#id_ciudad');
 
-        function updateCiudadOptions(selectedCiudadId) {
-            var paisId = paisSelect.val();
-
-            if (!paisId) {
-                ciudadSelect.html('<option value="">---------</option>').val('');
-                return;
-            }
-
-            ciudadSelect.html('<option value="">Cargando ciudades...</option>');
-
-            $.ajax({
-                url: '/api/admin-ajax/ciudades-por-pais/' + paisId + '/',
-                success: function(data) {
-                    var options = '<option value="">---------</option>';
-                    data.forEach(function(ciudad) {
-                        options += '<option value="' + ciudad.id + '">' + ciudad.nombre + '</option>';
-                    });
-                    ciudadSelect.html(options);
-
-                    if (selectedCiudadId) {
-                        ciudadSelect.val(selectedCiudadId);
-                    }
-                },
-                error: function(xhr, errmsg, err) {
-                    console.log("Error AJAX Ciudades: " + errmsg);
-                }
-            });
+        if ($pais.length === 0 || $ciudad.length === 0) {
+            return; // Evita errores en páginas donde no estén estos campos
         }
 
-        paisSelect.on('change', function() {
-            updateCiudadOptions(null);
+        // 1. Interceptar llamadas AJAX del Autocomplete de Django
+        $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+            if (options.url && options.url.indexOf('/admin/autocomplete/') !== -1) {
+                if (options.data && typeof options.data === 'string' && options.data.indexOf('field_name=ciudad') !== -1) {
+                    var paisId = $pais.val();
+                    if (paisId) {
+                        options.data += '&pais_id=' + encodeURIComponent(paisId);
+                    }
+                }
+            }
         });
 
-        // Lógica de inicio (Editar registro existente)
-        if (paisSelect.val() && !ciudadSelect.val()) {
-             // Si hay pais por defecto pero ciudad vacia al cargar o por error
-             // En edicion normal la ciudad ya viene cargada desde el backend
-             // asi que este paso podria sobreescribirla si no tenemos el ID
-             // Para estar seguros de no perder la ciudad si Django ya la renderizó, no actualizamos si no es necesario.
-        } else if (paisSelect.val() && ciudadSelect.val() === "") {
-             // updateCiudadOptions(null);
-        }
-        
+        // 2. Si se elige Ciudad sin País, auto-completar País
+        $ciudad.on('change', function() {
+            var ciudadId = $(this).val();
+            var paisId = $pais.val();
+            
+            if (ciudadId && !paisId) {
+                $.ajax({
+                    url: '/api/ciudades/' + ciudadId + '/',
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.pais && response.pais_nombre) {
+                            var newOption = new Option(response.pais_nombre, response.pais, true, true);
+                            $pais.append(newOption).trigger('change.select2');
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log('Error consultando la ciudad elegida:', errmsg);
+                    }
+                });
+            }
+        });
+
+        // 3. Si cambias el país y la ciudad seleccionada no es de ese país, vaciarla.
+        $pais.on('change', function() {
+            var paisId = $(this).val();
+            var ciudadId = $ciudad.val();
+            
+            if (paisId && ciudadId) {
+                $.ajax({
+                    url: '/api/ciudades/' + ciudadId + '/',
+                    method: 'GET',
+                    success: function(response) {
+                        if (String(response.pais) !== String(paisId)) {
+                            $ciudad.val(null).trigger('change.select2');
+                        }
+                    }
+                });
+            }
+        });
+
     });
 });

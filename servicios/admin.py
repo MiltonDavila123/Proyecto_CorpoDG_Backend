@@ -334,7 +334,10 @@ class AeropuertoAdmin(admin.ModelAdmin):
     search_fields = ['codigo_iata', 'codigo_icao', 'nombre', 'nombre_ciudad', 'pais__nombre', 'ciudad__nombre']
     list_editable = ['activo']
     autocomplete_fields = ['ciudad', 'pais']
-    
+
+    class Media:
+        js = ('servicios/js/aeropuerto_filtros.js',)
+
     fieldsets = (
         ('Códigos', {
             'fields': ('codigo_iata', 'codigo_icao')
