@@ -57,41 +57,91 @@ class HotelAdmin(admin.ModelAdmin):
         return field
 
 
+from django.contrib.admin import site as admin_site
+from django.contrib.admin.widgets import AutocompleteSelect
+
 class VueloAdminForm(forms.ModelForm):
-    """Form personalizado para validar restricciones del Vuelo"""
+    """Form personalizado para vuelos"""
     
+    ciudad_origen_filtro = forms.ModelChoiceField(
+        queryset=Ciudad.objects.all(), 
+        required=False, 
+        label="Ciudad Origen (Filtro)",
+        widget=AutocompleteSelect(Aeropuerto._meta.get_field('ciudad'), admin_site)
+    )
+    
+    ciudad_destino_filtro = forms.ModelChoiceField(
+        queryset=Ciudad.objects.all(), 
+        required=False, 
+        label="Ciudad Destino (Filtro)",
+        widget=AutocompleteSelect(Aeropuerto._meta.get_field('ciudad'), admin_site)
+    )
+
     class Meta:
         model = Vuelo
         fields = '__all__'
-    
-    def clean_pdf_url(self):
-        """Valida que el PDF URL sea de Google Drive"""
-        pdf_url = self.cleaned_data.get('pdf_url')
         
-        # Si está vacío, está permitido
-        if not pdf_url:
-            return pdf_url
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        # Validar patrón de Google Drive
-        google_drive_pattern = r'^https://drive\.google\.com/file/d/[a-zA-Z0-9_-]+/(view|edit|preview)(\?.*)?$'
-        
-        if not re.match(google_drive_pattern, pdf_url):
-            raise ValidationError(
-                'El PDF debe ser un enlace válido de Google Drive. '
-                'Ejemplo: https://drive.google.com/file/d/ID_DEL_ARCHIVO/view'
-            )
-        
-        return pdf_url
+        # Para Origen y Destino, nacen vacíos para evitar ralentizar la página (cargar miles de aeropuertos de golpe).
+        # Serán poblados únicamente por el Javascript mediante la búsqueda por ciudad.
+        # Solo se carga el seleccionado actualmente si existe una instancia (para edición).
+        if self.instance and self.instance.pk:
+            if self.instance.origen:
+                self.fields['origen'].queryset = Aeropuerto.objects.filter(pk=self.instance.origen.pk)
+            else:
+                self.fields['origen'].queryset = Aeropuerto.objects.none()
+                
+            if self.instance.destino:
+                self.fields['destino'].queryset = Aeropuerto.objects.filter(pk=self.instance.destino.pk)
+            else:
+                self.fields['destino'].queryset = Aeropuerto.objects.none()
+                
+        elif hasattr(self, 'data') and self.data:
+            # En POST, validamos con lo enviado
+            if self.data.get('origen'):
+                self.fields['origen'].queryset = Aeropuerto.objects.filter(pk=self.data.get('origen'))
+            else:
+                self.fields['origen'].queryset = Aeropuerto.objects.none()
+                
+            if self.data.get('destino'):
+                self.fields['destino'].queryset = Aeropuerto.objects.filter(pk=self.data.get('destino'))
+            else:
+                self.fields['destino'].queryset = Aeropuerto.objects.none()
+        else:
+            self.fields['origen'].queryset = Aeropuerto.objects.none()
+            self.fields['destino'].queryset = Aeropuerto.objects.none()
 
 
 @admin.register(Vuelo)
 class VueloAdmin(admin.ModelAdmin):
     form = VueloAdminForm
-    list_display = ['aerolinea', 'origen', 'destino', 'tipo_vuelo', 'numero_vuelo', 'duracion', 'precio', 'moneda', 'destacado', 'disponible']
-    list_filter = ['tipo_vuelo', 'destacado', 'disponible', 'aerolinea', 'origen__pais__region', 'destino__pais__region']
-    search_fields = ['aerolinea__nombre', 'origen__nombre', 'destino__nombre', 'numero_vuelo']
+    list_display = ['aerolinea', 'origen', 'destino', 'duracion', 'precio', 'moneda', 'destacado', 'disponible']
+    list_filter = ['destacado', 'disponible', 'aerolinea', 'origen__pais__region', 'destino__pais__region']
+    search_fields = ['aerolinea__nombre', 'origen__nombre', 'destino__nombre', 'origen__codigo_iata', 'destino__codigo_iata']
     list_editable = ['destacado', 'disponible']
-    autocomplete_fields = ['aerolinea', 'origen', 'destino']
+    autocomplete_fields = ['aerolinea']
+    
+    fieldsets = (
+        ('Selección de Origen', {
+            'fields': ('ciudad_origen_filtro', 'origen'),
+            'description': 'Busca una ciudad para autocompletar el aeropuerto con los de su país (opcional).'
+        }),
+        ('Selección de Destino', {
+            'fields': ('ciudad_destino_filtro', 'destino'),
+            'description': 'Busca una ciudad para autocompletar el aeropuerto con los de su país (opcional).'
+        }),
+        ('Detalles del Vuelo', {
+            'fields': ('aerolinea', 'duracion', 'precio', 'moneda', 'imagen_url', 'mensaje_reserva')
+        }),
+        ('Estado', {
+            'fields': ('destacado', 'disponible')
+        }),
+    )
+
+    class Media:
+        js = ('servicios/js/vuelo_filtros.js',)
 
 
 @admin.register(RentaAuto)

@@ -25,4 +25,6 @@ urlpatterns = [
     # Endpoints AJAX para admin
     path('admin-ajax/paises-por-region/<int:region_id>/', views.paises_por_region, name='ajax_paises'),
     path('admin-ajax/ciudades-por-pais/<int:pais_id>/', views.ciudades_por_pais, name='ajax_ciudades'),
+    path('admin-ajax/aeropuertos-por-ciudad/<int:ciudad_id>/', views.aeropuertos_por_ciudad, name='ajax_aeropuertos_ciudad'),
+    path('admin-ajax/aeropuertos-por-pais/<int:pais_id>/', views.aeropuertos_por_pais, name='ajax_aeropuertos_pais'),
 ]

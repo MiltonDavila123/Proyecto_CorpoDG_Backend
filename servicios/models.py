@@ -147,38 +147,30 @@ class Hotel(GoogleDrivePDFMixin, models.Model):
         return f"{self.nombre} - {self.destino.nombre}"
 
 
-class Vuelo(GoogleDrivePDFMixin, models.Model):
+class Vuelo(models.Model):
     """Modelo para vuelos"""
-    TIPO_VUELO = [
-        ('directo', 'Directo'),
-        ('escala', 'Con Escala'),
-    ]
-    
     aerolinea = models.ForeignKey(
         'Aerolinea', 
         on_delete=models.CASCADE, 
         related_name='vuelos'
     )
     origen = models.ForeignKey(
-        'Ciudad',
+        'Aeropuerto',
         on_delete=models.CASCADE,
         related_name='vuelos_origen'
     )
     destino = models.ForeignKey(
-        'Ciudad',
+        'Aeropuerto',
         on_delete=models.CASCADE,
         related_name='vuelos_destino'
     )
     
-    tipo_vuelo = models.CharField(max_length=10, choices=TIPO_VUELO)
-    numero_vuelo = models.CharField(max_length=20, blank=True, help_text="Ej: AA1234")
     duracion = models.CharField(max_length=50, help_text="Ej: 1h 45m")
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     imagen_url = models.URLField(max_length=500, blank=True, null=True)
     moneda = models.CharField(max_length=3, default='USD')
     destacado = models.BooleanField(default=False, help_text="Marcar como vuelo destacado")
     disponible = models.BooleanField(default=True)
-    pdf_url = models.URLField(max_length=500, blank=True, null=True, validators=[validate_google_drive_pdf], help_text="URL del PDF de Google Drive (se convertirá a /preview automáticamente)")
     mensaje_reserva = models.TextField(blank=True, help_text="Mensaje predefinido para reserva/contacto")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
@@ -313,6 +305,8 @@ class Ciudad(models.Model):
         unique_together = ['pais', 'codigo_ciudad']
     
     def __str__(self):
+        if self.codigo_ciudad:
+            return f"{self.nombre} ({self.codigo_ciudad}), {self.pais.nombre}"
         return f"{self.nombre}, {self.pais.nombre}"
     
     @property
@@ -373,8 +367,8 @@ class Aeropuerto(models.Model):
     )
     
     # Información geográfica
-    nombre_ciudad = models.CharField(max_length=100, blank=True, help_text="Nombre de la ciudad (del JSON original)")
-    region = models.CharField(max_length=100, blank=True, help_text="Región/Estado")
+    nombre_ciudad = models.CharField(max_length=100, blank=True, verbose_name="Ciudad (Texto libre)", help_text="Úsalo solo si la ciudad no está en el listado de arriba (ej: Punta Cana, Miami)")
+    region = models.CharField(max_length=100, blank=True, verbose_name="Estado / Provincia", help_text="División territorial donde está el aeropuerto (ej: Florida, Guayas, Texas)")
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
     elevacion_ft = models.IntegerField(null=True, blank=True, help_text="Elevación en pies")

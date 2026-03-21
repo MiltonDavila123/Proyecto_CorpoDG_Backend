@@ -117,7 +117,7 @@ class VueloSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Vuelo
-        exclude = ['numero_vuelo']
+        fields = '__all__'
         read_only_fields = ['fecha_creacion', 'fecha_actualizacion']
 
 

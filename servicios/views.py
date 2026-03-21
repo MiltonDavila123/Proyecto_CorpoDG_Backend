@@ -88,9 +88,17 @@ class VueloViewSet(viewsets.ModelViewSet):
         origen = self.request.query_params.get('origen', None)
         destino = self.request.query_params.get('destino', None)
         if origen:
-            queryset = queryset.filter(origen__icontains=origen)
+            queryset = queryset.filter(
+                Q(origen__nombre__icontains=origen) | 
+                Q(origen__ciudad__nombre__icontains=origen) |
+                Q(origen__codigo_iata__icontains=origen)
+            )
         if destino:
-            queryset = queryset.filter(destino__icontains=destino)
+            queryset = queryset.filter(
+                Q(destino__nombre__icontains=destino) |
+                Q(destino__ciudad__nombre__icontains=destino) |
+                Q(destino__codigo_iata__icontains=destino)
+            )
         return queryset
 
 
@@ -442,3 +450,23 @@ def paises_por_region(request, region_id):
 def ciudades_por_pais(request, pais_id):
     ciudades = Ciudad.objects.filter(pais_id=pais_id, activo=True).values('id', 'nombre').order_by('nombre')
     return JsonResponse(list(ciudades), safe=False)
+
+def aeropuertos_por_ciudad(request, ciudad_id):
+    from .models import Aeropuerto, Ciudad
+    try:
+        ciudad = Ciudad.objects.get(pk=ciudad_id)
+        # 1. Intentar buscar aeropuertos vinculados exactamente a esa ciudad
+        aeropuertos = Aeropuerto.objects.filter(ciudad_id=ciudad_id, activo=True).values('id', 'nombre', 'codigo_iata').order_by('nombre')
+        
+        # 2. Si no hay aeropuertos para esa ciudad en específico, entonces traer los del país correspondiente
+        if not aeropuertos.exists():
+            aeropuertos = Aeropuerto.objects.filter(pais_id=ciudad.pais_id, activo=True).values('id', 'nombre', 'codigo_iata').order_by('nombre')
+            
+        return JsonResponse(list(aeropuertos), safe=False)
+    except Ciudad.DoesNotExist:
+        return JsonResponse([], safe=False)
+
+def aeropuertos_por_pais(request, pais_id):
+    from .models import Aeropuerto
+    aeropuertos = Aeropuerto.objects.filter(pais_id=pais_id, activo=True).values('id', 'nombre', 'codigo_iata').order_by('nombre')
+    return JsonResponse(list(aeropuertos), safe=False)
