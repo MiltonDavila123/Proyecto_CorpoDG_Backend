@@ -35,6 +35,12 @@ class DestinoAdminForm(forms.ModelForm):
         if 'ciudad' in self.fields:
             self.fields['ciudad'].queryset = Ciudad.objects.all()
 
+    def clean_precio_desde(self):
+        precio = self.cleaned_data.get('precio_desde')
+        if precio is not None and precio < 0:
+            raise ValidationError('El precio no puede ser negativo.')
+        return precio
+
 @admin.register(Destino)
 class DestinoAdmin(admin.ModelAdmin):
     form = DestinoAdminForm
@@ -111,6 +117,12 @@ class VueloAdminForm(forms.ModelForm):
         else:
             self.fields['origen'].queryset = Aeropuerto.objects.none()
             self.fields['destino'].queryset = Aeropuerto.objects.none()
+
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+        if precio is not None and precio < 0:
+            raise ValidationError('El precio del vuelo no puede ser negativo.')
+        return precio
 
 
 @admin.register(Vuelo)
@@ -436,6 +448,37 @@ class PaqueteTuristicoAdminForm(forms.ModelForm):
         
         return ubicacion_mapa_url
 
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+        if precio is not None and precio < 0:
+            raise ValidationError('El precio no puede ser negativo.')
+        return precio
+
+    def clean_duracion_dias(self):
+        dias = self.cleaned_data.get('duracion_dias')
+        if dias is not None and dias < 0:
+            raise ValidationError('La duración en días no puede ser negativa.')
+        return dias
+
+    def clean_duracion_noches(self):
+        noches = self.cleaned_data.get('duracion_noches')
+        if noches is not None and noches < 0:
+            raise ValidationError('La duración en noches no puede ser negativa.')
+        return noches
+
+    def clean(self):
+        cleaned_data = super().clean()
+        precio_desde = cleaned_data.get('precio_aplica_desde')
+        precio_hasta = cleaned_data.get('precio_aplica_hasta')
+
+        if precio_desde and precio_hasta:
+            if precio_desde > precio_hasta:
+                raise ValidationError({
+                    'precio_aplica_desde': 'La fecha de inicio de aplicación de precio no puede ser posterior a la fecha de fin.',
+                    'precio_aplica_hasta': 'La fecha de fin de aplicación de precio no puede ser anterior a la fecha de inicio.'
+                })
+        return cleaned_data
+
 
 @admin.register(PaqueteTuristico)
 class PaqueteTuristicoAdmin(admin.ModelAdmin):
@@ -446,7 +489,7 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
     list_editable = ['destacado', 'activo']
     autocomplete_fields = ['aerolinea']
     date_hierarchy = 'fecha_creacion'
-    
+        
     fieldsets = (
         ('Información del Card (Vista previa)', {
             'fields': (
@@ -597,7 +640,7 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
     class Media:
-            js = ('servicios/js/paquete_filtros.js',)
+        js = ('servicios/js/paquete_filtros.js', 'servicios/js/paquete_admin.js')
 
 # =====================================================
 # ADMIN PARA CONFIGURACIÓN GENERAL DE DESTACADOS

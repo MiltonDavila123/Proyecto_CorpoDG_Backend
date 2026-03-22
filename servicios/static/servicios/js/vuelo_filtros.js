@@ -2,6 +2,18 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Evitar que el precio del vuelo sea negativo
+    const precioInput = document.getElementById('id_precio');
+    if (precioInput) {
+        function validateNoNegative() {
+            if (parseFloat(this.value) < 0) {
+                this.value = 0;
+            }
+        }
+        precioInput.addEventListener('input', validateNoNegative);
+        precioInput.addEventListener('change', validateNoNegative);
+    }
+    
     var $ = (typeof django !== 'undefined' && django.jQuery) ? django.jQuery : (window.jQuery || undefined);
 
     if (!$) {
