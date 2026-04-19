@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from .searchFlights import buscar_vuelos_sabre
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from .models import Cliente, Solicitud, Destino, Vuelo, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico, ConfiguracionDestacados, OrdenVueloDestacado, OrdenPaqueteDestacado, OrdenDestinoDestacado, TipoPaquete, Temporada
 from .serializers import (
     ClienteSerializer, SolicitudSerializer, ContactoSerializer,
@@ -524,3 +525,45 @@ def aeropuertos_por_pais(request, pais_id):
     from .models import Aeropuerto
     aeropuertos = Aeropuerto.objects.filter(pais_id=pais_id, activo=True).values('id', 'nombre', 'codigo_iata').order_by('nombre')
     return JsonResponse(list(aeropuertos), safe=False)
+
+
+# =====================================================
+# CHATBOT — Vista principal
+# =====================================================
+
+class ChatbotView(APIView):
+    """
+    Endpoint para el chatbot de CorpoDG.
+    Recibe el mensaje del usuario y el historial de conversación,
+    retorna la respuesta del asistente y el historial actualizado.
+
+    POST /api/chatbot/
+    Body: { "mensaje": str, "historial": list (opcional) }
+    """
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        mensaje = request.data.get('mensaje', '').strip()
+
+        if not mensaje:
+            return Response(
+                {"error": "El campo 'mensaje' es requerido y no puede estar vacío."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        historial = request.data.get('historial', [])
+
+        # Validar que historial sea una lista
+        if not isinstance(historial, list):
+            historial = []
+
+        try:
+            from .chatbot import procesar_mensaje
+            resultado = procesar_mensaje(mensaje, historial)
+            return Response(resultado, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": f"Error procesando el mensaje: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
