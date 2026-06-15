@@ -154,7 +154,7 @@ def enviar_whatsapp_contacto(cliente_nombre, cliente_email, cliente_telefono, me
 # =============================================================================
 
 def enviar_correo_html(destinatarios, asunto, mensaje_texto, mensaje_html, 
-                       from_email=None, adjuntar_logo=True):
+                       from_email=None, adjuntar_logo=True, adjuntos=None):
     """
     Envía un correo electrónico con versión HTML y texto plano.
     
@@ -165,6 +165,9 @@ def enviar_correo_html(destinatarios, asunto, mensaje_texto, mensaje_html,
         mensaje_html (str): Versión HTML del mensaje
         from_email (str, optional): Email remitente. Default: settings.EMAIL_HOST_USER
         adjuntar_logo (bool): Si adjuntar el logo de la empresa
+        adjuntos (list, optional): Lista de adjuntos como tuplas
+            (nombre_archivo, contenido_bytes, mimetype). Ej:
+            [("voucher.pdf", b"...", "application/pdf")]
     
     Returns:
         dict: {'success': bool, 'message': str}
@@ -194,6 +197,16 @@ def enviar_correo_html(destinatarios, asunto, mensaje_texto, mensaje_html,
                     logo_img.add_header('Content-ID', '<logo_corpodg>')
                     logo_img.add_header('Content-Disposition', 'inline', filename='logo.png')
                     email.attach(logo_img)
+        
+        # Adjuntos arbitrarios (ej: voucher PDF)
+        if adjuntos:
+            for adj in adjuntos:
+                try:
+                    nombre, contenido, mimetype = adj
+                    if contenido:
+                        email.attach(nombre, contenido, mimetype)
+                except (ValueError, TypeError):
+                    continue
         
         email.send(fail_silently=False)
         

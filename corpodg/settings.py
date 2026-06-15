@@ -157,7 +157,24 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='')
 
 
-# WhatsApp Business API Configuration
+# Seat Map mode
+# True  -> sandbox (respuestas simuladas)
+# False -> Sabre real (Get Seats v3)
+SEATMAP_SANDBOX = config('SEATMAP_SANDBOX', default=True, cast=bool)
+
+# Booking / Stripe
+BOOKING_SANDBOX = config('BOOKING_SANDBOX', default=True, cast=bool)
+# Enviar voucher (boletos + PDF) por correo al confirmar la reserva
+BOOKING_SEND_EMAIL = config('BOOKING_SEND_EMAIL', default=True, cast=bool)
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+FRONTEND_BOOKING_SUCCESS_URL = config('FRONTEND_BOOKING_SUCCESS_URL',
+                                     default='http://localhost:5173/reserva/confirmada')
+FRONTEND_BOOKING_CANCEL_URL = config('FRONTEND_BOOKING_CANCEL_URL',
+                                    default='http://localhost:5173/reserva/cancelada')
+
+
 WHATSAPP_TOKEN = config('WHATSAPP_TOKEN', default='')
 WHATSAPP_PHONE_NUMBER_ID = config('WHATSAPP_PHONE_NUMBER_ID', default='')
 WHATSAPP_TEMPLATE_NAME = config('WHATSAPP_TEMPLATE_NAME', default='plantilla_contacto')

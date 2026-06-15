@@ -2,6 +2,13 @@ from rest_framework import viewsets, status
 from django.db.models import Count, Q
 from rest_framework.views import APIView
 from .searchFlights import buscar_vuelos_sabre
+from .revalidateFlight import revalidar_itinerario
+from .seatMapFlight import obtener_mapa_asientos
+from .bookingFlight import crear_checkout, confirmar_reserva, obtener_reserva_guardada
+from .bookingPaquete import (
+    crear_checkout_paquete, confirmar_reserva_paquete,
+    obtener_reserva_paquete_guardada,
+)
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -488,6 +495,330 @@ class BuscadorVuelosSabreView(APIView):
             return Response(resultados, status=codigo)
 
         return Response(resultados, status=status.HTTP_200_OK)
+
+
+class RevalidarVueloView(APIView):
+    """Confirma si un itinerario sigue disponible para reservar.
+
+    Body esperado:
+    {
+        "adults": 1, "children": 0, "infants": 0,
+        "tramos": [
+            {
+                "fecha_salida": "YYYY-MM-DD",
+                "segmentos": [
+                    {
+                        "numero_vuelo": 833,
+                        "clase_servicio": "V",
+                        "origen": "EWR", "destino": "MIA",
+                        "fecha_hora_salida": "2026-05-31T12:20:00",
+                        "fecha_hora_llegada": "2026-05-31T15:26:00",
+                        "aerolinea_marketing": "AA",
+                        "aerolinea_operadora": "AA"
+                    }
+                ]
+            }
+        ]
+    }
+
+    Tambien acepta directamente el objeto "opcion" devuelto por la busqueda
+    (usa los subcampos salida/llegada/aerolinea/vuelo).
+    """
+
+    def post(self, request):
+        data = request.data or {}
+        if not data.get("tramos"):
+            return Response(
+                {"disponible": False, "error": "Faltan los tramos del itinerario"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        resultado = revalidar_itinerario(data)
+        codigo = resultado.pop("code", None)
+        if resultado.get("disponible"):
+            return Response(resultado, status=status.HTTP_200_OK)
+        return Response(resultado, status=codigo or status.HTTP_409_CONFLICT)
+
+
+class SeatMapView(APIView):
+    """Devuelve el mapa de asientos de un itinerario via Sabre Get Seats.
+
+    Body esperado:
+    {
+      "opcion": { ... },               // la opcion completa devuelta por la busqueda
+      "pasajeros": [
+        {"passengerType":"ADT", "givenName":"JUAN", "surname":"PEREZ"}
+      ],
+      "moneda": "USD"                  // opcional
+    }
+    """
+
+    def post(self, request):
+        data = request.data or {}
+        if not (data.get("opcion") or {}).get("tramos"):
+            return Response(
+                {"error": "Falta 'opcion' con sus 'tramos'"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        resultado = obtener_mapa_asientos(data)
+        codigo = resultado.pop("code", None)
+        if codigo and codigo != 200:
+            return Response(resultado, status=codigo)
+        return Response(resultado, status=status.HTTP_200_OK)
+
+
+# =====================================================
+# BOOKING (Stripe Checkout + Sabre createBooking)
+# =====================================================
+class BookingCheckoutView(APIView):
+    """Crea una sesion de Stripe Checkout y guarda el intent de reserva.
+
+    Body:
+    {
+      "opcion": {...},
+      "pasajeros": [...],
+      "contacto": {"email": "...", "phone": "..."},
+      "asientos_seleccionados": [...],   // opcional
+      "moneda": "USD",                   // opcional
+      "success_url": "...",              // opcional
+      "cancel_url":  "..."
+    }
+    Devuelve: { checkout_url, session_id, booking_ref, monto, moneda }
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data or {}
+        resultado = crear_checkout(data)
+        codigo = resultado.pop("code", None) if "error" in resultado else None
+        if codigo:
+            return Response(resultado, status=codigo)
+        return Response(resultado, status=status.HTTP_200_OK)
+
+
+class BookingConfirmView(APIView):
+    """Confirma la reserva tras un pago Stripe exitoso.
+
+    Body: { "session_id": "cs_test_..." }
+    Devuelve la reserva tipo Sabre createBookingResponse + 'resumen'.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        session_id = (request.data or {}).get("session_id")
+        resultado = confirmar_reserva(session_id)
+        codigo = resultado.pop("code", None) if "error" in resultado else None
+        if codigo:
+            return Response(resultado, status=codigo)
+        return Response(resultado, status=status.HTTP_200_OK)
+
+
+class StripeWebhookView(APIView):
+    """Endpoint opcional para eventos Stripe (checkout.session.completed)."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            import stripe
+            from django.conf import settings as _s
+            payload = request.body
+            sig = request.META.get("HTTP_STRIPE_SIGNATURE", "")
+            secret = getattr(_s, "STRIPE_WEBHOOK_SECRET", "")
+            if secret and sig:
+                event = stripe.Webhook.construct_event(payload, sig, secret)
+            else:
+                import json as _json
+                event = _json.loads(payload.decode("utf-8"))
+            return Response({"received": True, "type": event.get("type")},
+                            status=status.HTTP_200_OK)
+        except Exception as e:  # noqa: BLE001
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookingVoucherView(APIView):
+    """Vista imprimible / PDF del voucher (boletos de vuelo) de una reserva.
+
+    GET  /api/booking/voucher/?session_id=cs_test_...&format=pdf
+    GET  /api/booking/voucher/?pnr=ABCDEF&format=html&doc=boletos
+    POST /api/booking/voucher/   body: { reserva: {...}, format: "pdf"|"html", doc: "voucher"|"boletos" }
+         (renderiza directamente la reserva enviada por el frontend,
+          útil si la cache del backend ya expiró)
+
+    format:
+      - 'html' (default) -> documento HTML listo para imprimir (window.print()).
+      - 'pdf'            -> archivo PDF descargable.
+    doc:
+      - 'voucher' (default) -> comprobante CorpoDG (itinerario + factura).
+      - 'boletos'           -> boletos estilo aerolínea (PDF aparte).
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        clave = (request.query_params.get("session_id")
+                 or request.query_params.get("pnr"))
+        formato = (request.query_params.get("format") or "html").lower()
+        doc = (request.query_params.get("doc") or "voucher").lower()
+
+        if not clave:
+            return Response({"error": "Falta 'session_id' o 'pnr'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        reserva = obtener_reserva_guardada(clave)
+        if not reserva:
+            return Response(
+                {"error": "Reserva no encontrada o expirada. "
+                          "Reenvía la reserva por POST para regenerar el documento."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return self._responder(reserva, formato, doc)
+
+    def post(self, request):
+        data = request.data or {}
+        reserva = data.get("reserva") or data
+        formato = (data.get("format") or request.query_params.get("format")
+                   or "html").lower()
+        doc = (data.get("doc") or request.query_params.get("doc")
+               or "voucher").lower()
+        if not reserva or "booking" not in reserva:
+            return Response({"error": "Falta 'reserva' (createBookingResponse)"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return self._responder(reserva, formato, doc)
+
+    def _responder(self, reserva, formato, doc="voucher"):
+        from django.http import HttpResponse
+        from .bookingDocs import (
+            render_voucher_html, generar_voucher_pdf,
+            render_boletos_html, generar_boletos_pdf,
+        )
+
+        pnr = reserva.get("confirmationId") or "voucher"
+        es_boletos = doc == "boletos"
+        prefijo = "Boletos" if es_boletos else "CorpoDG"
+
+        if formato == "pdf":
+            pdf_bytes = (generar_boletos_pdf(reserva) if es_boletos
+                         else generar_voucher_pdf(reserva))
+            if not pdf_bytes:
+                return Response(
+                    {"error": "No se pudo generar el PDF (xhtml2pdf no disponible)"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            resp = HttpResponse(pdf_bytes, content_type="application/pdf")
+            resp["Content-Disposition"] = f'inline; filename="{prefijo}_{pnr}.pdf"'
+            return resp
+
+        html = (render_boletos_html(reserva, modo="web") if es_boletos
+                else render_voucher_html(reserva, modo="web"))
+        return HttpResponse(html, content_type="text/html; charset=utf-8")
+
+
+
+# =====================================================
+# BOOKING DE PAQUETES (Stripe Checkout + voucher)
+# =====================================================
+class PaqueteCheckoutView(APIView):
+    """Crea una sesión de Stripe Checkout para reservar un paquete.
+
+    Body:
+    {
+      "paquete_id": 12,
+      "n_personas": 2,
+      "contacto": {"email": "...", "phone": "..."},
+      "viajeros": [{"nombre": "...", "apellido": "...", "documento": "..."}],
+      "fecha_viaje": "2026-08-15",   // opcional
+      "moneda": "USD",               // opcional
+      "success_url": "...",          // opcional
+      "cancel_url":  "..."           // opcional
+    }
+    Devuelve: { checkout_url, session_id, paquete_id, monto, moneda, n_personas }
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data or {}
+        resultado = crear_checkout_paquete(data)
+        codigo = resultado.pop("code", None) if "error" in resultado else None
+        if codigo:
+            return Response(resultado, status=codigo)
+        return Response(resultado, status=status.HTTP_200_OK)
+
+
+class PaqueteConfirmView(APIView):
+    """Confirma la reserva de un paquete tras un pago Stripe exitoso.
+
+    Body: { "session_id": "cs_test_..." }
+    Devuelve la reserva normalizada del paquete + 'pago'.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        session_id = (request.data or {}).get("session_id")
+        resultado = confirmar_reserva_paquete(session_id)
+        codigo = resultado.pop("code", None) if "error" in resultado else None
+        if codigo:
+            return Response(resultado, status=codigo)
+        return Response(resultado, status=status.HTTP_200_OK)
+
+
+class PaqueteVoucherView(APIView):
+    """Vista imprimible / PDF del voucher de un paquete.
+
+    GET  /api/paquetes/booking/voucher/?session_id=cs_test_...&format=pdf
+    GET  /api/paquetes/booking/voucher/?loc=CDGPK-XXXXXX&format=html
+    POST /api/paquetes/booking/voucher/  body: { reserva: {...}, format: "pdf"|"html" }
+
+    format: 'html' (default) | 'pdf'
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        clave = (request.query_params.get("session_id")
+                 or request.query_params.get("loc")
+                 or request.query_params.get("localizador"))
+        formato = (request.query_params.get("format") or "html").lower()
+        if not clave:
+            return Response({"error": "Falta 'session_id' o 'loc'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        reserva = obtener_reserva_paquete_guardada(clave)
+        if not reserva:
+            return Response(
+                {"error": "Reserva no encontrada o expirada. "
+                          "Reenvía la reserva por POST para regenerar el documento."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return self._responder(reserva, formato)
+
+    def post(self, request):
+        data = request.data or {}
+        reserva = data.get("reserva") or data
+        formato = (data.get("format") or request.query_params.get("format")
+                   or "html").lower()
+        if not reserva or "paquete" not in reserva:
+            return Response({"error": "Falta 'reserva' con 'paquete'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return self._responder(reserva, formato)
+
+    def _responder(self, reserva, formato):
+        from django.http import HttpResponse
+        from .paqueteDocs import (
+            render_voucher_paquete_html, generar_voucher_paquete_pdf,
+        )
+        loc = reserva.get("localizador") or "voucher"
+
+        if formato == "pdf":
+            pdf_bytes = generar_voucher_paquete_pdf(reserva)
+            if not pdf_bytes:
+                return Response(
+                    {"error": "No se pudo generar el PDF (xhtml2pdf no disponible)"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            resp = HttpResponse(pdf_bytes, content_type="application/pdf")
+            resp["Content-Disposition"] = f'inline; filename="CorpoDG_Paquete_{loc}.pdf"'
+            return resp
+
+        html = render_voucher_paquete_html(reserva, modo="web")
+        return HttpResponse(html, content_type="text/html; charset=utf-8")
+
 
 
 # =====================================================

@@ -24,7 +24,6 @@ def _get_setting(name, default=""):
 
 
 def _build_basic_auth(client_id, client_secret):
-    # Mantiene el mismo esquema de codificacion que estabas usando en tu script.
     b64_client_id = base64.b64encode(client_id.encode("ascii")).decode("ascii")
     b64_client_secret = base64.b64encode(client_secret.encode("ascii")).decode("ascii")
     concatenated = f"{b64_client_id}:{b64_client_secret}"
@@ -117,7 +116,6 @@ def limpiar_cache_token_sabre():
 
 
 def obtener_token_sabre_v1():
-    # Compatibilidad con el nombre anterior.
     return obtener_token_sabre(force_refresh=True)
 
 

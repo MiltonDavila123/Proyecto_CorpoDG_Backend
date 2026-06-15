@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import requests
 from .LlamadosAPIS.Llamado_Api_TOKEN import SabreAuthError, obtener_token_sabre
 
@@ -21,7 +23,7 @@ def _buscar_en_sabre(payload, force_refresh=False):
     return requests.post(SABRE_URL, headers=headers, json=payload, timeout=30)
 
 def buscar_vuelos_sabre(datos):
-    # --- EXTRACCIÓN DE VARIABLES ---
+   
     origen = datos.get('origin')
     destino = datos.get('destination')
     fecha_ida = datos.get('date')
@@ -102,7 +104,7 @@ def buscar_vuelos_sabre(datos):
     try:
         response = _buscar_en_sabre(payload)
 
-        # Si Sabre devuelve 401, forzamos regeneracion de token y reintentamos una vez.
+       
         if response.status_code == 401:
             response = _buscar_en_sabre(payload, force_refresh=True)
 
@@ -142,12 +144,52 @@ def procesar_respuesta(data_json, proveedor=PROVEEDOR_SABRE):
         # Mapas de referencias
         mapa_schedules = {sch['id']: sch for sch in resp.get('scheduleDescs', [])}
         mapa_legs = {leg['id']: leg for leg in resp.get('legDescs', [])}
-        
+        mapa_fare_descs = {fc['id']: fc for fc in resp.get('fareComponentDescs', [])}
+
+        # Fechas de cada tramo (leg) segun lo solicitado en la busqueda
+        leg_descriptions = itinerary_groups[0].get('groupDescription', {}).get('legDescriptions', [])
+
         itinerarios = itinerary_groups[0].get('itineraries', [])
 
         for idx_itinerario, it in enumerate(itinerarios, start=1):
             fare = it['pricingInformation'][0]['fare']['totalFare']
             pricing_info = it['pricingInformation'][0]['fare']
+
+            # Construir lista de fareComponents con su bookingCode representativo.
+            # IMPORTANTE: dentro de un fareComponent, todos los vuelos comparten la
+            # misma clase. Adicionalmente, fareComponents[].segments puede traer
+            # entradas vacias (surface/hidden) que NO corresponden a schedules, por
+            # eso NO se puede mapear secuencialmente. Se mapea por rango
+            # beginAirport -> endAirport contra los schedules reales.
+            fare_components_info = []
+            passenger_info_list = pricing_info.get('passengerInfoList') or []
+            if passenger_info_list:
+                passenger_info = passenger_info_list[0].get('passengerInfo', {})
+                for fc in passenger_info.get('fareComponents', []):
+                    code = None
+                    cabin = None
+                    for seg in fc.get('segments', []):
+                        seg_data = seg.get('segment') or {}
+                        if not code and seg_data.get('bookingCode'):
+                            code = seg_data.get('bookingCode')
+                        if not cabin and seg_data.get('cabinCode'):
+                            cabin = seg_data.get('cabinCode')
+                        if code and cabin:
+                            break
+                    # Datos del fareComponentDescs referenciado (fareBasis, etc.)
+                    fc_desc = mapa_fare_descs.get(fc.get('ref'), {})
+                    fare_components_info.append({
+                        'begin': fc.get('beginAirport'),
+                        'end': fc.get('endAirport'),
+                        'code': code,
+                        'cabin': cabin or fc_desc.get('cabinCode'),
+                        'fare_basis': fc_desc.get('fareBasisCode'),
+                        'governing_carrier': fc_desc.get('governingCarrier'),
+                        'brand_code': fc.get('brandCode') or fc_desc.get('brandCode'),
+                        'fare_amount': fc_desc.get('fareAmount'),
+                        'fare_currency': fc_desc.get('fareCurrency'),
+                    })
+            fc_idx = 0
             id_original = it.get('id')
             proveedor_actual, id_fuente, id_unico = _construir_ids_fuente(
                 proveedor,
@@ -166,6 +208,20 @@ def procesar_respuesta(data_json, proveedor=PROVEEDOR_SABRE):
                 "moneda": fare.get('currency'),
                 "aerolinea_validadora": pricing_info.get('validatingCarrierCode'),
                 "ultima_fecha_compra": pricing_info.get('lastTicketDate'),
+                "fare_info": [
+                    {
+                        "begin": fci['begin'],
+                        "end": fci['end'],
+                        "fare_basis": fci['fare_basis'],
+                        "governing_carrier": fci['governing_carrier'],
+                        "brand_code": fci['brand_code'],
+                        "cabin": fci['cabin'],
+                        "booking_code": fci['code'],
+                        "fare_amount": fci['fare_amount'],
+                        "fare_currency": fci['fare_currency'],
+                    }
+                    for fci in fare_components_info
+                ],
                 "tramos": []
             }
 
@@ -187,9 +243,19 @@ def procesar_respuesta(data_json, proveedor=PROVEEDOR_SABRE):
                 
                 # Determinar tipo de tramo
                 tipo_tramo = "ida" if idx == 0 else "vuelta"
-                
+
+                # Fecha base del tramo (desde la propia respuesta de Sabre)
+                fecha_tramo_str = None
+                if idx < len(leg_descriptions):
+                    fecha_tramo_str = leg_descriptions[idx].get('departureDate')
+                try:
+                    fecha_actual = datetime.strptime(fecha_tramo_str, "%Y-%m-%d").date() if fecha_tramo_str else None
+                except (TypeError, ValueError):
+                    fecha_actual = None
+
                 tramo = {
                     "tipo": tipo_tramo,
+                    "fecha_salida": fecha_tramo_str,
                     "origen": {
                         "aeropuerto": primer_segmento.get('departure', {}).get('airport', ''),
                         "ciudad": primer_segmento.get('departure', {}).get('city', ''),
@@ -213,10 +279,52 @@ def procesar_respuesta(data_json, proveedor=PROVEEDOR_SABRE):
                 for seg_idx, schedule_ref in enumerate(schedules):
                     segmento_data = mapa_schedules.get(schedule_ref['ref'], {})
                     carrier = segmento_data.get('carrier', {})
-                    
+
+                    dep_time_raw = segmento_data.get('departure', {}).get('time', '') or ''
+                    arr_time_raw = segmento_data.get('arrival', {}).get('time', '') or ''
+                    dep_time = dep_time_raw[:8] if len(dep_time_raw) >= 8 else dep_time_raw
+                    arr_time = arr_time_raw[:8] if len(arr_time_raw) >= 8 else arr_time_raw
+                    arr_adj = segmento_data.get('arrival', {}).get('dateAdjustment', 0) or 0
+
+                    fecha_hora_salida = None
+                    fecha_hora_llegada = None
+                    fecha_salida_seg = None
+                    fecha_llegada_seg = None
+                    if fecha_actual is not None:
+                        fecha_salida_seg = fecha_actual
+                        fecha_llegada_seg = fecha_actual + timedelta(days=arr_adj)
+                        if dep_time:
+                            fecha_hora_salida = f"{fecha_salida_seg.isoformat()}T{dep_time}"
+                        if arr_time:
+                            fecha_hora_llegada = f"{fecha_llegada_seg.isoformat()}T{arr_time}"
+                        # El proximo segmento empieza desde la fecha de llegada (aprox)
+                        fecha_actual = fecha_llegada_seg
+
+                    clase_servicio = None
+                    cabina = None
+                    fare_basis_seg = None
+                    if fc_idx < len(fare_components_info):
+                        clase_servicio = fare_components_info[fc_idx].get('code')
+                        cabina = fare_components_info[fc_idx].get('cabin')
+                        fare_basis_seg = fare_components_info[fc_idx].get('fare_basis')
+                        # Avanzar al siguiente fareComponent cuando este segmento
+                        # llega al endAirport del fareComponent actual.
+                        arrival_airport = segmento_data.get('arrival', {}).get('airport')
+                        if arrival_airport and arrival_airport == fare_components_info[fc_idx].get('end'):
+                            fc_idx += 1
+
                     segmento = {
                         "numero_segmento": seg_idx + 1,
                         "vuelo": f"{carrier.get('marketing', '')}{carrier.get('marketingFlightNumber', '')}",
+                        "numero_vuelo": carrier.get('marketingFlightNumber'),
+                        "numero_vuelo_operador": carrier.get('operatingFlightNumber') or carrier.get('marketingFlightNumber'),
+                        "clase_servicio": clase_servicio,
+                        "cabina": cabina,
+                        "fare_basis": fare_basis_seg,
+                        "fecha_salida": fecha_salida_seg.isoformat() if fecha_salida_seg else None,
+                        "fecha_llegada": fecha_llegada_seg.isoformat() if fecha_llegada_seg else None,
+                        "fecha_hora_salida": fecha_hora_salida,
+                        "fecha_hora_llegada": fecha_hora_llegada,
                         "aerolinea": {
                             "codigo": carrier.get('marketing', ''),
                             "operada_por": carrier.get('operating', ''),

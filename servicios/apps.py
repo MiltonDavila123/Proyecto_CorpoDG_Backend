@@ -19,6 +19,16 @@ class ServiciosConfig(AppConfig):
         if os.environ.get('RUN_MAIN') != 'true':
             return
         
+        # Mostrar modo de Seat Map en consola
+        from django.conf import settings
+        modo = "SANDBOX (simulado)" if getattr(settings, 'SEATMAP_SANDBOX', True) else "SABRE REAL"
+        print(f"\n[SEATMAP] modo = {modo}  (cambiar con SEATMAP_SANDBOX en .env)\n")
+        modo_b = "SANDBOX (simulado)" if getattr(settings, 'BOOKING_SANDBOX', True) else "SABRE REAL"
+        print(f"[BOOKING] modo = {modo_b}  (cambiar con BOOKING_SANDBOX en .env)")
+        sk = getattr(settings, 'STRIPE_SECRET_KEY', '') or ''
+        stripe_ok = sk.startswith('sk_') and 'REEMPLAZAR' not in sk
+        print(f"[BOOKING] Stripe key = {'OK' if stripe_ok else 'NO CONFIGURADA (pon sk_test_... en .env)'}\n")
+        
         self._crear_datos_iniciales()
         self._crear_tipos_paquetes()
     

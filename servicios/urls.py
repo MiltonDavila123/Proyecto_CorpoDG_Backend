@@ -22,6 +22,16 @@ urlpatterns = [
     path('', include(router.urls)),
     path('contacto/', views.contacto, name='contacto'),
     path('buscar-vuelos-live/', views.BuscadorVuelosSabreView.as_view(), name='buscar_vuelos_live'),
+    path('revalidar-vuelo/', views.RevalidarVueloView.as_view(), name='revalidar_vuelo'),
+    path('seatmap/', views.SeatMapView.as_view(), name='seatmap'),
+    path('booking/checkout/', views.BookingCheckoutView.as_view(), name='booking_checkout'),
+    path('booking/confirm/',  views.BookingConfirmView.as_view(),  name='booking_confirm'),
+    path('booking/webhook/',  views.StripeWebhookView.as_view(),   name='booking_webhook'),
+    path('booking/voucher/',  views.BookingVoucherView.as_view(),  name='booking_voucher'),
+    # Booking de paquetes turísticos
+    path('paquetes/booking/checkout/', views.PaqueteCheckoutView.as_view(), name='paquete_checkout'),
+    path('paquetes/booking/confirm/',  views.PaqueteConfirmView.as_view(),  name='paquete_confirm'),
+    path('paquetes/booking/voucher/',  views.PaqueteVoucherView.as_view(),  name='paquete_voucher'),
     path('chatbot/', views.ChatbotView.as_view(), name='chatbot'),
     # Endpoints AJAX para admin
     path('admin-ajax/paises-por-region/<int:region_id>/', views.paises_por_region, name='ajax_paises'),
