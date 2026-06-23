@@ -1,0 +1,81 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop, feat/reservas, feat/gabriel/chatbot_v2]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: prueba_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: django-insecure-ci-test-key
+      DEBUG: "True"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: prueba_test
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: 5432
+      GROQ_API_KEY: dummy-key-for-tests
+      STRIPE_SECRET_KEY: sk_test_dummy
+      STRIPE_PUBLISHABLE_KEY: pk_test_dummy
+      STRIPE_WEBHOOK_SECRET: whsec_dummy
+      BOOKING_SANDBOX: "1"
+      SEATMAP_SANDBOX: "1"
+      BOOKING_SEND_EMAIL: "0"
+      CLIENT_ID: dummy
+      CLIENT_SECRET: dummy
+      SABRE_AUTH_URL: https://example.com
+      SABRE_TOKEN_REFRESH_MARGIN: "60"
+      FRONTEND_BOOKING_SUCCESS_URL: http://localhost:5173/reserva/confirmada
+      FRONTEND_BOOKING_CANCEL_URL: http://localhost:5173/reserva/cancelada
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      WHATSAPP_TOKEN: dummy
+      WHATSAPP_PHONE_NUMBER_ID: "0"
+      WHATSAPP_TEMPLATE_NAME: dummy
+      WHATSAPP_TEMPLATE_LANGUAGE: es_EC
+      WHATSAPP_RECIPIENT_NUMBER: "0"
+      EMAIL_BACKEND: django.core.mail.backends.console.EmailBackend
+      XAI_API_KEY: dummy
+      XAI_MODEL: llama-3.3-70b-versatile
+      XAI_API_BASE_URL: https://api.groq.com/openai/v1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Django system check
+        run: python manage.py check
+
+      - name: Run migrations
+        run: python manage.py migrate --run-syncdb
+
+      - name: Run tests
+        run: python manage.py test servicios -v 2
