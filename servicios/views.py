@@ -909,3 +909,9 @@ class ChatbotView(APIView):
                 {"error": f"Error procesando el mensaje: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
