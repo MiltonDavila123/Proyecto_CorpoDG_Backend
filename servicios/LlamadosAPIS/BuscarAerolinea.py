@@ -1,5 +1,4 @@
 import requests
-import json
 
 # 1. TU TOKEN (El que ya tienes, empieza con T1RLAQ...)
 TOKEN = "TU_TOKEN_SABRE_AQUI"  # Obténlo de .env via obtener_token_sabre()

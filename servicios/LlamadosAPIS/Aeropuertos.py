@@ -14,11 +14,11 @@ URL_CSV_FUENTE = "https://raw.githubusercontent.com/lxndrblz/Airports/main/airpo
 ARCHIVO_SALIDA = "aeropuertos_full_data.json"
 
 def main():
-    print(f"🚀 Iniciando el proceso de aeropuertos...")
+    print("🚀 Iniciando el proceso de aeropuertos...")
     
     # 1. Leer el CSV directamente desde la URL usando Pandas
     try:
-        print(f"📥 Descargando y leyendo CSV base de GitHub...")
+        print("📥 Descargando y leyendo CSV base de GitHub...")
         # Leemos el CSV
         df = pd.read_csv(URL_CSV_FUENTE)
         # Obtenemos solo la columna 'code' (IATA) y la convertimos a una lista simple

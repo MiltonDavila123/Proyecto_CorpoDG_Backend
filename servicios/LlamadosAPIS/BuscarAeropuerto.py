@@ -1,5 +1,4 @@
 import requests
-import json
 
 # TU TOKEN
 TOKEN = "TU_TOKEN_SABRE_AQUI"  # Obténlo de .env via obtener_token_sabre() 
@@ -31,7 +30,7 @@ def obtener_info_lugar_robusto(codigo):
         pass 
 
     # --- PASO 2: Intentar con Geo Autocomplete (Para UIO, CUN, etc.) ---
-    print(f"⚠️ No es MAC. Buscando en Geo Autocomplete...")
+    print("⚠️ No es MAC. Buscando en Geo Autocomplete...")
     
     try:
         params = {
@@ -48,7 +47,7 @@ def obtener_info_lugar_robusto(codigo):
             docs = data.get("Response", {}).get("docs", [])
             
             if docs:
-                print(f"✅ ¡ENCONTRADO EN AUTOCOMPLETE!")
+                print("✅ ¡ENCONTRADO EN AUTOCOMPLETE!")
                 for lugar in docs:
                     # A veces el campo es 'id' o 'city' dependiendo de la version
                     code = lugar.get('id', '???')

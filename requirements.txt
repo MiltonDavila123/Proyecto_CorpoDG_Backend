@@ -9,3 +9,4 @@ xhtml2pdf>=0.2.11
 pandas>=2.0
 psycopg2-binary>=2.9
 gunicorn>=23.0
+ruff>=0.9
