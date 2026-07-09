@@ -1,10 +1,15 @@
 from django.contrib import admin
+from django.contrib.admin import site as admin_site
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 from django.db.models import Case, When, Value, IntegerField
 import re
 from .models import Cliente, Solicitud, Destino, Vuelo, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto, PaqueteTuristico, TipoPaquete, Temporada, TipoViaje
+
+admin_site.site_header = "CorpoDG Trip593 — Administración"
+admin_site.site_title = "CorpoDG Admin"
+admin_site.index_title = "Bienvenido al panel de administración de CorpoDG"
 
 
 @admin.register(Cliente)

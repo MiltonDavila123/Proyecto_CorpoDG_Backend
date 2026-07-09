@@ -1,0 +1,11 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block branding %}
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
+  <img src="{% static 'logo.png' %}" alt="CorpoDG" height="40" style="display: block;">
+  <h1 style="margin: 0; font-size: 1.2rem; color: var(--admin-header-color, #fff);">
+    {{ site_header|default:"CorpoDG Trip593" }}
+  </h1>
+</div>
+{% endblock %}
