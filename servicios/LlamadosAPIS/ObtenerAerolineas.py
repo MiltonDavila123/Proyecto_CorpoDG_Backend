@@ -13,11 +13,11 @@ URL_FUENTE = "https://raw.githubusercontent.com/BesrourMS/Airlines/refs/heads/ma
 ARCHIVO_SALIDA = "aerolineas_full_data.json"
 
 def main():
-    print(f"🚀 Iniciando el proceso locochón...")
+    print("🚀 Iniciando el proceso locochón...")
     
     # 1. Descargar la lista semilla desde GitHub
     try:
-        print(f"📥 Descargando lista base de GitHub...")
+        print("📥 Descargando lista base de GitHub...")
         response_fuente = requests.get(URL_FUENTE)
         lista_base = response_fuente.json()
         print(f"✅ Lista base obtenida: {len(lista_base)} aerolíneas para procesar.\n")

@@ -1,21 +1,18 @@
 from django.test import TestCase, override_settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, MagicMock
 from decimal import Decimal
-from datetime import date, timedelta
-import json
-import os
+from datetime import timedelta
 
 from .models import (
     Destino, Vuelo, Region, PaisRegion, Ciudad, Aerolinea, Aeropuerto,
-    PaqueteTuristico, ConfiguracionDestacados, Cliente, Solicitud,
-    TipoPaquete, Temporada, validate_google_drive_pdf,
+    PaqueteTuristico, ConfiguracionDestacados, TipoPaquete, Temporada, validate_google_drive_pdf,
     validate_openstreetmap_url, normalize_google_drive_url,
 )
 from .searchFlights import (
     _construir_ids_fuente, formatear_duracion, procesar_respuesta,
-    buscar_vuelos_sabre, PROVEEDOR_SABRE,
+    buscar_vuelos_sabre,
 )
 from .revalidateFlight import (
     _normalizar_segmento as reval_normalizar_segmento,
@@ -835,7 +832,7 @@ class BuildAccionTest(TestCase):
         self.assertIsNone(_build_accion("get_detalle_paquete", {"paquete_id": 0}))
 
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 class EjecutarToolTest(TestCase):
     def test_retorna_tupla_resultado_y_accion(self):

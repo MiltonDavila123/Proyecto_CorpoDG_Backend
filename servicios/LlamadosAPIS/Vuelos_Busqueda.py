@@ -1,5 +1,4 @@
 import requests
-import json
 
 
 TOKEN = "TU_TOKEN_SABRE_AQUI"  # Obténlo de .env via obtener_token_sabre()
@@ -129,7 +128,7 @@ def buscar(nombre, payload):
         return
 
     if response.status_code != 200:
-        print(f"  Error inesperado:")
+        print("  Error inesperado:")
         print(response.text)
         return
 
