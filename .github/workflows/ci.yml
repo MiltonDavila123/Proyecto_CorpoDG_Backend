@@ -85,8 +85,16 @@ jobs:
 
       - name: Smoke test — health endpoint
         run: |
-          python manage.py runserver 0.0.0.0:8000 &
-          sleep 3
+          python manage.py runserver 0.0.0.0:8000 > /tmp/django.log 2>&1 &
+          for i in $(seq 1 10); do
+            sleep 2
+            curl -sf http://localhost:8000/api/health/ && break
+            if [ "$i" = 10 ]; then
+              echo "Server failed to start after 20s"
+              cat /tmp/django.log
+              exit 1
+            fi
+          done
           curl -sf http://localhost:8000/api/health/ | python -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='ok', f'unexpected: {d}'"
           kill %1 2>/dev/null || true
 
