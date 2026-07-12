@@ -920,11 +920,31 @@ from django.contrib.auth.models import User
 
 SEED_SECRET = "corpodg-seed-2024"
 
+def _get_or_create_country(iso, name, region_nombre):
+    from .models import PaisRegion, Region
+    region = Region.objects.filter(nombre=region_nombre).first()
+    if not region:
+        return None
+    obj, _ = PaisRegion.objects.get_or_create(
+        codigo_iso=iso,
+        defaults={
+            "nombre": name, "region": region,
+            "codigo_iso3": iso, "capital": name,
+            "bandera_png": f"https://flagcdn.com/w320/{iso.lower()}.png",
+            "bandera_svg": f"https://flagcdn.com/{iso.lower()}.svg",
+        }
+    )
+    return obj
+
 def seed_database(request):
     if request.GET.get("secret") != SEED_SECRET:
         return JsonResponse({"error": "invalid secret"}, status=403)
-    from django.core.management import call_command
-    from io import StringIO
-    out = StringIO()
-    call_command('seed_data', stdout=out)
-    return JsonResponse({"status": "seed complete", "output": out.getvalue()})
+    from .models import PaqueteTuristico
+    # Ensure required countries exist
+    _get_or_create_country("MX", "México", "caribe")
+    _get_or_create_country("ES", "España", "europa")
+    from servicios.management.commands.seed_data import Command
+    cmd = Command()
+    cmd._create_paquetes()
+    count = PaqueteTuristico.objects.filter(activo=True).count()
+    return JsonResponse({"status": "seed complete", "paquetes": count})
