@@ -916,8 +916,6 @@ def health_check(request):
     return JsonResponse({"status": "ok"})
 
 
-from django.contrib.auth.models import User
-
 SEED_SECRET = "corpodg-seed-2024"
 
 def _get_or_create_country(iso, name, region_nombre):
