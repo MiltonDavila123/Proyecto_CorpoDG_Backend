@@ -278,22 +278,17 @@ a:hover {
 }
 
 /* Formularios de edición (change form) — Django admin asigna fondo blanco
-   a fieldset, form-row, inline-group, etc. jazzmin no los oscurece.
-
-   NOTA: jazzmin renderiza TabularInline como:
-     .inline-group > .tabular.inline-related > fieldset.module > table > tbody > tr.form-row > td
-   Cada capa puede tener fondo blanco propio; cubrimos toda la cadena. */
+   a fieldset, form-row, inline-group, etc. jazzmin no los oscurece. */
 #content-main form,
 #content-main fieldset.module,
 #content-main .form-row,
 #content-main .inline-group,
 #content-main .inline-related,
 #content-main .tabular.inline-related,
+#content-main .tabular.inline-related .module,
 #content-main .tabular.inline-related table,
-#content-main .tabular.inline-related table tbody,
 #content-main .tabular.inline-related table tbody tr,
 #content-main .tabular.inline-related table tbody td,
-#content-main .tabular.inline-related .module,
 #content-main .field-box,
 #content-main .field-content,
 .change-form,
@@ -302,17 +297,11 @@ a:hover {
 .form-row td,
 .field-box,
 .inline-group,
-.inline-group .tabular.inline-related,
-.inline-group .tabular.inline-related .module,
-.inline-group .tabular.inline-related table,
-.inline-group .tabular.inline-related table tbody tr,
-.inline-group .tabular.inline-related table tbody td,
-.inline-group .tabular.inline-related td,
-.inline-related,
-.inline-related fieldset.module,
 .tabular.inline-related,
-.tabular.inline-related table,
 .tabular.inline-related .module,
+.tabular.inline-related table,
+.tabular.inline-related table tbody tr,
+.tabular.inline-related table tbody td,
 .readonly {
   background: var(--corpodg-charcoal) !important;
   color: #e8e5db !important;
@@ -332,17 +321,27 @@ a:hover {
   color: var(--corpodg-gold-light) !important;
 }
 
-#content-main .tabular.inline-related table thead th,
-.inline-group table thead th,
-.tabular.inline-related table thead th {
+.tabular.inline-related table thead th,
+#content-main .tabular.inline-related table thead th {
   background: var(--corpodg-ink) !important;
   color: var(--corpodg-gold-light) !important;
 }
 
-#content-main .tabular.inline-related table tbody tr:nth-child(even),
-.inline-group table tbody tr:nth-child(even),
-.tabular.inline-related table tbody tr:nth-child(even) {
+.tabular.inline-related table tbody tr:nth-child(even),
+#content-main .tabular.inline-related table tbody tr:nth-child(even) {
   background: var(--corpodg-charcoal-darker) !important;
+}
+
+/* Enlace "Añadir otro" dentro de inlines */
+.inline-group .add-row a,
+.inline-group .add-row {
+  background: var(--corpodg-charcoal) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+/* Botón de borrar fila inline */
+.inline-group .inline-deletelink {
+  background-color: #8a2a2a !important;
 }
 
 /* Enlace "Añadir otro" dentro de inlines */
