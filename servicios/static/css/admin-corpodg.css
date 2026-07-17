@@ -277,6 +277,112 @@ a:hover {
   color: #6b6858 !important;
 }
 
+/* Formularios de edición (change form) — Django admin asigna fondo blanco
+   a fieldset, form-row, inline-group, etc. jazzmin no los oscurece. */
+#content-main form,
+#content-main fieldset.module,
+#content-main .form-row,
+#content-main .inline-group,
+#content-main .inline-related,
+#content-main .tabular.inline-related table,
+#content-main .tabular.inline-related table tbody tr,
+#content-main .field-box,
+#content-main .field-content,
+.change-form,
+.form-row,
+.form-row:last-child,
+.field-box,
+.inline-group,
+.inline-related h3,
+.inline-related fieldset.module,
+.tabular.inline-related .module,
+.readonly {
+  background: var(--corpodg-charcoal) !important;
+  color: #e8e5db !important;
+}
+
+#content-main form label,
+.form-row label,
+.field-box label,
+.aligned label {
+  color: #e8e5db !important;
+}
+
+#content-main .inline-related h3,
+.inline-group h2,
+.inline-related h3 {
+  background: var(--corpodg-ink) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+#content-main .tabular.inline-related table thead th,
+.inline-group table thead th {
+  background: var(--corpodg-ink) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+#content-main .tabular.inline-related table tbody tr:nth-child(even),
+.inline-group table tbody tr:nth-child(even) {
+  background: var(--corpodg-charcoal-darker) !important;
+}
+
+.help,
+.timezonewarning,
+.field-url .url,
+.datetimeshortcuts {
+  color: #a8a598 !important;
+}
+
+.errornote,
+.errorlist,
+.errors {
+  background: #3d1a1a !important;
+  color: #f5b7b1 !important;
+  border-color: #8a2a2a !important;
+}
+
+.form-row.errors {
+  border-top: 1px solid #8a2a2a !important;
+}
+
+.submit-row {
+  background: var(--corpodg-ink) !important;
+  border-top: 1px solid #3a3830 !important;
+  padding: 12px 16px !important;
+}
+
+.submit-row input[type="submit"] {
+  background: var(--corpodg-gold) !important;
+  color: var(--corpodg-ink) !important;
+  border: none !important;
+}
+
+.submit-row input[type="submit"]:hover {
+  background: var(--corpodg-gold-light) !important;
+}
+
+.submit-row input.deletelink {
+  background: #8a2a2a !important;
+  color: #fff !important;
+}
+
+.submit-row input.deletelink:hover {
+  background: #a63636 !important;
+}
+
+.selector,
+.selector select,
+.selector-chosen h2,
+.selector-available h2 {
+  background: var(--corpodg-charcoal) !important;
+  color: #e8e5db !important;
+}
+
+.selector-available,
+.selector-chosen {
+  border-color: #3a3830 !important;
+}
+
 /* Checkboxes y radios (selección de filas, campos booleanos): sin estilo
    propio se ven como cuadrados blancos sólidos sobre el fondo oscuro. */
 input[type="checkbox"],
