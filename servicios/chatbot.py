@@ -264,6 +264,9 @@ def tool_get_paquetes(region=None, pais=None, solo_destacados=False):
     """Busca paquetes con filtros opcionales."""
     from .models import PaqueteTuristico
 
+    if isinstance(solo_destacados, str):
+        solo_destacados = solo_destacados.lower() in ("true", "1", "yes")
+
     qs = PaqueteTuristico.objects.filter(activo=True).select_related(
         'region', 'pais_destino', 'ciudad_destino', 'aerolinea', 'tipo_paquete'
     )
@@ -590,6 +593,13 @@ def procesar_mensaje(mensaje_usuario, historial=None):
 
     # Construir messages: system + historial (limitado) + nuevo mensaje
     historial = historial or []
+    # Sanear historial: la API de Groq solo acepta las claves role/content.
+    # El frontend puede incluir claves extra (ej. "accion") en cada mensaje.
+    historial = [
+        {"role": m.get("role"), "content": m.get("content")}
+        for m in historial
+        if isinstance(m, dict) and m.get("role") and m.get("content") is not None
+    ]
     historial_limitado = historial[-MAX_HISTORIAL:]  # Solo últimos N mensajes
 
     messages = [
