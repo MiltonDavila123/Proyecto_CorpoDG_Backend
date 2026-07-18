@@ -110,9 +110,8 @@ jobs:
           metrics = d.get('metrics', {})
           rows = ''
           for name, m in sorted(metrics.items()):
-              values = m.get('values', {})
-              if m.get('type') == 'trend':
-                  rows += f'<tr><td>{html.escape(name)}</td><td>{values.get(\"avg\",0):.1f}</td><td>{values.get(\"p(95)\",0):.1f}</td><td>{values.get(\"max\",0):.1f}</td></tr>'
+              if 'avg' in m and 'p(95)' in m:
+                  rows += f'<tr><td>{html.escape(name)}</td><td>{m.get(\"avg\",0):.1f}</td><td>{m.get(\"p(95)\",0):.1f}</td><td>{m.get(\"max\",0):.1f}</td></tr>'
           page = f'''<!doctype html><html><head><meta charset="utf-8">
           <title>Performance Test Report</title>
           <style>body{{font-family:sans-serif;background:#1e1e1e;color:#ddd;padding:2rem}}
