@@ -1099,3 +1099,46 @@ def admin_exportar_reservas(request):
         'total_paquetes': ReservaPaquete.objects.count(),
     }
     return _render(request, 'admin/servicios/exportar_reservas.html', contexto)
+
+
+# =====================================================
+# CARGA MASIVA POR CSV (paquetes, vuelos, destinos)
+# =====================================================
+
+@staff_member_required
+def admin_descargar_plantilla(request, tipo):
+    """Descarga la plantilla CSV de 'paquetes', 'vuelos' o 'destinos'."""
+    from django.http import HttpResponse
+    from .bulk_upload import PLANTILLAS, generar_plantilla_csv
+    if tipo not in PLANTILLAS:
+        return JsonResponse({"error": "Tipo desconocido"}, status=404)
+    contenido = generar_plantilla_csv(tipo)
+    response = HttpResponse(contenido, content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="plantilla_{tipo}.csv"'
+    return response
+
+
+@staff_member_required
+def admin_carga_masiva(request):
+    """Página del admin para subir paquetes, vuelos o destinos desde un CSV."""
+    from django.contrib import admin as django_admin
+    from django.shortcuts import render as _render
+    from .bulk_upload import PLANTILLAS, procesar_csv
+
+    resultado = None
+    tipo = request.POST.get("tipo") or request.GET.get("tipo") or "paquetes"
+    if tipo not in PLANTILLAS:
+        tipo = "paquetes"
+
+    if request.method == "POST" and request.FILES.get("archivo"):
+        archivo = request.FILES["archivo"]
+        resultado = procesar_csv(tipo, archivo.read())
+
+    contexto = {
+        **django_admin.site.each_context(request),
+        "title": "Carga masiva por CSV",
+        "tipo": tipo,
+        "tipos": list(PLANTILLAS.keys()),
+        "resultado": resultado,
+    }
+    return _render(request, "admin/servicios/carga_masiva.html", contexto)

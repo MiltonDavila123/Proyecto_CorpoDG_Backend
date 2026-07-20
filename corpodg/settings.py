@@ -221,6 +221,7 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Dashboard", "url": "/admin/dashboard/"},
         {"name": "Exportar CSV", "url": "/admin/exportar-reservas/"},
+        {"name": "Carga masiva", "url": "/admin/carga-masiva/"},
     ],
     "icons": {
         "auth.Group": "fas fa-users-cog",

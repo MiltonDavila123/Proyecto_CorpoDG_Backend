@@ -1,0 +1,137 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<style>
+  html body, html body.bg-body-tertiary,
+  html body .app-wrapper, html body .app-main, html body .app-content,
+  html body .app-content-header, html body .content-wrapper {
+    background-color: #0f141b !important;
+  }
+  html body .app-content-header, html body .app-content-header h1 { color: #fff !important; }
+
+  .cm { max-width: 900px; margin: 1.5rem auto; color: #e6ebf2; }
+  .cm h1 { color: #fff; margin: 0 0 4px 0; }
+  .cm .cm-sub { opacity: .75; font-size: .85rem; margin-bottom: 20px; }
+
+  .cm-box {
+    background: #1a365d; border-left: 5px solid #ed8936; border-radius: 10px;
+    padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,.25); margin-bottom: 20px;
+  }
+  .cm-box h2 { margin: 0 0 12px 0; font-size: 1rem; color: #ed8936; }
+
+  .cm-tipos { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .cm-tipo {
+    flex: 1; min-width: 180px; background: #0f141b; border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .cm-tipo b { color: #fff; text-transform: capitalize; }
+  .cm-tipo a {
+    display: inline-block; margin-top: 8px; background: #2b6cb0; color: #fff;
+    text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: .78rem;
+  }
+  .cm-tipo a:hover { background: #ed8936; }
+
+  .cm label { display: block; font-size: .82rem; margin: 12px 0 4px; opacity: .9; }
+  .cm select, .cm input[type="file"] {
+    width: 100%; padding: 8px 10px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.25); background: #0f141b; color: #fff;
+  }
+  .cm button {
+    margin-top: 16px; background: #ed8936; color: #fff; border: none;
+    border-radius: 6px; padding: 10px 22px; font-weight: 600; cursor: pointer;
+  }
+  .cm button:hover { background: #dd6b20; }
+
+  .cm-res { margin-top: 4px; }
+  .cm-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cm-stat { background: #0f141b; border-radius: 8px; padding: 12px 16px; border-left: 4px solid #ed8936; }
+  .cm-stat.ok { border-left-color: #27ae60; }
+  .cm-stat.bad { border-left-color: #c0392b; }
+  .cm-stat .n { font-size: 1.5rem; font-weight: 700; color: #fff; }
+  .cm-stat .l { font-size: .74rem; opacity: .8; }
+
+  .cm-errores { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 8px; }
+  .cm-errores th, .cm-errores td { padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .cm-errores th { color: #ed8936; }
+  .cm-warn { color: #f1c40f; font-size: .8rem; margin-top: 8px; }
+  .cm ul.hint { font-size: .78rem; opacity: .8; line-height: 1.7; margin: 8px 0 0 18px; }
+  code { background: #0f141b; padding: 1px 6px; border-radius: 4px; }
+</style>
+
+<div class="cm">
+  <h1>Carga masiva por CSV</h1>
+  <div class="cm-sub">Sube paquetes, vuelos o destinos en lote usando las plantillas.</div>
+
+  <div class="cm-box">
+    <h2>1. Descarga la plantilla</h2>
+    <div class="cm-tipos">
+      {% for t in tipos %}
+      <div class="cm-tipo">
+        <b>{{ t }}</b><br>
+        <a href="{% url 'admin_descargar_plantilla' t %}">Descargar plantilla</a>
+      </div>
+      {% endfor %}
+    </div>
+    <ul class="hint">
+      <li>Los códigos se refieren así: <code>region</code> = clave (caribe, sudamerica, ecuador…),
+          <code>pais_iso</code> = ISO del país (EC, US, ES…), <code>ciudad_codigo</code> e
+          <code>*_iata</code> = código IATA, <code>aerolinea</code> = IATA o nombre.</li>
+      <li>Los booleanos (destacado, activo, incluye_*) aceptan <code>si</code>/<code>no</code>,
+          <code>1</code>/<code>0</code> o <code>true</code>/<code>false</code>.</li>
+      <li>Para saltos de línea dentro de una celda usa <code>\n</code> (ej. en programa_incluye).</li>
+      <li>Fechas en formato <code>AAAA-MM-DD</code>. El separador puede ser <code>;</code> o <code>,</code>.</li>
+      <li>Si vuelves a subir una fila existente (mismo título / mismo destino / misma ruta), se
+          <b>actualiza</b> en vez de duplicarse.</li>
+    </ul>
+  </div>
+
+  <div class="cm-box">
+    <h2>2. Sube tu archivo</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="id_tipo">Tipo de datos</label>
+      <select name="tipo" id="id_tipo">
+        {% for t in tipos %}
+        <option value="{{ t }}" {% if t == tipo %}selected{% endif %}>{{ t|capfirst }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="id_archivo">Archivo CSV</label>
+      <input type="file" name="archivo" id="id_archivo" accept=".csv" required>
+
+      <button type="submit">Cargar datos</button>
+    </form>
+  </div>
+
+  {% if resultado %}
+  <div class="cm-box cm-res">
+    <h2>Resultado</h2>
+    {% if resultado.error %}
+      <p style="color:#ff8f81;">{{ resultado.error }}</p>
+    {% else %}
+      <div class="cm-stats">
+        <div class="cm-stat ok"><div class="n">{{ resultado.creados }}</div><div class="l">Creados</div></div>
+        <div class="cm-stat ok"><div class="n">{{ resultado.actualizados }}</div><div class="l">Actualizados</div></div>
+        <div class="cm-stat {% if resultado.errores %}bad{% endif %}"><div class="n">{{ resultado.errores|length }}</div><div class="l">Con error</div></div>
+        <div class="cm-stat"><div class="n">{{ resultado.total }}</div><div class="l">Filas totales</div></div>
+      </div>
+
+      {% if resultado.columnas_recibidas %}
+        {% with faltantes=resultado.columnas_esperadas %}{% endwith %}
+      {% endif %}
+
+      {% if resultado.errores %}
+      <table class="cm-errores">
+        <tr><th style="width:70px;">Fila</th><th>Error</th></tr>
+        {% for e in resultado.errores %}
+        <tr><td>{{ e.fila }}</td><td>{{ e.mensaje }}</td></tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p style="color:#27ae60;">Todas las filas se procesaron sin errores.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

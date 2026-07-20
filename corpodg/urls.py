@@ -17,12 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from servicios.views import admin_dashboard, admin_exportar_reservas
+from servicios.views import (
+    admin_dashboard, admin_exportar_reservas,
+    admin_carga_masiva, admin_descargar_plantilla,
+)
 
 urlpatterns = [
     # Deben ir antes de admin/ para que el admin no capture las rutas
     path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
     path('admin/exportar-reservas/', admin_exportar_reservas, name='admin_exportar_reservas'),
+    path('admin/carga-masiva/', admin_carga_masiva, name='admin_carga_masiva'),
+    path('admin/carga-masiva/plantilla/<str:tipo>/', admin_descargar_plantilla,
+         name='admin_descargar_plantilla'),
     path('admin/', admin.site.urls),
     path('api/', include('servicios.urls')),
 ]
