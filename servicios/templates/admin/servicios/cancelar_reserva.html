@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="max-width: 640px; margin: 2rem auto;">
+  <div style="border: 1px solid #c0392b; border-radius: 8px; padding: 1.5rem;">
+    <h2 style="color: #c0392b; margin-top: 0;">⚠️ Confirmar cancelación de reserva</h2>
+
+    <p>Estás a punto de cancelar la siguiente reserva. Esta acción quedará
+       registrada con tu usuario y <strong>no se puede deshacer</strong>:</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+      <tr>
+        <th style="text-align: left; padding: .4rem; border-bottom: 1px solid #8884;">Reserva</th>
+        <td style="padding: .4rem; border-bottom: 1px solid #8884;">{{ reserva }}</td>
+      </tr>
+      <tr>
+        <th style="text-align: left; padding: .4rem; border-bottom: 1px solid #8884;">Cliente</th>
+        <td style="padding: .4rem; border-bottom: 1px solid #8884;">{{ reserva.email }} {{ reserva.telefono }}</td>
+      </tr>
+      <tr>
+        <th style="text-align: left; padding: .4rem; border-bottom: 1px solid #8884;">Monto</th>
+        <td style="padding: .4rem; border-bottom: 1px solid #8884;">{{ reserva.monto }} {{ reserva.moneda }}</td>
+      </tr>
+      <tr>
+        <th style="text-align: left; padding: .4rem;">Fecha de creación</th>
+        <td style="padding: .4rem;">{{ reserva.fecha_creacion }}</td>
+      </tr>
+    </table>
+
+    {% if error %}
+      <p style="background: #c0392b22; border: 1px solid #c0392b; border-radius: 6px;
+                padding: .6rem 1rem; color: #c0392b; font-weight: bold;">
+        {{ error }}
+      </p>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <p>
+        <label for="id_password"><strong>Confirma con tu contraseña de usuario ({{ request.user.get_username }}):</strong></label><br>
+        <input type="password" name="password" id="id_password" autocomplete="current-password"
+               required autofocus style="margin-top: .4rem; padding: .4rem; width: 60%;">
+      </p>
+      <div style="margin-top: 1rem;">
+        <button type="submit" class="button"
+                style="background: #c0392b; color: #fff; padding: .5rem 1.2rem; border: none;
+                       border-radius: 6px; cursor: pointer;">
+          Sí, cancelar la reserva
+        </button>
+        <a href="{{ cancel_url }}" class="button"
+           style="margin-left: .8rem; padding: .5rem 1.2rem;">Volver sin cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

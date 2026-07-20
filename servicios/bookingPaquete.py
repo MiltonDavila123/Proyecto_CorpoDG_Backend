@@ -310,9 +310,66 @@ def confirmar_reserva_paquete(session_id):
                          "mensaje": "El voucher se está enviando por correo."}
     _guardar_reserva(session_id, reserva)
 
+    # Persistir la reserva en la base de datos (gestión desde el admin)
+    _guardar_reserva_bd(session_id, reserva, intent)
+
     _enviar_voucher_email_async(session_id, reserva, intent)
 
     return reserva
+
+
+def _guardar_reserva_bd(session_id, reserva, intent):
+    """Persiste la reserva del paquete en la BD para gestión desde el admin.
+
+    Idempotente por stripe_session_id. Nunca rompe el flujo de confirmación:
+    los errores solo se loguean.
+    """
+    import logging
+    try:
+        from .models import Cliente, PaqueteTuristico, ReservaPaquete
+
+        paquete_info = intent.get("paquete") or {}
+        contacto = intent.get("contacto") or {}
+        pago = reserva.get("pago") or {}
+        totales = reserva.get("totales") or {}
+        email = contacto.get("email") or pago.get("email") or ""
+        telefono = contacto.get("phone") or ""
+
+        paquete_obj = PaqueteTuristico.objects.filter(
+            id=paquete_info.get("id")
+        ).first()
+
+        ReservaPaquete.objects.get_or_create(
+            stripe_session_id=session_id,
+            defaults={
+                "localizador": reserva.get("localizador") or "",
+                "paquete": paquete_obj,
+                "paquete_titulo": paquete_info.get("titulo") or "",
+                "email": email,
+                "telefono": telefono,
+                "n_personas": int(intent.get("n_personas") or 1),
+                "fecha_viaje": intent.get("fecha_viaje") or "",
+                "viajeros": reserva.get("viajeros") or [],
+                "monto": totales.get("total") or pago.get("monto") or 0,
+                "moneda": totales.get("moneda") or pago.get("moneda") or "USD",
+                "sandbox": bool(reserva.get("sandbox")),
+                "datos": reserva,
+            },
+        )
+
+        # Registrar/actualizar también al cliente para su gestión
+        if email:
+            viajeros = reserva.get("viajeros") or [{}]
+            nombre = (viajeros[0].get("nombre") or "").strip() or email.split("@")[0]
+            Cliente.objects.get_or_create(
+                email=email,
+                defaults={"nombre_completo": nombre[:50],
+                          "telefono": telefono[:15]},
+            )
+    except Exception:  # noqa: BLE001
+        logging.getLogger(__name__).exception(
+            "No se pudo persistir la reserva de paquete %s en la BD", session_id
+        )
 
 
 def _armar_reserva_paquete(intent):

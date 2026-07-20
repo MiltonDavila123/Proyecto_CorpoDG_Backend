@@ -617,3 +617,89 @@ class OrdenDestinoDestacado(models.Model):
 
     def __str__(self):
         return f"{self.orden} - {self.destino}"
+
+
+# =====================================================
+# RESERVAS CONFIRMADAS (persistencia de bookings)
+# =====================================================
+
+class ReservaVuelo(models.Model):
+    """Reserva de vuelo confirmada (pago Stripe exitoso). Gestionada por asesores."""
+    ESTADO_CHOICES = [
+        ('CONFIRMADA', 'Confirmada'),
+        ('CANCELADA', 'Cancelada'),
+    ]
+
+    pnr = models.CharField("PNR", max_length=10, db_index=True)
+    booking_ref = models.CharField("Referencia de reserva", max_length=20, blank=True)
+    stripe_session_id = models.CharField("Sesión de Stripe", max_length=200, unique=True)
+    email = models.EmailField("Email de contacto", max_length=120, blank=True)
+    telefono = models.CharField("Teléfono de contacto", max_length=30, blank=True)
+    ruta = models.CharField("Ruta", max_length=200, blank=True)
+    n_pasajeros = models.PositiveIntegerField("Número de pasajeros", default=1)
+    pasajeros = models.JSONField("Pasajeros", default=list, blank=True)
+    monto = models.DecimalField("Monto total", max_digits=10, decimal_places=2, default=0)
+    moneda = models.CharField("Moneda", max_length=3, default='USD')
+    estado = models.CharField("Estado", max_length=12, choices=ESTADO_CHOICES, default='CONFIRMADA')
+    sandbox = models.BooleanField("Sandbox", default=False)
+    datos = models.JSONField("Reserva completa (JSON)", default=dict, blank=True)
+    notas_gestion = models.TextField("Notas de gestión", blank=True,
+                                     help_text="Notas internas del asesor sobre esta reserva")
+    fecha_creacion = models.DateTimeField("Fecha de creación", auto_now_add=True)
+    fecha_cancelacion = models.DateTimeField("Fecha de cancelación", null=True, blank=True)
+    cancelada_por = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reservas_vuelo_canceladas',
+        verbose_name="Cancelada por",
+    )
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+        verbose_name = "Reserva de Vuelo"
+        verbose_name_plural = "Reservas de Vuelos"
+
+    def __str__(self):
+        return f"{self.pnr} - {self.ruta} ({self.estado})"
+
+
+class ReservaPaquete(models.Model):
+    """Reserva de paquete turístico confirmada (pago Stripe exitoso)."""
+    ESTADO_CHOICES = [
+        ('CONFIRMADA', 'Confirmada'),
+        ('CANCELADA', 'Cancelada'),
+    ]
+
+    localizador = models.CharField("Localizador", max_length=20, db_index=True)
+    stripe_session_id = models.CharField("Sesión de Stripe", max_length=200, unique=True)
+    paquete = models.ForeignKey(
+        'PaqueteTuristico', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reservas', verbose_name="Paquete",
+    )
+    paquete_titulo = models.CharField("Título del paquete", max_length=200, blank=True)
+    email = models.EmailField("Email de contacto", max_length=120, blank=True)
+    telefono = models.CharField("Teléfono de contacto", max_length=30, blank=True)
+    n_personas = models.PositiveIntegerField("Número de personas", default=1)
+    fecha_viaje = models.CharField("Fecha de viaje", max_length=20, blank=True)
+    viajeros = models.JSONField("Viajeros", default=list, blank=True)
+    monto = models.DecimalField("Monto total", max_digits=10, decimal_places=2, default=0)
+    moneda = models.CharField("Moneda", max_length=3, default='USD')
+    estado = models.CharField("Estado", max_length=12, choices=ESTADO_CHOICES, default='CONFIRMADA')
+    sandbox = models.BooleanField("Sandbox", default=False)
+    datos = models.JSONField("Reserva completa (JSON)", default=dict, blank=True)
+    notas_gestion = models.TextField("Notas de gestión", blank=True,
+                                     help_text="Notas internas del asesor sobre esta reserva")
+    fecha_creacion = models.DateTimeField("Fecha de creación", auto_now_add=True)
+    fecha_cancelacion = models.DateTimeField("Fecha de cancelación", null=True, blank=True)
+    cancelada_por = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reservas_paquete_canceladas',
+        verbose_name="Cancelada por",
+    )
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+        verbose_name = "Reserva de Paquete"
+        verbose_name_plural = "Reservas de Paquetes"
+
+    def __str__(self):
+        return f"{self.localizador} - {self.paquete_titulo} ({self.estado})"

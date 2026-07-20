@@ -287,11 +287,67 @@ def confirmar_reserva(session_id):
                          "mensaje": "El voucher se está enviando por correo."}
     _guardar_reserva(session_id, reserva)
 
+    # Persistir la reserva en la base de datos (gestión desde el admin)
+    _guardar_reserva_bd(session_id, reserva, intent)
+
     # Enviar voucher por correo de forma ASÍNCRONA (no bloquea la respuesta):
     # generar 2 PDFs + SMTP puede tardar varios segundos.
     _enviar_voucher_email_async(session_id, reserva, intent)
 
     return reserva
+
+
+def _guardar_reserva_bd(session_id, reserva, intent):
+    """Persiste la reserva confirmada en la BD para gestión desde el admin.
+
+    Idempotente por stripe_session_id (confirm puede llamarse más de una vez).
+    Nunca rompe el flujo de confirmación: los errores solo se loguean.
+    """
+    import logging
+    try:
+        from .models import Cliente, ReservaVuelo
+
+        resumen = reserva.get("resumen") or {}
+        contacto = intent.get("contacto") or {}
+        pago = reserva.get("pago") or {}
+        totales = resumen.get("totales") or {}
+        email = contacto.get("email") or pago.get("email") or ""
+        telefono = contacto.get("phone") or ""
+
+        ReservaVuelo.objects.get_or_create(
+            stripe_session_id=session_id,
+            defaults={
+                "pnr": reserva.get("confirmationId") or resumen.get("pnr") or "",
+                "booking_ref": resumen.get("booking_ref") or "",
+                "email": email,
+                "telefono": telefono,
+                "ruta": resumen.get("ruta") or "",
+                "n_pasajeros": resumen.get("n_pasajeros")
+                               or len(intent.get("pasajeros") or []) or 1,
+                "pasajeros": intent.get("pasajeros") or [],
+                "monto": totales.get("total") or pago.get("monto") or 0,
+                "moneda": totales.get("moneda") or pago.get("moneda") or "USD",
+                "sandbox": bool(reserva.get("sandbox")),
+                "datos": reserva,
+            },
+        )
+
+        # Registrar/actualizar también al cliente para su gestión
+        if email:
+            pax = (intent.get("pasajeros") or [{}])[0]
+            nombre = " ".join(
+                x for x in [(pax.get("givenName") or "").strip(),
+                            (pax.get("surname") or "").strip()] if x
+            ) or email.split("@")[0]
+            Cliente.objects.get_or_create(
+                email=email,
+                defaults={"nombre_completo": nombre[:50],
+                          "telefono": telefono[:15]},
+            )
+    except Exception:  # noqa: BLE001
+        logging.getLogger(__name__).exception(
+            "No se pudo persistir la reserva de vuelo %s en la BD", session_id
+        )
 
 
 def _enviar_correo_activo():

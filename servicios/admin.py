@@ -805,3 +805,205 @@ class ConfiguracionDestacadosAdmin(admin.ModelAdmin):
 admin.site.register(TipoPaquete)
 admin.site.register(Temporada)
 admin.site.register(TipoViaje)
+
+
+# =====================================================
+# RESERVAS CONFIRMADAS (gestión por asesores)
+# =====================================================
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
+from django.utils import timezone
+from .models import ReservaVuelo, ReservaPaquete
+
+ASESOR_GROUP = 'Asesor'
+
+
+def es_asesor(user):
+    """Solo los usuarios del grupo 'Asesor' pueden cancelar reservas."""
+    return user.is_active and user.groups.filter(name=ASESOR_GROUP).exists()
+
+
+class ReservaAdminBase(admin.ModelAdmin):
+    """Base para reservas: solo lectura (excepto notas), sin alta ni borrado.
+
+    La cancelación es exclusiva del grupo 'Asesor' y exige confirmar
+    con la contraseña del usuario. Cancela (cambio de estado), no borra:
+    el registro se conserva como historial.
+    """
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_readonly_fields(self, request, obj=None):
+        # Todo readonly excepto las notas de gestión
+        return [f.name for f in self.model._meta.fields if f.name != 'notas_gestion']
+
+    def estado_coloreado(self, obj):
+        color = '#27ae60' if obj.estado == 'CONFIRMADA' else '#c0392b'
+        return format_html('<b style="color:{}">{}</b>', color, obj.estado)
+    estado_coloreado.short_description = 'Estado'
+    estado_coloreado.admin_order_field = 'estado'
+
+    # ---------- Cancelación con confirmación de contraseña ----------
+
+    def get_urls(self):
+        info = self.model._meta.app_label, self.model._meta.model_name
+        urls = [
+            path(
+                '<int:reserva_id>/cancelar/',
+                self.admin_site.admin_view(self.cancelar_view),
+                name='%s_%s_cancelar' % info,
+            ),
+        ]
+        return urls + super().get_urls()
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not es_asesor(request.user):
+            actions.pop('cancelar_reserva', None)
+        return actions
+
+    @admin.action(description='Cancelar reserva seleccionada (requiere contraseña)')
+    def cancelar_reserva(self, request, queryset):
+        if not es_asesor(request.user):
+            self.message_user(
+                request,
+                "Solo los usuarios del grupo 'Asesor' pueden cancelar reservas.",
+                messages.ERROR,
+            )
+            return None
+        if queryset.count() != 1:
+            self.message_user(
+                request, "Selecciona una sola reserva para cancelar.",
+                messages.WARNING,
+            )
+            return None
+        info = self.model._meta.app_label, self.model._meta.model_name
+        return redirect(reverse('admin:%s_%s_cancelar' % info,
+                                args=[queryset.first().pk]))
+    actions = ['cancelar_reserva']
+
+    def cancelar_view(self, request, reserva_id):
+        reserva = self.get_object(request, reserva_id)
+        info = self.model._meta.app_label, self.model._meta.model_name
+        changelist_url = reverse('admin:%s_%s_changelist' % info)
+
+        if reserva is None:
+            self.message_user(request, "La reserva no existe.", messages.ERROR)
+            return redirect(changelist_url)
+
+        if not es_asesor(request.user):
+            self.message_user(
+                request,
+                "Solo los usuarios del grupo 'Asesor' pueden cancelar reservas.",
+                messages.ERROR,
+            )
+            return redirect(changelist_url)
+
+        if reserva.estado == 'CANCELADA':
+            self.message_user(request, "Esta reserva ya está cancelada.",
+                              messages.WARNING)
+            return redirect(changelist_url)
+
+        error = None
+        if request.method == 'POST':
+            password = request.POST.get('password', '')
+            if not password:
+                error = "Debes ingresar tu contraseña para confirmar."
+            elif not request.user.check_password(password):
+                error = "Contraseña incorrecta. La reserva NO fue cancelada."
+            else:
+                reserva.estado = 'CANCELADA'
+                reserva.fecha_cancelacion = timezone.now()
+                reserva.cancelada_por = request.user
+                reserva.save(update_fields=['estado', 'fecha_cancelacion',
+                                            'cancelada_por'])
+                self.message_user(
+                    request,
+                    f"Reserva {reserva} cancelada correctamente por "
+                    f"{request.user.get_username()}.",
+                    messages.SUCCESS,
+                )
+                return redirect(changelist_url)
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Confirmar cancelación de reserva',
+            'reserva': reserva,
+            'opts': self.model._meta,
+            'error': error,
+            'cancel_url': changelist_url,
+        }
+        return render(request, 'admin/servicios/cancelar_reserva.html', context)
+
+
+@admin.register(ReservaVuelo)
+class ReservaVueloAdmin(ReservaAdminBase):
+    list_display = ['pnr', 'ruta', 'email', 'telefono', 'n_pasajeros',
+                    'monto', 'moneda', 'estado_coloreado', 'sandbox',
+                    'fecha_creacion']
+    list_filter = ['estado', 'sandbox', 'moneda', 'fecha_creacion']
+    search_fields = ['pnr', 'booking_ref', 'stripe_session_id', 'email',
+                     'telefono', 'ruta']
+    date_hierarchy = 'fecha_creacion'
+    fieldsets = (
+        ('Reserva', {
+            'fields': ('pnr', 'booking_ref', 'ruta', 'estado', 'sandbox',
+                       'fecha_creacion'),
+        }),
+        ('Contacto del cliente', {
+            'fields': ('email', 'telefono'),
+        }),
+        ('Pasajeros y pago', {
+            'fields': ('n_pasajeros', 'pasajeros', 'monto', 'moneda',
+                       'stripe_session_id'),
+        }),
+        ('Cancelación', {
+            'fields': ('fecha_cancelacion', 'cancelada_por'),
+        }),
+        ('Gestión', {
+            'fields': ('notas_gestion',),
+        }),
+        ('Datos completos', {
+            'fields': ('datos',),
+            'classes': ('collapse',),
+        }),
+    )
+
+
+@admin.register(ReservaPaquete)
+class ReservaPaqueteAdmin(ReservaAdminBase):
+    list_display = ['localizador', 'paquete_titulo', 'email', 'telefono',
+                    'n_personas', 'fecha_viaje', 'monto', 'moneda',
+                    'estado_coloreado', 'sandbox', 'fecha_creacion']
+    list_filter = ['estado', 'sandbox', 'moneda', 'fecha_creacion']
+    search_fields = ['localizador', 'stripe_session_id', 'email', 'telefono',
+                     'paquete_titulo']
+    date_hierarchy = 'fecha_creacion'
+    fieldsets = (
+        ('Reserva', {
+            'fields': ('localizador', 'paquete', 'paquete_titulo', 'estado',
+                       'sandbox', 'fecha_creacion'),
+        }),
+        ('Contacto del cliente', {
+            'fields': ('email', 'telefono'),
+        }),
+        ('Viajeros y pago', {
+            'fields': ('n_personas', 'fecha_viaje', 'viajeros', 'monto',
+                       'moneda', 'stripe_session_id'),
+        }),
+        ('Cancelación', {
+            'fields': ('fecha_cancelacion', 'cancelada_por'),
+        }),
+        ('Gestión', {
+            'fields': ('notas_gestion',),
+        }),
+        ('Datos completos', {
+            'fields': ('datos',),
+            'classes': ('collapse',),
+        }),
+    )
