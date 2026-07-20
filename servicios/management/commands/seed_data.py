@@ -11,6 +11,10 @@ from servicios.models import (
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 SCRIPTS_DIR = BASE_DIR / "servicios" / "Scripts"
 
+# PDF detallado (Google Drive) que se usa para TODOS los paquetes y destinos.
+# Se normaliza automáticamente a /preview al guardar (GoogleDrivePDFMixin).
+PDF_DETALLE = "https://drive.google.com/file/d/1sJjO67KTV6iesugxJacug5fGj0_VN45Y/view?usp=sharing"
+
 def load_json(filename):
     with open(SCRIPTS_DIR / filename, encoding="utf-8") as f:
         return json.load(f)
@@ -197,8 +201,6 @@ class Command(BaseCommand):
         self.stdout.write(f"Aeropuertos creados: {Aeropuerto.objects.count()}")
 
     def _create_flights(self):
-        if Vuelo.objects.exists():
-            return
         aerolineas = list(Aerolinea.objects.filter(activo=True))
         aeropuertos = list(Aeropuerto.objects.filter(activo=True))
         if not aerolineas or len(aeropuertos) < 2:
@@ -228,6 +230,20 @@ class Command(BaseCommand):
             ("CUN", "GYE", "3h 35m", 360),
             ("UIO", "JFK", "5h 45m", 550),
             ("JFK", "UIO", "5h 50m", 560),
+            ("UIO", "LIM", "2h 00m", 210),
+            ("LIM", "UIO", "2h 05m", 220),
+            ("GYE", "LIM", "1h 50m", 200),
+            ("LIM", "GYE", "1h 55m", 205),
+            ("UIO", "CUZ", "3h 30m", 340),
+            ("CUZ", "UIO", "3h 35m", 350),
+            ("GYE", "SDQ", "4h 10m", 470),
+            ("SDQ", "GYE", "4h 15m", 480),
+            ("UIO", "CTG", "2h 40m", 260),
+            ("CTG", "UIO", "2h 45m", 270),
+            ("GYE", "BCN", "11h 20m", 910),
+            ("BCN", "GYE", "11h 30m", 930),
+            ("UIO", "GIG", "6h 10m", 640),
+            ("GIG", "UIO", "6h 20m", 660),
         ]
 
         aeropuertos_idx = {a.codigo_iata: a for a in aeropuertos}
@@ -237,15 +253,17 @@ class Command(BaseCommand):
             if not a_o or not a_d:
                 continue
             aerolinea = aerolineas[i % len(aerolineas)]
-            Vuelo.objects.create(
+            Vuelo.objects.get_or_create(
                 aerolinea=aerolinea,
                 origen=a_o,
                 destino=a_d,
-                duracion=duracion,
-                precio=precio,
-                destacado=i < 6,
-                disponible=True,
-                imagen_url="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400",
+                defaults={
+                    "duracion": duracion,
+                    "precio": precio,
+                    "destacado": i < 6,
+                    "disponible": True,
+                    "imagen_url": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400",
+                },
             )
         self.stdout.write(f"Vuelos creados: {Vuelo.objects.count()}")
 
@@ -265,8 +283,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Tipos de Viaje creados: {TipoViaje.objects.count()}")
 
     def _create_destinos(self):
-        if Destino.objects.exists():
-            return
+        Destino.objects.all().delete()
         ecuador = PaisRegion.objects.filter(codigo_iso="EC").first()
         if not ecuador:
             return
@@ -299,12 +316,43 @@ class Command(BaseCommand):
              "Sumérgete en la selva amazónica y convive con comunidades indígenas",
              "https://images.unsplash.com/photo-1470071459604-4b118ecb46af?w=600",
              599, True),
+            ("Cotopaxi", ecuador, None,
+             "Escala uno de los volcanes activos más altos del mundo entre páramos andinos",
+             "https://images.unsplash.com/photo-1531761535209-180857e963b9?w=600",
+             449, True),
+            ("Mitad del Mundo", ecuador, Ciudad.objects.filter(codigo_ciudad="UIO").first(),
+             "Párate sobre la línea ecuatorial en el monumento de la Latitud Cero",
+             "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600",
+             199, True),
+            ("Cuyabeno", ecuador, None,
+             "Reserva de vida silvestre con delfines rosados, lagunas y biodiversidad única",
+             "https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?w=600",
+             699, False),
         ]
+        # Destinos internacionales (se crean solo si el país existe)
+        internacionales = [
+            ("PE", "Machu Picchu", "Descubre la ciudadela inca perdida entre montañas y neblina",
+             "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600", 1290, True),
+            ("MX", "Cancún", "Playas de arena blanca y mar turquesa en el Caribe mexicano",
+             "https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=600", 1099, True),
+            ("CO", "Cartagena", "Ciudad amurallada colonial frente al mar Caribe",
+             "https://images.unsplash.com/photo-1583531352515-8b94f7c3f0d9?w=600", 780, False),
+            ("ES", "Barcelona", "Arquitectura de Gaudí, playa y la mejor gastronomía mediterránea",
+             "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=600", 1650, True),
+            ("BR", "Río de Janeiro", "El Cristo Redentor, Copacabana y la alegría carioca",
+             "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600", 990, False),
+        ]
+        for iso, nombre, desc, img, precio, destacado in internacionales:
+            pais = PaisRegion.objects.filter(codigo_iso=iso).first()
+            if pais:
+                destinos_data.append((nombre, pais, None, desc, img, precio, destacado))
+
         for nombre, pais, ciudad, desc, img, precio, destacado in destinos_data:
             Destino.objects.create(
                 nombre=nombre, pais=pais, ciudad=ciudad,
                 descripcion=desc, imagen_url=img,
-                precio_desde=precio, destacado=destacado, activo=True
+                precio_desde=precio, destacado=destacado, activo=True,
+                pdf_url=PDF_DETALLE,
             )
         self.stdout.write(f"Destinos creados: {Destino.objects.count()}")
 
@@ -314,15 +362,20 @@ class Command(BaseCommand):
         us = PaisRegion.objects.filter(codigo_iso="US").first()
         mx = PaisRegion.objects.filter(codigo_iso="MX").first()
         es = PaisRegion.objects.filter(codigo_iso="ES").first()
+        pe = PaisRegion.objects.filter(codigo_iso="PE").first()
+        co = PaisRegion.objects.filter(codigo_iso="CO").first()
+        do = PaisRegion.objects.filter(codigo_iso="DO").first()
         region_sud = Region.objects.filter(nombre="sudamerica").first()
         region_norte = Region.objects.filter(nombre="norteamerica").first()
         region_caribe = Region.objects.filter(nombre="caribe").first()
         region_europa = Region.objects.filter(nombre="europa").first()
+        region_ecuador = Region.objects.filter(nombre="ecuador").first()
         tipo_playero = TipoPaquete.objects.filter(nombre="Playero").first()
         tipo_aventura = TipoPaquete.objects.filter(nombre="Aventura").first()
         tipo_cultural = TipoPaquete.objects.filter(nombre="Cultural").first()
         tipo_familiar = TipoPaquete.objects.filter(nombre="Familiar").first()
         tipo_luna_miel = TipoPaquete.objects.filter(nombre="Luna de Miel").first()
+        tipo_ecologico = TipoPaquete.objects.filter(nombre="Ecológico").first()
 
         aerolinea_latam = (Aerolinea.objects.filter(codigo_iata="LA").first()
             or Aerolinea.objects.filter(nombre__icontains="LATAM").first())
@@ -492,6 +545,111 @@ class Command(BaseCommand):
                 "precio_aplica_hasta": "2026-12-31",
                 "destacado": False,
             },
+            {
+                "titulo": "Expedición Mitad del Mundo",
+                "subtitulo": "7 días / 6 noches",
+                "titulo_detalle": "EXPEDICIÓN MITAD DEL MUNDO — DESCUBRE LOS ANDES Y LA MAGIA AMAZÓNICA",
+                "region": region_ecuador or region_sud, "pais": ec,
+                "ciudad": Ciudad.objects.filter(codigo_ciudad="UIO").first(),
+                "aerolinea": aerolinea_latam,
+                "precio": 1450, "tipo": tipo_aventura, "noches": 6, "dias": 7,
+                "salidas": "Quito",
+                "fecha_salidas_texto": "Enero a Diciembre 2026",
+                "desc_corta": "Descubre los Andes y la magia amazónica: Quito, Cotopaxi y la selva de Cuyabeno en 7 días.",
+                "desc_extensa": "Embárcate en una aventura sin precedentes diseñada para los viajeros más exigentes. Desde las majestuosas cumbres andinas hasta la profundidad inexplorada de la selva amazónica, esta experiencia exclusiva combina confort, cultura y naturaleza pura.\n\nDía 1: Llegada a la Capital de las Nubes. Recepción VIP en el Aeropuerto Internacional Mariscal Sucre (Quito) y traslado en vehículo privado a su hotel boutique en el centro histórico.\nDía 2: Tesoros Coloniales y la Latitud Cero. Exploración del centro histórico mejor conservado de América, la Basílica del Voto Nacional y la Iglesia de la Compañía de Jesús, y visita al complejo Ciudad Mitad del Mundo.\nDía 3: La Majestuosidad del Cotopaxi. Ascenso al Parque Nacional Cotopaxi, caminata por los páramos andinos hasta el refugio José Rivas (4.864 msnm) y recorrido por la laguna de Limpiopungo.\nDía 4: Inmersión en la Selva - Cuyabeno. Vuelo a Lago Agrio y traslado fluvial en canoa hacia el Eco-Lodge, con observación de monos, tucanes y orquídeas salvajes.\nDía 5: La Laguna Grande y Delfines Rosados. Navegación a la Laguna Grande para el atardecer y avistamiento de delfines rosados, más caminata nocturna de fauna.\nDía 6: Cultura Indígena y Naturaleza. Visita a una comunidad Siona, elaboración tradicional del pan de yuca (casabe) y pesca de pirañas.\nDía 7: Despedida y Retorno. Observación de aves al amanecer, desayuno amazónico y retorno a Quito.",
+                "img": "https://images.unsplash.com/photo-1531761535209-180857e963b9?w=600",
+                "incluye": "Alojamiento en Hoteles Boutique (Quito) y Eco-Lodge (Cuyabeno)\nVuelos internos (Quito - Lago Agrio - Quito)\nTransporte privado para todas las excursiones\nAlimentación completa en la selva (Pensión completa)\nGuías naturalistas bilingües y equipo de excursión",
+                "no_incluye": "Vuelos internacionales y tasas aeroportuarias\nCenas y almuerzos en Quito (Días 1, 2 y 3)\nGastos personales, bebidas alcohólicas y propinas\nSeguro médico y de viaje (Obligatorio)",
+                "como_reservar": "Escríbenos a reservas@trip593.com o a través del formulario de contacto de nuestra web. Un asesor confirmará la disponibilidad en 24 horas.",
+                "importante": "El Día 3 incluye una caminata de altura hasta los 4.864 msnm; se recomienda buena condición física y aclimatación. El seguro médico y de viaje es obligatorio. Precios sujetos a disponibilidad y temporada.",
+                "requisitos_viaje": "Pasaporte vigente (mínimo 6 meses)\nSeguro médico y de viaje obligatorio\nVacuna contra la fiebre amarilla (recomendada para la Amazonía)\nRopa de abrigo para el páramo y ropa ligera para la selva",
+                "formas_pago": "Transferencia bancaria\nDepósito en cuenta\nTarjetas de crédito (3% de recargo)\nPago a través de Stripe",
+                "politica_cancelacion": "Cancelación con hasta 30 días: reembolso del 90%\nCancelación entre 15 y 29 días: reembolso del 50%\nCancelación con menos de 15 días: no aplica reembolso",
+                "lugares_destacados": "Centro Histórico de Quito,Mitad del Mundo,Parque Nacional Cotopaxi,Laguna de Limpiopungo,Reserva Cuyabeno,Laguna Grande",
+                "documentos_requeridos": "Pasaporte vigente",
+                "temperatura": "8°C (páramo) - 32°C (selva)",
+                "precio_aplica_desde": "2026-01-01",
+                "precio_aplica_hasta": "2026-12-31",
+                "destacado": True,
+            },
+            {
+                "titulo": "Perú Mágico: Cusco y Machu Picchu",
+                "subtitulo": "6 días / 5 noches",
+                "titulo_detalle": "PERÚ MÁGICO — CUSCO Y MACHU PICCHU — 6 DÍAS / 5 NOCHES",
+                "region": region_sud, "pais": pe or ec, "ciudad": None,
+                "aerolinea": aerolinea_latam,
+                "precio": 1390, "tipo": tipo_cultural, "noches": 5, "dias": 6,
+                "salidas": "Quito y Guayaquil",
+                "fecha_salidas_texto": "Enero a Diciembre 2026",
+                "desc_corta": "Recorre el Valle Sagrado de los Incas y la ciudadela de Machu Picchu.",
+                "desc_extensa": "Viaja al corazón del imperio Inca en este paquete de 6 días. Explora la ciudad de Cusco, capital arqueológica de América, recorre el Valle Sagrado con sus mercados y fortalezas, y culmina con la visita a la mítica ciudadela de Machu Picchu, una de las 7 maravillas del mundo moderno. Incluye tren panorámico y guías especializados en cultura andina.",
+                "img": "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600",
+                "incluye": "Vuelo ida y vuelta Quito/Cusco\nHotel 5 noches en Cusco\nTren panorámico a Aguas Calientes\nEntrada y tour guiado a Machu Picchu\nTour por el Valle Sagrado\nDesayunos incluidos\nTraslados aeropuerto-hotel-aeropuerto",
+                "no_incluye": "Almuerzos y cenas\nBebidas\nPropinas\nGastos personales\nBoleto de subida al Huayna Picchu (opcional)",
+                "como_reservar": "Contáctanos por el formulario web o WhatsApp y un asesor coordinará tu reserva y la compra anticipada de entradas a Machu Picchu.",
+                "importante": "Las entradas a Machu Picchu tienen cupo limitado; se recomienda reservar con 30 días de anticipación. Cusco está a 3.400 msnm: se recomienda aclimatación por el soroche (mal de altura).",
+                "requisitos_viaje": "Pasaporte o cédula vigente\nSeguro de viaje recomendado\nNo se requiere visa para ecuatorianos",
+                "formas_pago": "Transferencia bancaria\nTarjetas de crédito (3% recargo)\nPago a través de Stripe",
+                "politica_cancelacion": "Cancelación con hasta 30 días: reembolso del 85%\nCancelación entre 15 y 29 días: reembolso del 40%\nEntradas a Machu Picchu no reembolsables",
+                "lugares_destacados": "Machu Picchu,Cusco,Valle Sagrado,Ollantaytambo,Sacsayhuamán,Pisac",
+                "documentos_requeridos": "Pasaporte o cédula vigente",
+                "temperatura": "10°C - 22°C",
+                "precio_aplica_desde": "2026-01-01",
+                "precio_aplica_hasta": "2026-12-31",
+                "destacado": True,
+            },
+            {
+                "titulo": "Punta Cana All Inclusive",
+                "subtitulo": "5 días / 4 noches",
+                "titulo_detalle": "PUNTA CANA ALL INCLUSIVE — 5 DÍAS / 4 NOCHES",
+                "region": region_caribe, "pais": do or ec, "ciudad": None,
+                "aerolinea": aerolinea_avianca,
+                "precio": 1250, "tipo": tipo_playero, "noches": 4, "dias": 5,
+                "salidas": "Quito y Guayaquil",
+                "fecha_salidas_texto": "Todo el año 2026",
+                "desc_corta": "Resort todo incluido frente a las mejores playas del Caribe dominicano.",
+                "desc_extensa": "Relájate en Punta Cana, el paraíso caribeño de República Dominicana. Este paquete todo incluido de 5 días te aloja en un resort frente al mar con playas de arena blanca, palmeras y aguas cristalinas. Disfruta de piscinas, deportes acuáticos, gastronomía internacional ilimitada y espectáculos nocturnos. Ideal para parejas y familias que buscan descanso total.",
+                "img": "https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=600",
+                "incluye": "Vuelo ida y vuelta\nResort 4 noches todo incluido\nComidas y bebidas ilimitadas\nDeportes acuáticos no motorizados\nEspectáculos nocturnos\nTraslados aeropuerto-hotel-aeropuerto\nSeguro de viaje básico",
+                "no_incluye": "Excursiones opcionales\nSpa y masajes\nDeportes acuáticos motorizados\nPropinas\nGastos personales",
+                "como_reservar": "Reserva por el formulario de contacto o WhatsApp; confirmamos disponibilidad en 24 horas.",
+                "importante": "Los ciudadanos ecuatorianos no requieren visa para estancias turísticas en República Dominicana. Se paga una tarjeta de turista incluida en la mayoría de tarifas aéreas.",
+                "requisitos_viaje": "Pasaporte vigente (mínimo 6 meses)\nTarjeta de turista\nSeguro de viaje recomendado",
+                "formas_pago": "Transferencia bancaria\nTarjetas de crédito (3% recargo)\nPago a través de Stripe",
+                "politica_cancelacion": "Cancelación con hasta 30 días: reembolso del 85%\nCancelación entre 15 y 29 días: reembolso del 50%\nCancelación con menos de 15 días: no reembolso",
+                "lugares_destacados": "Playa Bávaro,Isla Saona,Hoyo Azul,Cap Cana,Altos de Chavón,Marina Cap Cana",
+                "documentos_requeridos": "Pasaporte vigente",
+                "temperatura": "26°C - 31°C",
+                "precio_aplica_desde": "2026-01-01",
+                "precio_aplica_hasta": "2026-12-31",
+                "destacado": True,
+            },
+            {
+                "titulo": "Colombia Colonial: Cartagena",
+                "subtitulo": "4 días / 3 noches",
+                "titulo_detalle": "COLOMBIA COLONIAL — CARTAGENA DE INDIAS — 4 DÍAS / 3 NOCHES",
+                "region": region_sud, "pais": co or ec, "ciudad": None,
+                "aerolinea": aerolinea_avianca,
+                "precio": 780, "tipo": tipo_cultural, "noches": 3, "dias": 4,
+                "salidas": "Quito y Guayaquil",
+                "fecha_salidas_texto": "Todo el año 2026",
+                "desc_corta": "La ciudad amurallada, el Caribe y la historia colonial de Colombia.",
+                "desc_extensa": "Cartagena de Indias combina historia, color y playa. En este paquete de 4 días recorrerás la ciudad amurallada declarada Patrimonio de la Humanidad, el imponente Castillo de San Felipe, el bohemio barrio de Getsemaní y navegarás a las paradisíacas Islas del Rosario. Una escapada perfecta al Caribe colombiano.",
+                "img": "https://images.unsplash.com/photo-1583531352515-8b94f7c3f0d9?w=600",
+                "incluye": "Vuelo ida y vuelta\nHotel 3 noches en el centro histórico\nDesayunos incluidos\nCity tour por la ciudad amurallada\nTour a las Islas del Rosario\nTraslados aeropuerto-hotel-aeropuerto",
+                "no_incluye": "Almuerzos y cenas\nBebidas\nPropinas\nImpuesto de las islas\nGastos personales",
+                "como_reservar": "Escríbenos por el formulario o WhatsApp y coordinamos tu reserva en 24 horas.",
+                "importante": "Los ciudadanos ecuatorianos no requieren visa para Colombia. Las excursiones a las islas dependen de las condiciones del mar.",
+                "requisitos_viaje": "Cédula o pasaporte vigente\nSeguro de viaje recomendado",
+                "formas_pago": "Transferencia bancaria\nTarjetas de crédito (3% recargo)\nPago a través de Stripe",
+                "politica_cancelacion": "Cancelación con hasta 20 días: reembolso del 80%\nCancelación con menos de 20 días: reembolso del 40%",
+                "lugares_destacados": "Ciudad Amurallada,Castillo de San Felipe,Getsemaní,Islas del Rosario,Torre del Reloj,Bocagrande",
+                "documentos_requeridos": "Cédula o pasaporte vigente",
+                "temperatura": "27°C - 33°C",
+                "precio_aplica_desde": "2026-01-01",
+                "precio_aplica_hasta": "2026-12-31",
+                "destacado": False,
+            },
         ]
         for p in paquetes:
             PaqueteTuristico.objects.create(
@@ -531,5 +689,6 @@ class Command(BaseCommand):
                 incluye_seguro=True,
                 destacado=p["destacado"],
                 activo=True,
+                pdf_url=PDF_DETALLE,
             )
         self.stdout.write(f"Paquetes Turísticos creados: {PaqueteTuristico.objects.count()}")
