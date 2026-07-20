@@ -135,7 +135,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+# Hora de Ecuador (UTC-5). Con USE_TZ=True los datos se guardan en UTC y se
+# muestran (admin, CSV, dashboard, emails) convertidos a esta zona horaria.
+TIME_ZONE = 'America/Guayaquil'
 
 USE_I18N = True
 

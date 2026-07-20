@@ -24,6 +24,15 @@ import os
 import random
 import string
 import uuid
+from zoneinfo import ZoneInfo
+
+# Hora local de Ecuador (UTC-5) para los timestamps visibles de las reservas.
+TZ_ECUADOR = ZoneInfo("America/Guayaquil")
+
+
+def _ahora_ecuador():
+    """Fecha/hora actual en hora de Ecuador (naive, para mostrar en vouchers)."""
+    return _dt.datetime.now(TZ_ECUADOR).replace(tzinfo=None)
 
 try:
     import stripe
@@ -500,8 +509,8 @@ def _simular_create_booking(intent, stripe_session):
     moneda = intent.get("moneda") or "USD"
     booking_ref = intent.get("booking_ref") or _pnr_random()
 
-    now = _dt.datetime.utcnow()
-    timestamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = _ahora_ecuador()
+    timestamp = now.strftime("%Y-%m-%dT%H:%M:%S")
     today = now.date().isoformat()
     hora = now.strftime("%H:%M")
 

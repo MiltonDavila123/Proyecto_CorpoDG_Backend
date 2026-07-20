@@ -40,6 +40,7 @@ from .bookingFlight import (
     _booking_sandbox_activo,
     _enviar_correo_activo,
     _stripe_receipt_url,
+    _ahora_ecuador,
 )
 
 
@@ -407,13 +408,13 @@ def _armar_reserva_paquete(intent):
         viajeros = [{"nombre": email.split("@")[0].upper() or "TITULAR",
                      "documento": None}]
 
-    now = _dt.datetime.utcnow()
+    now = _ahora_ecuador()
     return {
         "tipo": "paquete",
         "localizador": _localizador(),
         "estado": "CONFIRMADA",
         "emitida": True,
-        "fecha_creacion": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "fecha_creacion": now.strftime("%Y-%m-%dT%H:%M:%S"),
         "paquete": paquete,
         "viajeros": viajeros,
         "n_personas": n,
