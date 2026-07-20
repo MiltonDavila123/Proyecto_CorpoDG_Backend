@@ -59,7 +59,7 @@ class Command(BaseCommand):
             "africa": "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800",
             "asia": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800",
             "oceania": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800",
-            "ecuador": "https://images.unsplash.com/photo-1529390079861-591de354faf5?w=800",
+            "ecuador": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Panorama_quilotoa_crater_lake_ecuador.jpg/500px-Panorama_quilotoa_crater_lake_ecuador.jpg",
         }
         for orden, nombre_key in enumerate(regiones_data, start=1):
             nombre_display = {
@@ -557,7 +557,7 @@ class Command(BaseCommand):
                 "fecha_salidas_texto": "Enero a Diciembre 2026",
                 "desc_corta": "Descubre los Andes y la magia amazónica: Quito, Cotopaxi y la selva de Cuyabeno en 7 días.",
                 "desc_extensa": "Embárcate en una aventura sin precedentes diseñada para los viajeros más exigentes. Desde las majestuosas cumbres andinas hasta la profundidad inexplorada de la selva amazónica, esta experiencia exclusiva combina confort, cultura y naturaleza pura.\n\nDía 1: Llegada a la Capital de las Nubes. Recepción VIP en el Aeropuerto Internacional Mariscal Sucre (Quito) y traslado en vehículo privado a su hotel boutique en el centro histórico.\nDía 2: Tesoros Coloniales y la Latitud Cero. Exploración del centro histórico mejor conservado de América, la Basílica del Voto Nacional y la Iglesia de la Compañía de Jesús, y visita al complejo Ciudad Mitad del Mundo.\nDía 3: La Majestuosidad del Cotopaxi. Ascenso al Parque Nacional Cotopaxi, caminata por los páramos andinos hasta el refugio José Rivas (4.864 msnm) y recorrido por la laguna de Limpiopungo.\nDía 4: Inmersión en la Selva - Cuyabeno. Vuelo a Lago Agrio y traslado fluvial en canoa hacia el Eco-Lodge, con observación de monos, tucanes y orquídeas salvajes.\nDía 5: La Laguna Grande y Delfines Rosados. Navegación a la Laguna Grande para el atardecer y avistamiento de delfines rosados, más caminata nocturna de fauna.\nDía 6: Cultura Indígena y Naturaleza. Visita a una comunidad Siona, elaboración tradicional del pan de yuca (casabe) y pesca de pirañas.\nDía 7: Despedida y Retorno. Observación de aves al amanecer, desayuno amazónico y retorno a Quito.",
-                "img": "https://images.unsplash.com/photo-1531761535209-180857e963b9?w=600",
+                "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Mitad_del_Mundo%2C_Quito%2C_Ecuador%2C_2015-07-22%2C_DD_03.JPG/500px-Mitad_del_Mundo%2C_Quito%2C_Ecuador%2C_2015-07-22%2C_DD_03.JPG",
                 "incluye": "Alojamiento en Hoteles Boutique (Quito) y Eco-Lodge (Cuyabeno)\nVuelos internos (Quito - Lago Agrio - Quito)\nTransporte privado para todas las excursiones\nAlimentación completa en la selva (Pensión completa)\nGuías naturalistas bilingües y equipo de excursión",
                 "no_incluye": "Vuelos internacionales y tasas aeroportuarias\nCenas y almuerzos en Quito (Días 1, 2 y 3)\nGastos personales, bebidas alcohólicas y propinas\nSeguro médico y de viaje (Obligatorio)",
                 "como_reservar": "Escríbenos a reservas@trip593.com o a través del formulario de contacto de nuestra web. Un asesor confirmará la disponibilidad en 24 horas.",
