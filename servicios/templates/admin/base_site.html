@@ -1,134 +1,30 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
 
-{% block extrahead %}
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/admin-corpodg.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
 
-  * { font-family: 'Inter', system-ui, sans-serif; }
-
-  :root {
-    --primary: #1a365d;
-    --secondary: #2b6cb0;
-    --accent: #ed8936;
-    --primary-fg: #fff;
-    --body-bg: #f7fafc;
-    --body-quiet-color: #4a5568;
-    --body-loud-color: #1a202c;
-    --header-color: #fff;
-    --header-branding-color: #fff;
-    --breadcrumbs-bg: #2b6cb0;
-    --breadcrumbs-fg: #ebf4ff;
-    --link-fg: #2b6cb0;
-    --link-selected-fg: #ed8936;
-    --button-bg: #2b6cb0;
-    --button-hover-bg: #1a365d;
-    --default-button-bg: #2b6cb0;
-    --default-button-hover-bg: #1a365d;
-    --close-button-bg: #718096;
-    --close-button-hover-bg: #4a5568;
-    --delete-button-bg: #e53e3e;
-    --delete-button-hover-bg: #c53030;
-    --object-tools-bg: #ed8936;
-    --object-tools-hover-bg: #dd6b20;
-    --module-bg: #fff;
-    --border-radius: 8px;
-    --font-size: 0.875rem;
-  }
-
-  #header {
-    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
-    padding: 10px 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-
-  #branding h1 {
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-
-  #user-tools a {
-    font-weight: 500;
-    border-bottom: none;
-  }
-
-  #user-tools a:hover { color: #ed8936; }
-
-  div.breadcrumbs {
-    background: #2b6cb0;
-    padding: 10px 30px;
-    font-weight: 500;
-    font-size: 0.8rem;
-  }
-
-  div.breadcrumbs a { color: #ebf4ff; }
-
-  .module {
-    border-radius: var(--border-radius);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
-  }
-
-  .module caption, .module h2 {
-    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
-    color: #fff;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 12px 16px;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-  }
-
-  .module a.section:link, .module a.section:visited { color: #fff; }
-
-  .module table { border-radius: 0 0 var(--border-radius) var(--border-radius); }
-
-  #content-related {
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    border: 1px solid #e2e8f0;
-  }
-
-  #content-related .module { box-shadow: none; border: none; }
-
-  .button, input[type=submit], input[type=button], .submit-row input {
-    border-radius: 6px;
-    font-weight: 500;
-    padding: 8px 16px;
-    transition: all 0.2s;
-  }
-
-  .button:hover, input[type=submit]:hover, input[type=button]:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-
-  .selector-chosen h2 { background: #2b6cb0 !important; }
-
-  .inline-group .inline-related h3 {
-    background: #ebf4ff;
-    color: #1a365d;
-    border-bottom: 2px solid #2b6cb0;
-  }
-
-  .dashboard #content {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  .dashboard #content-main { min-width: 0; }
-
-  .dashboard #content-related { margin: 0; }
-
-  @media (max-width: 1024px) {
     .dashboard #content {
-      grid-template-columns: 1fr;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+      align-items: start;
     }
-  }
-</style>
+
+    .dashboard #content-main { min-width: 0; }
+
+    .dashboard #content-related { margin: 0; }
+
+    @media (max-width: 1024px) {
+      .dashboard #content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block branding %}

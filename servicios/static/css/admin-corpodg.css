@@ -1,6 +1,7 @@
 /* CorpoDG — branding sobre el tema oscuro de django-jazzmin (AdminLTE "darkly") */
 
 :root {
+  color-scheme: dark;
   --corpodg-gold: #b5931a;
   --corpodg-gold-light: #d4af37;
   --corpodg-gold-dark: #8a6f14;
@@ -213,6 +214,211 @@ a:hover {
 
 .table-hover tbody tr:hover {
   background: rgba(181, 147, 26, 0.08);
+}
+
+/* Select2 (mejora TODOS los <select> del admin: FK, M2M, filtros con
+   autocompletado, acción "Ir" del changelist). Select2 renderiza su propio
+   HTML fuera del <select> original, así que las reglas de arriba sobre
+   `select` no lo alcanzan — sin esto, cada desplegable del panel se ve
+   blanco con texto casi invisible. */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--corpodg-charcoal) !important;
+  border-color: #3a3830 !important;
+  color: #e8e5db !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #e8e5db !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder,
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  color: #a8a598 !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: var(--corpodg-ink) !important;
+  border-color: var(--corpodg-gold-dark) !important;
+  color: #e8e5db !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+  color: var(--corpodg-gold-light) !important;
+}
+
+.select2-dropdown {
+  background-color: var(--corpodg-charcoal) !important;
+  border-color: #3a3830 !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+  background-color: var(--corpodg-charcoal-darker) !important;
+  border-color: #3a3830 !important;
+  color: #e8e5db !important;
+}
+
+.select2-results__option {
+  background-color: var(--corpodg-charcoal) !important;
+  color: #e8e5db !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--corpodg-gold) !important;
+  color: var(--corpodg-ink) !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: var(--corpodg-ink) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+.select2-container--default .select2-results__option--disabled {
+  color: #6b6858 !important;
+}
+
+/* Formularios de edición (change form) — Django admin asigna fondo blanco
+   a fieldset, form-row, inline-group, etc. jazzmin no los oscurece. */
+#content-main form,
+#content-main fieldset.module,
+#content-main .form-row,
+#content-main .inline-group,
+#content-main .inline-related,
+#content-main .tabular.inline-related,
+#content-main .tabular.inline-related .module,
+#content-main .tabular.inline-related table,
+#content-main .tabular.inline-related table tbody tr,
+#content-main .tabular.inline-related table tbody td,
+#content-main .field-box,
+#content-main .field-content,
+.change-form,
+.form-row,
+.form-row:last-child,
+.form-row td,
+.field-box,
+.inline-group,
+.tabular.inline-related,
+.tabular.inline-related .module,
+.tabular.inline-related table,
+.tabular.inline-related table tbody tr,
+.tabular.inline-related table tbody td,
+.readonly {
+  background: var(--corpodg-charcoal) !important;
+  color: #e8e5db !important;
+}
+
+#content-main form label,
+.form-row label,
+.field-box label,
+.aligned label {
+  color: #e8e5db !important;
+}
+
+.inline-group h2,
+.inline-related h3,
+#content-main .inline-related h3 {
+  background: var(--corpodg-ink) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+.tabular.inline-related table thead th,
+#content-main .tabular.inline-related table thead th {
+  background: var(--corpodg-ink) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+.tabular.inline-related table tbody tr:nth-child(even),
+#content-main .tabular.inline-related table tbody tr:nth-child(even) {
+  background: var(--corpodg-charcoal-darker) !important;
+}
+
+/* Enlace "Añadir otro" dentro de inlines */
+.inline-group .add-row a,
+.inline-group .add-row {
+  background: var(--corpodg-charcoal) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+/* Botón de borrar fila inline */
+.inline-group .inline-deletelink {
+  background-color: #8a2a2a !important;
+}
+
+/* Enlace "Añadir otro" dentro de inlines */
+.inline-group .add-row a,
+.inline-group .add-row {
+  background: var(--corpodg-charcoal) !important;
+  color: var(--corpodg-gold-light) !important;
+}
+
+/* Botón de borrar fila inline */
+.inline-group .inline-deletelink {
+  background-color: #8a2a2a !important;
+}
+
+.help,
+.timezonewarning,
+.field-url .url,
+.datetimeshortcuts {
+  color: #a8a598 !important;
+}
+
+.errornote,
+.errorlist,
+.errors {
+  background: #3d1a1a !important;
+  color: #f5b7b1 !important;
+  border-color: #8a2a2a !important;
+}
+
+.form-row.errors {
+  border-top: 1px solid #8a2a2a !important;
+}
+
+.submit-row {
+  background: var(--corpodg-ink) !important;
+  border-top: 1px solid #3a3830 !important;
+  padding: 12px 16px !important;
+}
+
+.submit-row input[type="submit"] {
+  background: var(--corpodg-gold) !important;
+  color: var(--corpodg-ink) !important;
+  border: none !important;
+}
+
+.submit-row input[type="submit"]:hover {
+  background: var(--corpodg-gold-light) !important;
+}
+
+.submit-row input.deletelink {
+  background: #8a2a2a !important;
+  color: #fff !important;
+}
+
+.submit-row input.deletelink:hover {
+  background: #a63636 !important;
+}
+
+.selector,
+.selector select,
+.selector-chosen h2,
+.selector-available h2 {
+  background: var(--corpodg-charcoal) !important;
+  color: #e8e5db !important;
+}
+
+.selector-available,
+.selector-chosen {
+  border-color: #3a3830 !important;
+}
+
+/* Checkboxes y radios (selección de filas, campos booleanos): sin estilo
+   propio se ven como cuadrados blancos sólidos sobre el fondo oscuro. */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--corpodg-gold);
+  background-color: var(--corpodg-charcoal) !important;
 }
 
 /* Login */
