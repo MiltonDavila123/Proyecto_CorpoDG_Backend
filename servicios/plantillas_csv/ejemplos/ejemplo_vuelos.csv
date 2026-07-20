@@ -1,0 +1,11 @@
+﻿aerolinea;origen_iata;destino_iata;duracion;precio;moneda;imagen_url;destacado;disponible;mensaje_reserva
+LA;UIO;MIA;4h 20m;430;USD;;si;si;Me interesa este vuelo Quito-Miami
+AV;BOG;GYE;2h 15m;190;USD;;no;si;Me interesa este vuelo Bogota-Guayaquil
+IB;MAD;UIO;10h 25m;860;USD;;si;si;Me interesa este vuelo Madrid-Quito
+CM;PTY;MIA;3h 05m;310;USD;;no;si;Copa Panamá-Miami
+DL;JFK;MAD;7h 40m;720;USD;;si;si;Delta Nueva York-Madrid
+LA;GYE;SCL;5h 10m;540;USD;;no;si;LATAM Guayaquil-Santiago
+XX;UIO;MIA;4h;400;USD;;;;Aerolínea inexistente
+LA;ZZZ;MIA;4h;400;USD;;;;Aeropuerto origen inexistente
+AV;BOG;YYY;2h;200;USD;;;;Aeropuerto destino inexistente
+IB;BCN;UIO;11h;;USD;;;;Falta el precio

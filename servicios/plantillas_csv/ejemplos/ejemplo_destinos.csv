@@ -1,0 +1,10 @@
+﻿nombre;pais_iso;ciudad_codigo;descripcion;imagen_url;precio_desde;destacado;activo;pdf_url;mensaje_reserva
+Cuenca Colonial;EC;CUE;Arquitectura colonial, ríos y los sombreros de paja toquilla;https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600;349;si;si;;Me interesa el destino Cuenca
+Cancún Caribe;MX;CUN;Playas de arena blanca y mar turquesa en el Caribe mexicano;https://images.unsplash.com/photo-1510097467424-192d713fd8b2?w=600;1099;si;si;;Me interesa el destino Cancún
+Madrid Histórico;ES;MAD;Museos de clase mundial, el Palacio Real y la mejor tapa española;https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=600;1650;no;si;;Me interesa el destino Madrid
+Salinas Playa;EC;;La mejor playa de la Ruta del Sol para sol, mar y deportes acuáticos;https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600;229;no;si;;Me interesa el destino Salinas
+Ciudad de Panamá;PA;;El Canal, el Casco Viejo y rascacielos junto al Pacífico;https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600;520;si;si;;
+Lima Gastronómica;PE;;Capital culinaria de Sudamérica y centro histórico colonial;https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600;640;no;si;;
+ERROR Pais Inexistente;XX;;El código de país XX no existe;https://example.com/x.jpg;300;no;si;;
+ERROR Sin Ubicacion;;;No tiene ni país ni ciudad;https://example.com/y.jpg;150;;;;
+ERROR Precio No Numerico;EC;;El precio no es un número;https://example.com/z.jpg;carísimo;;;;
