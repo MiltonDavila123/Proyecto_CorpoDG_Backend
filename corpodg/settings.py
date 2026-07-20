@@ -218,7 +218,6 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Dashboard", "url": "/admin/dashboard/"},
         {"name": "Exportar CSV", "url": "/admin/exportar-reservas/"},
-        {"name": "Ver el sitio", "url": "/", "new_window": True},
     ],
     "icons": {
         "auth.Group": "fas fa-users-cog",
