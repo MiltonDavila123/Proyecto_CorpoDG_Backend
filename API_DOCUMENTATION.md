@@ -10,19 +10,25 @@
 6. [Endpoints de Destinos](#endpoints-de-destinos)
 7. [Endpoints de Vuelos](#endpoints-de-vuelos)
 8. [Endpoint de Búsqueda de Vuelos en Vivo (Sabre)](#endpoint-de-búsqueda-de-vuelos-en-vivo-sabre)
-9. [Endpoints de Regiones](#endpoints-de-regiones)
-10. [Endpoints de Países](#endpoints-de-países)
-11. [Endpoints de Ciudades](#endpoints-de-ciudades)
-12. [Endpoints de Aerolíneas](#endpoints-de-aerolíneas)
-13. [Endpoints de Aeropuertos](#endpoints-de-aeropuertos)
-14. [Endpoints de Tipos de Paquete](#endpoints-de-tipos-de-paquete)
-15. [Endpoints de Temporadas](#endpoints-de-temporadas)
-16. [Endpoints de Paquetes Turísticos](#endpoints-de-paquetes-turísticos)
-17. [Endpoints AJAX para Admin](#endpoints-ajax-para-admin)
-18. [Modelos de Datos](#modelos-de-datos)
-19. [Filtros Disponibles](#filtros-disponibles)
-20. [Notas Adicionales](#notas-adicionales)
-21. [Ejemplos de Uso](#ejemplos-de-uso)
+9. [Endpoint de Revalidación de Vuelo](#endpoint-de-revalidación-de-vuelo)
+10. [Endpoint de Mapa de Asientos (SeatMap)](#endpoint-de-mapa-de-asientos-seatmap)
+11. [Endpoints de Booking de Vuelos (Stripe)](#endpoints-de-booking-de-vuelos-stripe)
+12. [Endpoints de Booking de Paquetes (Stripe)](#endpoints-de-booking-de-paquetes-stripe)
+13. [Endpoint de Chatbot](#endpoint-de-chatbot)
+14. [Endpoints de Regiones](#endpoints-de-regiones)
+15. [Endpoints de Países](#endpoints-de-países)
+16. [Endpoints de Ciudades](#endpoints-de-ciudades)
+17. [Endpoints de Aerolíneas](#endpoints-de-aerolíneas)
+18. [Endpoints de Aeropuertos](#endpoints-de-aeropuertos)
+19. [Endpoints de Tipos de Paquete](#endpoints-de-tipos-de-paquete)
+20. [Endpoints de Temporadas](#endpoints-de-temporadas)
+21. [Endpoints de Paquetes Turísticos](#endpoints-de-paquetes-turísticos)
+22. [Endpoints AJAX para Admin](#endpoints-ajax-para-admin)
+23. [Endpoints de Utilidad (Health y Seed)](#endpoints-de-utilidad-health-y-seed)
+24. [Modelos de Datos](#modelos-de-datos)
+25. [Filtros Disponibles](#filtros-disponibles)
+26. [Notas Adicionales](#notas-adicionales)
+27. [Ejemplos de Uso](#ejemplos-de-uso)
 
 ---
 
@@ -55,6 +61,25 @@
 | `/api/paquetes/` | `PaqueteTuristicoViewSet` |
 | `/api/tipos-paquete/` | `TipoPaqueteViewSet` |
 | `/api/temporadas/` | `TemporadaViewSet` |
+
+**Rutas individuales (fuera del router):**
+| Ruta | Vista | Método(s) |
+|------|-------|-----------|
+| `/api/contacto/` | `contacto` | POST |
+| `/api/buscar-vuelos-live/` | `BuscadorVuelosSabreView` | POST |
+| `/api/revalidar-vuelo/` | `RevalidarVueloView` | POST |
+| `/api/seatmap/` | `SeatMapView` | POST |
+| `/api/booking/checkout/` | `BookingCheckoutView` | POST |
+| `/api/booking/confirm/` | `BookingConfirmView` | POST |
+| `/api/booking/webhook/` | `StripeWebhookView` | POST |
+| `/api/booking/voucher/` | `BookingVoucherView` | GET / POST |
+| `/api/paquetes/booking/checkout/` | `PaqueteCheckoutView` | POST |
+| `/api/paquetes/booking/confirm/` | `PaqueteConfirmView` | POST |
+| `/api/paquetes/booking/voucher/` | `PaqueteVoucherView` | GET / POST |
+| `/api/chatbot/` | `ChatbotView` | POST |
+| `/api/health/` | `health_check` | GET |
+| `/api/seed/` | `seed_database` | GET |
+| `/api/admin-ajax/...` | Funciones AJAX para admin | GET |
 
 ---
 
@@ -544,6 +569,384 @@ Actualmente, las APIs están configuradas sin autenticación para facilitar el a
 ```
 
 > **Nota:** Los resultados se ordenan automáticamente por: menor escalas → menor duración → menor precio.
+
+---
+
+## ✅ Endpoint de Revalidación de Vuelo
+
+### Confirmar disponibilidad de un itinerario
+
+- **Método:** `POST`
+- **Endpoint:** `/api/revalidar-vuelo/`
+- **Descripción:** Confirma si un itinerario obtenido en la búsqueda sigue disponible para reservar (Sabre Revalidate). Acepta un objeto con `tramos` construido manualmente, o directamente el objeto `opcion` devuelto por `/api/buscar-vuelos-live/`.
+- **Body:**
+
+```json
+{
+  "adults": 1,
+  "children": 0,
+  "infants": 0,
+  "tramos": [
+    {
+      "fecha_salida": "2026-05-31",
+      "segmentos": [
+        {
+          "numero_vuelo": 833,
+          "clase_servicio": "V",
+          "origen": "EWR",
+          "destino": "MIA",
+          "fecha_hora_salida": "2026-05-31T12:20:00",
+          "fecha_hora_llegada": "2026-05-31T15:26:00",
+          "aerolinea_marketing": "AA",
+          "aerolinea_operadora": "AA"
+        }
+      ]
+    }
+  ]
+}
+```
+
+- **Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "disponible": true,
+  "mensaje": "El vuelo sigue disponible",
+  "precio_total": 685.5,
+  "precio_base": 520.0,
+  "impuestos": 165.5,
+  "moneda": "USD",
+  "ultima_fecha_compra": "2026-05-30",
+  "ultima_hora_compra": "23:59",
+  "aerolinea_validadora": "AA"
+}
+```
+
+- **Respuesta - Vuelo no disponible (409 Conflict):**
+
+```json
+{
+  "disponible": false,
+  "error": "El vuelo ya no esta disponible para reserva"
+}
+```
+
+- **Respuesta - Faltan tramos (400):**
+
+```json
+{
+  "disponible": false,
+  "error": "Faltan los tramos del itinerario"
+}
+```
+
+---
+
+## 💺 Endpoint de Mapa de Asientos (SeatMap)
+
+### Obtener mapa de asientos de un itinerario
+
+- **Método:** `POST`
+- **Endpoint:** `/api/seatmap/`
+- **Descripción:** Devuelve el mapa de asientos de un itinerario vía Sabre Get Seats v3. En modo sandbox (`SEATMAP_SANDBOX`) genera una respuesta simulada con la misma estructura.
+- **Body:**
+
+```json
+{
+  "opcion": { "...": "la opción completa devuelta por /api/buscar-vuelos-live/" },
+  "pasajeros": [
+    { "passengerType": "ADT", "givenName": "JUAN", "surname": "PEREZ" }
+  ],
+  "moneda": "USD"
+}
+```
+
+| Campo       | Tipo   | Requerido | Descripción                                               |
+| ----------- | ------ | --------- | --------------------------------------------------------- |
+| `opcion`    | Object | ✅        | La opción completa (con `tramos`) devuelta por la búsqueda |
+| `pasajeros` | Array  | ❌        | Lista de pasajeros (default: 1 adulto de prueba)          |
+| `moneda`    | String | ❌        | Moneda para precios de asientos (default: USD)            |
+
+- **Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "offer_id": "OFFER-...",
+  "expira": "2026-06-15T12:00:00Z",
+  "mapas": [
+    {
+      "...": "mapa de asientos por segmento (filas, columnas, asientos, precios)"
+    }
+  ],
+  "warnings": [],
+  "sandbox": true
+}
+```
+
+- **Errores posibles:**
+
+| Código | Descripción                                                    |
+| ------ | -------------------------------------------------------------- |
+| 400    | Falta `opcion` con sus `tramos` o datos incompletos            |
+| 404    | La aerolínea no expone mapa de asientos para este vuelo        |
+| 422    | Sabre no pudo generar el mapa (errores críticos)               |
+| 500    | Error de conexión / autenticación con Sabre                    |
+
+---
+
+## 💳 Endpoints de Booking de Vuelos (Stripe)
+
+Flujo de reserva: **checkout** (crea sesión de pago Stripe) → el usuario paga → **confirm** (verifica el pago y crea la reserva) → **voucher** (documento imprimible/PDF). El modo sandbox se controla con `BOOKING_SANDBOX` (simula Sabre createBooking).
+
+### 1. Crear sesión de pago (Checkout)
+
+- **Método:** `POST`
+- **Endpoint:** `/api/booking/checkout/`
+- **Descripción:** Crea una sesión de Stripe Checkout y guarda el intento de reserva en cache (24h)
+- **Body:**
+
+```json
+{
+  "opcion": { "...": "opción del buscador de vuelos" },
+  "pasajeros": [
+    { "givenName": "JUAN", "surname": "PEREZ", "passengerType": "ADT" }
+  ],
+  "contacto": { "email": "juan@example.com", "phone": "+593987654321" },
+  "asientos_seleccionados": [
+    {
+      "segmento_indice": 1,
+      "pasajero_id": 0,
+      "asiento_id": "17F",
+      "offer_item_id": "OITEM-...",
+      "monto": 8.0
+    }
+  ],
+  "moneda": "USD",
+  "success_url": "https://mi-frontend.com/reserva/confirmada",
+  "cancel_url": "https://mi-frontend.com/reserva/cancelada"
+}
+```
+
+| Campo                    | Tipo   | Requerido | Descripción                                  |
+| ------------------------ | ------ | --------- | -------------------------------------------- |
+| `opcion`                 | Object | ✅        | Opción con `tramos` devuelta por la búsqueda |
+| `pasajeros`              | Array  | ✅        | Lista de pasajeros                           |
+| `contacto.email`         | String | ✅        | Email de contacto                            |
+| `asientos_seleccionados` | Array  | ❌        | Asientos elegidos en el seatmap (con costo)  |
+| `moneda`                 | String | ❌        | Default: USD                                 |
+| `success_url` / `cancel_url` | String | ❌    | URLs de retorno de Stripe                    |
+
+- **Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "checkout_url": "https://checkout.stripe.com/c/pay/cs_test_...",
+  "session_id": "cs_test_...",
+  "booking_ref": "A1B2C3D4E5F6",
+  "monto": 693.5,
+  "moneda": "USD",
+  "expira": "2026-07-19T15:00:00Z"
+}
+```
+
+### 2. Confirmar reserva (post-pago)
+
+- **Método:** `POST`
+- **Endpoint:** `/api/booking/confirm/`
+- **Descripción:** Verifica en Stripe que el pago fue exitoso y crea la reserva (Sabre createBooking o simulación en sandbox). Devuelve la reserva tipo `createBookingResponse` con `confirmationId` (PNR), pasajeros, itinerario y `resumen`. También envía el voucher por email en segundo plano. La reserva queda en cache 7 días (por `session_id` y por PNR).
+- **Body:**
+
+```json
+{ "session_id": "cs_test_..." }
+```
+
+- **Errores posibles:**
+
+| Código | Descripción                                                |
+| ------ | ---------------------------------------------------------- |
+| 400    | Falta `session_id`                                         |
+| 402    | El pago aún no está completado (incluye `payment_status`)  |
+| 404    | No se encontró el intento de reserva (expiró la cache)     |
+| 502    | No se pudo verificar la sesión con Stripe                  |
+
+### 3. Webhook de Stripe
+
+- **Método:** `POST`
+- **Endpoint:** `/api/booking/webhook/`
+- **Descripción:** Endpoint opcional para recibir eventos de Stripe (ej: `checkout.session.completed`). Valida la firma si `STRIPE_WEBHOOK_SECRET` está configurado.
+- **Respuesta:** `{ "received": true, "type": "checkout.session.completed" }`
+
+### 4. Voucher / Boletos (HTML o PDF)
+
+- **Método:** `GET` / `POST`
+- **Endpoint:** `/api/booking/voucher/`
+- **Descripción:** Genera el documento imprimible (HTML) o descargable (PDF) de una reserva confirmada.
+- **Uso GET (reserva en cache):**
+  - `/api/booking/voucher/?session_id=cs_test_...&format=pdf`
+  - `/api/booking/voucher/?pnr=ABCDEF&format=html&doc=boletos`
+- **Uso POST (si la cache expiró, se reenvía la reserva):**
+
+```json
+{ "reserva": { "...": "createBookingResponse" }, "format": "pdf", "doc": "voucher" }
+```
+
+| Parámetro    | Valores                | Descripción                                             |
+| ------------ | ---------------------- | ------------------------------------------------------- |
+| `session_id` / `pnr` | String         | Clave para recuperar la reserva (requerido en GET)      |
+| `format`     | `html` (default) / `pdf` | HTML listo para imprimir o archivo PDF                |
+| `doc`        | `voucher` (default) / `boletos` | Comprobante CorpoDG o boletos estilo aerolínea |
+
+- **Errores:** `400` falta clave o reserva, `404` reserva no encontrada/expirada, `500` no se pudo generar el PDF.
+
+---
+
+## 🧳 Endpoints de Booking de Paquetes (Stripe)
+
+Mismo flujo que el booking de vuelos, pero para paquetes turísticos: **checkout** → pago → **confirm** → **voucher**.
+
+### 1. Crear sesión de pago (Checkout)
+
+- **Método:** `POST`
+- **Endpoint:** `/api/paquetes/booking/checkout/`
+- **Body:**
+
+```json
+{
+  "paquete_id": 12,
+  "n_personas": 2,
+  "contacto": { "email": "juan@example.com", "phone": "+593987654321" },
+  "viajeros": [
+    { "nombre": "Milton", "apellido": "Davila", "documento": "0912345678" }
+  ],
+  "fecha_viaje": "2026-08-15",
+  "moneda": "USD",
+  "success_url": "https://mi-frontend.com/reserva/confirmada",
+  "cancel_url": "https://mi-frontend.com/reserva/cancelada"
+}
+```
+
+| Campo            | Tipo    | Requerido | Descripción                                    |
+| ---------------- | ------- | --------- | ---------------------------------------------- |
+| `paquete_id`     | Integer | ✅        | ID del paquete turístico (debe estar activo)   |
+| `n_personas`     | Integer | ✅        | Número de personas (>= 1)                      |
+| `contacto.email` | String  | ✅        | Email de contacto                              |
+| `viajeros`       | Array   | ❌        | Nombres de los viajeros                        |
+| `fecha_viaje`    | String  | ❌        | Fecha tentativa del viaje (`YYYY-MM-DD`)       |
+| `moneda`         | String  | ❌        | Default: moneda del paquete (USD)              |
+| `success_url` / `cancel_url` | String | ❌ | URLs de retorno de Stripe                    |
+
+- **Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "checkout_url": "https://checkout.stripe.com/c/pay/cs_test_...",
+  "session_id": "cs_test_...",
+  "paquete_id": 12,
+  "monto": 2599.98,
+  "moneda": "USD",
+  "n_personas": 2,
+  "expira": "2026-07-19T15:00:00Z"
+}
+```
+
+- **Errores:** `400` datos faltantes o monto inválido, `404` paquete no encontrado o inactivo, `502` error de Stripe.
+
+### 2. Confirmar reserva (post-pago)
+
+- **Método:** `POST`
+- **Endpoint:** `/api/paquetes/booking/confirm/`
+- **Body:** `{ "session_id": "cs_test_..." }`
+- **Descripción:** Verifica el pago en Stripe y devuelve la reserva normalizada del paquete. Envía el voucher por email en segundo plano.
+- **Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "tipo": "paquete",
+  "localizador": "CDGPK-X7K2M9",
+  "estado": "CONFIRMADA",
+  "emitida": true,
+  "fecha_creacion": "2026-07-18T15:30:00Z",
+  "paquete": { "...": "snapshot del paquete (titulo, destino, precio, etc.)" },
+  "viajeros": [{ "...": "..." }],
+  "n_personas": 2,
+  "fecha_viaje": "2026-08-15",
+  "contacto": { "email": "juan@example.com", "phone": "+593987654321" },
+  "pago": { "proveedor": "stripe", "...": "datos del pago" },
+  "sandbox": true
+}
+```
+
+- **Errores:** `400` falta `session_id`, `402` pago no completado, `404` intento expirado, `502` error de Stripe.
+
+### 3. Voucher del paquete (HTML o PDF)
+
+- **Método:** `GET` / `POST`
+- **Endpoint:** `/api/paquetes/booking/voucher/`
+- **Uso GET:**
+  - `/api/paquetes/booking/voucher/?session_id=cs_test_...&format=pdf`
+  - `/api/paquetes/booking/voucher/?loc=CDGPK-XXXXXX&format=html`
+- **Uso POST (si la cache expiró):**
+
+```json
+{ "reserva": { "...": "reserva con 'paquete'" }, "format": "pdf" }
+```
+
+| Parámetro                 | Valores                  | Descripción                                        |
+| ------------------------- | ------------------------ | -------------------------------------------------- |
+| `session_id` / `loc` / `localizador` | String        | Clave para recuperar la reserva (requerido en GET) |
+| `format`                  | `html` (default) / `pdf` | HTML listo para imprimir o archivo PDF             |
+
+- **Errores:** `400` falta clave o reserva, `404` reserva no encontrada/expirada, `500` no se pudo generar el PDF.
+
+---
+
+## 🤖 Endpoint de Chatbot
+
+### Conversar con el asistente
+
+- **Método:** `POST`
+- **Endpoint:** `/api/chatbot/`
+- **Descripción:** Chatbot de CorpoDG (impulsado por Groq con tools internas). Puede consultar paquetes, destinos, vuelos y aerolíneas del catálogo, buscar vuelos en vivo, y sugerir redirecciones al frontend. Recibe el mensaje del usuario y el historial previo, y retorna la respuesta más el historial actualizado (máximo 20 mensajes de contexto).
+- **Body:**
+
+```json
+{
+  "mensaje": "¿Qué paquetes tienen al Caribe?",
+  "historial": [
+    { "role": "user", "content": "Hola" },
+    { "role": "assistant", "content": "¡Hola! ¿En qué puedo ayudarte?" }
+  ]
+}
+```
+
+| Campo       | Tipo   | Requerido | Descripción                                            |
+| ----------- | ------ | --------- | ------------------------------------------------------ |
+| `mensaje`   | String | ✅        | Mensaje del usuario (no puede estar vacío)             |
+| `historial` | Array  | ❌        | Mensajes previos `[{role, content}, ...]`              |
+
+- **Respuesta Exitosa (200 OK):**
+
+```json
+{
+  "respuesta": "Tenemos estos paquetes al Caribe: ...",
+  "historial": [
+    { "role": "user", "content": "Hola" },
+    { "role": "assistant", "content": "¡Hola! ¿En qué puedo ayudarte?" },
+    { "role": "user", "content": "¿Qué paquetes tienen al Caribe?" },
+    { "role": "assistant", "content": "Tenemos estos paquetes al Caribe: ..." }
+  ],
+  "accion": {
+    "tipo": "redirect_paquete",
+    "label": "Ver detalles y reservar",
+    "path": "/paquetes/12",
+    "params": {}
+  }
+}
+```
+
+> El campo `accion` puede ser `null`, o un objeto de redirección (`redirect_paquete`, `redirect_vuelos`) que el frontend puede usar para mostrar un botón de acción. El historial devuelto se reenvía tal cual en el siguiente request.
+
+- **Errores:** `400` mensaje vacío, `500` error procesando el mensaje.
 
 ---
 
@@ -1249,6 +1652,38 @@ Estos endpoints están diseñados para ser usados en el panel de administración
 
 ---
 
+## 🩺 Endpoints de Utilidad (Health y Seed)
+
+### 1. Health check
+
+- **Método:** `GET`
+- **Endpoint:** `/api/health/`
+- **Descripción:** Verifica que el servicio está activo (útil para monitoreo y plataformas de despliegue)
+- **Respuesta:**
+
+```json
+{ "status": "ok" }
+```
+
+### 2. Seed de la base de datos
+
+- **Método:** `GET`
+- **Endpoint:** `/api/seed/?secret={SECRET}`
+- **Descripción:** Endpoint interno para poblar la base de datos con paquetes de ejemplo (crea países base y ejecuta el seeder de paquetes). Requiere el parámetro `secret` correcto; si no coincide devuelve `403`.
+- **Respuesta Exitosa:**
+
+```json
+{ "status": "seed complete", "paquetes": 12 }
+```
+
+- **Respuesta de Error (403):**
+
+```json
+{ "error": "invalid secret" }
+```
+
+---
+
 ## 📊 Modelos de Datos
 
 ### Cliente
@@ -1580,6 +2015,28 @@ Algunos ViewSets usan serializers diferentes según la acción:
 | `/api/aeropuertos/`   | `AeropuertoListSerializer` (compacto) | `AeropuertoSerializer` (completo)          |
 | `/api/paquetes/`      | `PaqueteTuristicoListSerializer`      | `PaqueteTuristicoDetailSerializer`         |
 
+### Vigencia de Paquetes
+
+Los endpoints de paquetes ejecutan `PaqueteTuristico.sincronizar_vigencia()` antes de responder: desactivan automáticamente los paquetes cuyo `precio_aplica_hasta` ya venció y reactivan los que vuelven a estar vigentes.
+
+### Variables de Entorno del Booking
+
+| Variable | Descripción |
+| -------- | ----------- |
+| `STRIPE_SECRET_KEY` | Clave secreta de Stripe (`sk_test_...` / `sk_live_...`) |
+| `STRIPE_WEBHOOK_SECRET` | Secreto para validar la firma del webhook (opcional) |
+| `BOOKING_SANDBOX` | `1` (default) simula Sabre createBooking; `0` intenta la llamada real |
+| `BOOKING_SEND_EMAIL` | `1` (default) envía el voucher por correo tras confirmar |
+| `SEATMAP_SANDBOX` | Activa la respuesta simulada del mapa de asientos |
+| `FRONTEND_BOOKING_SUCCESS_URL` / `FRONTEND_BOOKING_CANCEL_URL` | URLs de retorno por defecto de Stripe |
+| `FRONTEND_PAQUETE_SUCCESS_URL` / `FRONTEND_PAQUETE_CANCEL_URL` | URLs de retorno para booking de paquetes |
+| `GROQ_API_KEY` | API key de Groq para el chatbot |
+
+### Cache de Reservas
+
+- El **intento de reserva** (checkout) se guarda en cache por **24 horas** — si no se confirma en ese tiempo, `confirm` devuelve `404`.
+- La **reserva confirmada** se guarda por **7 días**, indexada por `session_id` y por PNR/localizador. Si expiró, el voucher se puede regenerar reenviando la reserva completa por `POST`.
+
 ### CORS
 
 Para producción, asegúrate de configurar correctamente CORS en `settings.py` para permitir peticiones desde tu frontend.
@@ -1669,6 +2126,28 @@ response = requests.post('http://127.0.0.1:8000/api/buscar-vuelos-live/', json={
     'cabin_class': 'Y'
 })
 vuelos = response.json()
+
+# Reservar un paquete (crear checkout de Stripe)
+response = requests.post('http://127.0.0.1:8000/api/paquetes/booking/checkout/', json={
+    'paquete_id': 12,
+    'n_personas': 2,
+    'contacto': {'email': 'juan@example.com', 'phone': '+593987654321'},
+    'fecha_viaje': '2026-08-15'
+})
+checkout = response.json()  # -> redirigir al usuario a checkout['checkout_url']
+
+# Confirmar la reserva tras el pago
+response = requests.post('http://127.0.0.1:8000/api/paquetes/booking/confirm/', json={
+    'session_id': checkout['session_id']
+})
+reserva = response.json()
+
+# Chatbot
+response = requests.post('http://127.0.0.1:8000/api/chatbot/', json={
+    'mensaje': '¿Qué paquetes tienen al Caribe?',
+    'historial': []
+})
+chat = response.json()  # -> chat['respuesta'], chat['historial'], chat['accion']
 ```
 
 ---
@@ -1677,4 +2156,4 @@ vuelos = response.json()
 
 Para más información o soporte técnico, contacta al equipo de desarrollo.
 
-**Última actualización:** Marzo 28, 2026
+**Última actualización:** Julio 18, 2026
