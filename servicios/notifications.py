@@ -428,7 +428,8 @@ def enviar_correo_nueva_reserva(tipo, codigo, email_cliente, telefono_cliente,
 
     mensaje_texto = f"NUEVA RESERVA DE {tipo_display} CONFIRMADA:\n\n"
     mensaje_texto += "\n".join(f"{k}: {v}" for k, v in filas.items())
-    mensaje_texto += "\n\nRevisa el panel de administración para gestionarla."
+    mensaje_texto += ("\n\nRevisa el panel de administración para gestionarla "
+                      "y enviarla a facturación.")
 
     filas_html = "".join(
         f'<tr>'
@@ -446,7 +447,7 @@ def enviar_correo_nueva_reserva(tipo, codigo, email_cliente, telefono_cliente,
         <div style="background-color: #1a365d; padding: 20px; text-align: center;">
             <img src="cid:logo_corpodg" alt="CORPODG Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
             <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 16px; font-weight: bold;">
-                🎉 Nueva reserva de {tipo_display} confirmada
+                Nueva reserva de {tipo_display} confirmada
             </p>
         </div>
         <div style="padding: 30px;">
@@ -458,7 +459,7 @@ def enviar_correo_nueva_reserva(tipo, codigo, email_cliente, telefono_cliente,
             </table>
             <p style="color: #555;">Ingresa al panel de administración
                (Reservas de {'Vuelos' if tipo == 'vuelo' else 'Paquetes'})
-               para revisarla y gestionarla.</p>
+               para revisarla, gestionarla y enviarla a facturación.</p>
         </div>
         <div style="background-color: #333; padding: 20px; text-align: center;">
             <p style="color: #ffffff; margin: 0; font-size: 12px;">© 2026 CorpoDG - Todos los derechos reservados</p>

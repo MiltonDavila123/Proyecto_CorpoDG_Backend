@@ -214,7 +214,10 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     "language_chooser": False,
     "custom_css": "css/admin-corpodg.css",
+    "custom_js": "js/admin-corpodg.js",
     "topmenu_links": [
+        {"name": "Dashboard", "url": "/admin/dashboard/"},
+        {"name": "Exportar CSV", "url": "/admin/exportar-reservas/"},
         {"name": "Ver el sitio", "url": "/", "new_window": True},
     ],
     "icons": {

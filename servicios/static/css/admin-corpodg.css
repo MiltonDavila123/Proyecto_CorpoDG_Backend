@@ -10,8 +10,11 @@
   --corpodg-ink: #1e1d1a;
 }
 
-body,
-.content-wrapper {
+html body,
+html body .wrapper,
+html body .content-wrapper,
+html body .content-wrapper .content,
+html body .content-header {
   background: var(--corpodg-charcoal-darker) !important;
 }
 

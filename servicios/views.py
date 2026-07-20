@@ -964,3 +964,138 @@ def admin_notificaciones(request):
         "reservas_paquete": paquetes,
         "total": vuelos + paquetes,
     })
+
+
+# =====================================================
+# DASHBOARD DEL ADMIN (métricas de reservas y negocio)
+# =====================================================
+
+@staff_member_required
+def admin_dashboard(request):
+    """Dashboard con métricas clave del negocio, dentro del panel admin."""
+    from datetime import timedelta
+    from django.contrib import admin as django_admin
+    from django.db.models import Count as _Count, Sum as _Sum
+    from django.shortcuts import render as _render
+    from django.utils import timezone as _tz
+    from .models import (ReservaVuelo, ReservaPaquete, Cliente, Solicitud,
+                         PaqueteTuristico, Vuelo, Destino)
+
+    ahora = _tz.now()
+    hace_24h = ahora - timedelta(hours=24)
+    hace_7d = ahora - timedelta(days=7)
+    hace_30d = ahora - timedelta(days=30)
+
+    rv = ReservaVuelo.objects
+    rp = ReservaPaquete.objects
+    rv_conf = rv.filter(estado='CONFIRMADA')
+    rp_conf = rp.filter(estado='CONFIRMADA')
+
+    total_vuelos = rv.count()
+    total_paquetes = rp.count()
+
+    ingresos_total = ((rv_conf.aggregate(t=_Sum('monto'))['t'] or 0)
+                      + (rp_conf.aggregate(t=_Sum('monto'))['t'] or 0))
+    ingresos_30d = ((rv_conf.filter(fecha_creacion__gte=hace_30d)
+                     .aggregate(t=_Sum('monto'))['t'] or 0)
+                    + (rp_conf.filter(fecha_creacion__gte=hace_30d)
+                       .aggregate(t=_Sum('monto'))['t'] or 0))
+
+    top_paquetes = (rp_conf.values('paquete_titulo')
+                    .annotate(reservas=_Count('id'),
+                              personas=_Sum('n_personas'),
+                              ingresos=_Sum('monto'))
+                    .order_by('-reservas', '-ingresos')[:5])
+    top_rutas = (rv_conf.values('ruta')
+                 .annotate(reservas=_Count('id'),
+                           pasajeros=_Sum('n_pasajeros'),
+                           ingresos=_Sum('monto'))
+                 .order_by('-reservas', '-ingresos')[:5])
+
+    contexto = {
+        **django_admin.site.each_context(request),
+        'title': 'Dashboard CorpoDG',
+
+        # Reservas
+        'total_reservas': total_vuelos + total_paquetes,
+        'total_reservas_vuelo': total_vuelos,
+        'total_reservas_paquete': total_paquetes,
+        'reservas_24h': (rv.filter(fecha_creacion__gte=hace_24h).count()
+                         + rp.filter(fecha_creacion__gte=hace_24h).count()),
+        'reservas_vuelo_24h': rv.filter(fecha_creacion__gte=hace_24h).count(),
+        'reservas_paquete_24h': rp.filter(fecha_creacion__gte=hace_24h).count(),
+        'reservas_7d': (rv.filter(fecha_creacion__gte=hace_7d).count()
+                        + rp.filter(fecha_creacion__gte=hace_7d).count()),
+        'reservas_canceladas': (rv.filter(estado='CANCELADA').count()
+                                + rp.filter(estado='CANCELADA').count()),
+        'reservas_sin_revisar': (rv.filter(revisada=False).count()
+                                 + rp.filter(revisada=False).count()),
+
+        # Ingresos (solo reservas confirmadas)
+        'ingresos_total': ingresos_total,
+        'ingresos_30d': ingresos_30d,
+
+        # Rankings
+        'top_paquetes': top_paquetes,
+        'top_rutas': top_rutas,
+
+        # Clientes y solicitudes
+        'clientes_total': Cliente.objects.count(),
+        'clientes_30d': Cliente.objects.filter(fecha_registro__gte=hace_30d).count(),
+        'solicitudes_total': Solicitud.objects.count(),
+        'solicitudes_pendientes': Solicitud.objects.filter(atendido=False).count(),
+
+        # Catálogo
+        'catalogo_paquetes': PaqueteTuristico.objects.filter(activo=True).count(),
+        'catalogo_vuelos': Vuelo.objects.filter(disponible=True).count(),
+        'catalogo_destinos': Destino.objects.filter(activo=True).count(),
+    }
+    return _render(request, 'admin/servicios/dashboard.html', contexto)
+
+
+@staff_member_required
+def admin_exportar_reservas(request):
+    """Página del admin para descargar el CSV completo de reservas por rango de fechas."""
+    import datetime as _dt2
+    from django.contrib import admin as django_admin
+    from django.shortcuts import render as _render
+    from django.utils import timezone as _tz
+    from .csv_export import csv_response_reservas
+    from .models import ReservaVuelo, ReservaPaquete
+
+    error = None
+    tipo = request.GET.get('tipo', 'vuelo')
+    desde = request.GET.get('desde', '')
+    hasta = request.GET.get('hasta', '')
+
+    if request.GET.get('descargar'):
+        try:
+            fecha_desde = _dt2.date.fromisoformat(desde)
+            fecha_hasta = _dt2.date.fromisoformat(hasta)
+        except (TypeError, ValueError):
+            error = "Debes indicar una fecha mínima y una fecha máxima válidas."
+        else:
+            if fecha_desde > fecha_hasta:
+                error = "La fecha mínima no puede ser mayor que la fecha máxima."
+            else:
+                modelo = ReservaPaquete if tipo == 'paquete' else ReservaVuelo
+                queryset = modelo.objects.filter(
+                    fecha_creacion__date__gte=fecha_desde,
+                    fecha_creacion__date__lte=fecha_hasta,
+                ).order_by('fecha_creacion')
+                return csv_response_reservas(
+                    modelo, queryset, f"_{desde}_a_{hasta}"
+                )
+
+    contexto = {
+        **django_admin.site.each_context(request),
+        'title': 'Exportar reservas a CSV',
+        'error': error,
+        'tipo': tipo,
+        'desde': desde,
+        'hasta': hasta,
+        'hoy': _tz.localdate().isoformat(),
+        'total_vuelos': ReservaVuelo.objects.count(),
+        'total_paquetes': ReservaPaquete.objects.count(),
+    }
+    return _render(request, 'admin/servicios/exportar_reservas.html', contexto)

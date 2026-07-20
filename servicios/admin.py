@@ -868,29 +868,9 @@ class ReservaAdminBase(admin.ModelAdmin):
 
     @admin.action(description='Descargar seleccionadas como CSV')
     def exportar_csv(self, request, queryset):
-        import csv
-        import json as _json
-        from django.http import HttpResponse
-
-        campos = [f for f in self.model._meta.fields]
+        from .csv_export import csv_response_reservas
         hoy = timezone.localdate().isoformat()
-        nombre_archivo = f"{self.model._meta.model_name}_{hoy}.csv"
-
-        response = HttpResponse(content_type='text/csv; charset=utf-8')
-        response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
-        response.write('\ufeff')  # BOM para que Excel abra bien los acentos
-
-        writer = csv.writer(response, delimiter=';')
-        writer.writerow([f.verbose_name for f in campos])
-        for reserva in queryset:
-            fila = []
-            for f in campos:
-                valor = getattr(reserva, f.name)
-                if isinstance(valor, (dict, list)):
-                    valor = _json.dumps(valor, ensure_ascii=False)
-                fila.append('' if valor is None else valor)
-            writer.writerow(fila)
-        return response
+        return csv_response_reservas(self.model, queryset, f"_{hoy}")
 
     def estado_coloreado(self, obj):
         color = '#27ae60' if obj.estado == 'CONFIRMADA' else '#c0392b'

@@ -239,6 +239,9 @@ def render_voucher_paquete_html(reserva, modo="web"):
           <div style="width:56px;height:56px;line-height:56px;border-radius:50%;background:#16a34a;color:#fff;font-size:28px;margin:0 auto 10px auto;">&#10003;</div>
           <div style="font-size:22px;font-weight:bold;color:{_DARK};">¡Reserva confirmada!</div>
           <div style="color:#667;font-size:14px;margin-top:4px;">Tu paquete turístico fue reservado correctamente.</div>
+          <div style="color:#8a6d1a;background:#fdf6e3;border:1px solid #e5d9a8;border-radius:8px;padding:8px 14px;margin:12px auto 0 auto;font-size:12px;max-width:420px;">
+            Para realizar una cancelación de tu reserva debes contactarte directamente con la empresa.
+          </div>
         </td></tr>
 
         <tr><td style="background:#fff;padding:10px 24px 0 24px;">{banner_sandbox}</td></tr>

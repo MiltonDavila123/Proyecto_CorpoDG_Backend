@@ -1,0 +1,97 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<style>
+  html body .content-wrapper,
+  html body .content-wrapper .content,
+  html body .content-header {
+    background-color: #0f141b !important;
+  }
+  .dg-export { max-width: 560px; margin: 2rem auto; color: #e6ebf2; }
+  .dg-export .dg-box {
+    background: #1a365d;
+    border-left: 5px solid #ed8936;
+    border-radius: 10px;
+    padding: 22px 26px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  .dg-export h1 {
+    margin: 0 0 6px 0;
+    color: #fff;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dg-export .dg-icon { width: 22px; height: 22px; fill: #ed8936; flex: none; }
+  .dg-export .dg-sub { opacity: .75; font-size: .82rem; margin-bottom: 18px; }
+  .dg-export label { display: block; font-size: .82rem; margin: 12px 0 4px; opacity: .9; }
+  .dg-export input[type="date"], .dg-export select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: #0f141b;
+    color: #fff;
+  }
+  .dg-export .dg-radios { display: flex; gap: 18px; margin-top: 4px; }
+  .dg-export .dg-radios label { display: flex; align-items: center; gap: 6px; margin: 0; }
+  .dg-export .dg-error {
+    background: rgba(192,57,43,.2);
+    border: 1px solid #c0392b;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 14px;
+    font-size: .82rem;
+    color: #ff8f81;
+  }
+  .dg-export button {
+    margin-top: 18px;
+    background: #ed8936;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .dg-export button:hover { background: #dd6b20; }
+</style>
+
+<div class="dg-export">
+  <div class="dg-box">
+    <h1>
+      <svg class="dg-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v3h14v-3H5z"/>
+      </svg>
+      Exportar reservas a CSV
+    </h1>
+    <div class="dg-sub">
+      Descarga el CSV completo de reservas dentro del rango de fechas indicado.
+      Hay {{ total_vuelos }} reserva(s) de vuelo y {{ total_paquetes }} de paquete registradas.
+    </div>
+
+    <form method="get">
+      <label>Tipo de reservas</label>
+      <div class="dg-radios">
+        <label><input type="radio" name="tipo" value="vuelo"
+               {% if tipo != 'paquete' %}checked{% endif %}> Reservas de vuelos</label>
+        <label><input type="radio" name="tipo" value="paquete"
+               {% if tipo == 'paquete' %}checked{% endif %}> Reservas de paquetes</label>
+      </div>
+
+      <label for="id_desde">Fecha mínima (desde)</label>
+      <input type="date" id="id_desde" name="desde" required
+             value="{{ desde }}" max="{{ hoy }}">
+
+      <label for="id_hasta">Fecha máxima (hasta)</label>
+      <input type="date" id="id_hasta" name="hasta" required
+             value="{{ hasta|default:hoy }}" max="{{ hoy }}">
+
+      {% if error %}<div class="dg-error">{{ error }}</div>{% endif %}
+
+      <button type="submit" name="descargar" value="1">Descargar CSV</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
