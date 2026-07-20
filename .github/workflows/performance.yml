@@ -100,6 +100,30 @@ jobs:
             --summary-export=summary-local.json \
             --out json=resultados-local.json
 
+      - name: Build HTML report
+        if: always()
+        run: |
+          python -c "
+          import json, html
+          with open('summary-local.json') as f:
+              d = json.load(f)
+          metrics = d.get('metrics', {})
+          rows = ''
+          for name, m in sorted(metrics.items()):
+              if 'avg' in m and 'p(95)' in m:
+                  rows += f'<tr><td>{html.escape(name)}</td><td>{m.get(\"avg\",0):.1f}</td><td>{m.get(\"p(95)\",0):.1f}</td><td>{m.get(\"max\",0):.1f}</td></tr>'
+          page = f'''<!doctype html><html><head><meta charset="utf-8">
+          <title>Performance Test Report</title>
+          <style>body{{font-family:sans-serif;background:#1e1e1e;color:#ddd;padding:2rem}}
+          table{{border-collapse:collapse;width:100%}} td,th{{border:1px solid #444;padding:.5rem;text-align:right}}
+          th:first-child,td:first-child{{text-align:left}}</style>
+          </head><body><h1>Performance Test Report (k6)</h1>
+          <table><tr><th>Metric</th><th>avg (ms)</th><th>p95 (ms)</th><th>max (ms)</th></tr>{rows}</table>
+          </body></html>'''
+          with open('performance-report.html', 'w') as f:
+              f.write(page)
+          "
+
       - name: Upload local performance results
         if: always()
         uses: actions/upload-artifact@v4
@@ -108,6 +132,7 @@ jobs:
           path: |
             summary-local.json
             resultados-local.json
+            performance-report.html
           retention-days: 30
 
       - name: Print local threshold check

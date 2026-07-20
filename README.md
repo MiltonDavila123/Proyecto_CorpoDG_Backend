@@ -34,7 +34,6 @@ python manage.py runserver
 | `EMAIL_HOST*` | Configuración SMTP |
 | `FRONTEND_BOOKING_SUCCESS_URL`, `FRONTEND_BOOKING_CANCEL_URL` | URLs de retorno |
 | `BOOKING_SANDBOX`, `SEATMAP_SANDBOX` | Modo sandbox Sabre |
-| `AUTH_TOKEN` | Token opcional para endpoints protegidos |
 
 ## API Endpoints
 

@@ -83,6 +83,25 @@ jobs:
       - name: Run tests
         run: python manage.py test servicios -v 2 2>&1 | tee test-output.txt
 
+      - name: Build HTML report
+        if: always()
+        run: |
+          python -c "
+          import html
+          with open('test-output.txt') as f:
+              content = f.read()
+          status = 'FAIL' if 'FAILED' in content else 'PASS'
+          color = '#c0392b' if status == 'FAIL' else '#27ae60'
+          page = f'''<!doctype html><html><head><meta charset="utf-8">
+          <title>Backend Test Report</title>
+          <style>body{{font-family:monospace;background:#1e1e1e;color:#ddd;padding:2rem}}
+          h1{{color:{color}}} pre{{white-space:pre-wrap;background:#111;padding:1rem;border-radius:6px}}</style>
+          </head><body><h1>Backend Test Report — {status}</h1>
+          <pre>{html.escape(content)}</pre></body></html>'''
+          with open('backend-test-report.html', 'w') as f:
+              f.write(page)
+          "
+
       - name: Smoke test — health endpoint
         run: |
           python manage.py runserver 0.0.0.0:8000 --noreload > /tmp/django.log 2>&1 &
@@ -99,5 +118,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-report
-          path: test-output.txt
+          path: backend-test-report.html
           retention-days: 30
