@@ -14,8 +14,31 @@ html body,
 html body .wrapper,
 html body .content-wrapper,
 html body .content-wrapper .content,
-html body .content-header {
+html body .content-header,
+/* jazzmin 3.x (AdminLTE 4 / Bootstrap 5): clases nuevas del layout */
+html body.bg-body-tertiary,
+html body .app-wrapper,
+html body .app-main,
+html body .app-content,
+html body .app-content-header {
   background: var(--corpodg-charcoal-darker) !important;
+}
+
+/* Variables Bootstrap 5 que pintan los fondos claros en jazzmin 3.x */
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="auto"] {
+  --bs-body-bg: var(--corpodg-charcoal-darker);
+  --bs-tertiary-bg: var(--corpodg-charcoal-darker);
+  --bs-secondary-bg: var(--corpodg-charcoal);
+  --bs-body-color: #e8e5db;
+}
+
+html body .app-content-header,
+html body .app-content-header h1,
+html body .app-content-header .breadcrumb,
+html body .app-content-header .breadcrumb-item a {
+  color: #ffffff !important;
 }
 
 /* Django admin nativo (#changelist, formularios, paginador) usa sus propias

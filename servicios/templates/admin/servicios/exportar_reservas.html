@@ -2,10 +2,18 @@
 
 {% block content %}
 <style>
-  html body .content-wrapper,
-  html body .content-wrapper .content,
-  html body .content-header {
+  html body,
+  html body.bg-body-tertiary,
+  html body .app-wrapper,
+  html body .app-main,
+  html body .app-content,
+  html body .app-content-header,
+  html body .content-wrapper {
     background-color: #0f141b !important;
+  }
+  html body .app-content-header,
+  html body .app-content-header h1 {
+    color: #fff !important;
   }
   .dg-export { max-width: 560px; margin: 2rem auto; color: #e6ebf2; }
   .dg-export .dg-box {
