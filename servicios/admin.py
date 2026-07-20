@@ -55,6 +55,15 @@ class DestinoAdmin(admin.ModelAdmin):
     search_fields = ['nombre', 'pais__nombre', 'ciudad__nombre', 'descripcion']
     list_editable = ['destacado', 'activo']
     autocomplete_fields = ['pais', 'ciudad']
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(
+            request, queryset, search_term,
+        )
+        if 'autocomplete' in request.path:
+            if request.GET.get('field_name') == 'destino':
+                queryset = queryset.filter(destacado=True, activo=True)
+        return queryset, may_have_duplicates
     
     class Media:
         js = ('servicios/js/destino_filtros.js',)
@@ -139,7 +148,17 @@ class VueloAdmin(admin.ModelAdmin):
     search_fields = ['aerolinea__nombre', 'origen__nombre', 'destino__nombre', 'origen__codigo_iata', 'destino__codigo_iata']
     list_editable = ['destacado', 'disponible']
     autocomplete_fields = ['aerolinea']
-    
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(
+            request, queryset, search_term,
+        )
+        # Si la petición es desde autocomplete (Select2), filtrar solo destacados
+        if 'autocomplete' in request.path:
+            if request.GET.get('field_name') in ('vuelo',):
+                queryset = queryset.filter(destacado=True, disponible=True)
+        return queryset, may_have_duplicates
+
     fieldsets = (
         ('Selección de Origen', {
             'fields': ('ciudad_origen_filtro', 'origen'),
@@ -505,6 +524,15 @@ class PaqueteTuristicoAdmin(admin.ModelAdmin):
     list_editable = ['destacado', 'activo']
     autocomplete_fields = ['aerolinea']
     date_hierarchy = 'fecha_creacion'
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(
+            request, queryset, search_term,
+        )
+        if 'autocomplete' in request.path:
+            if request.GET.get('field_name') == 'paquete':
+                queryset = queryset.filter(destacado=True, activo=True)
+        return queryset, may_have_duplicates
         
     fieldsets = (
         ('Información del Card (Vista previa)', {
@@ -667,30 +695,36 @@ from .models import ConfiguracionDestacados, OrdenVueloDestacado, OrdenPaqueteDe
 from django.forms.models import BaseInlineFormSet
 
 class BaseDestacadoInlineFormSet(BaseInlineFormSet):
+    def _should_delete(self, form):
+        """Compatibilidad: usa método público si existe (Django >=5.0)"""
+        if hasattr(super(), '_should_delete_form'):
+            return self._should_delete_form(form)
+        return form.cleaned_data.get('DELETE', False)
+
     def clean(self):
         super().clean()
         if any(self.errors):
             return
-            
+
         ordenes = []
         items = []
-        
+
         for form in self.forms:
-            if self.can_delete and self._should_delete_form(form):
+            if self.can_delete and self._should_delete(form):
                 continue
-                
+
             orden = form.cleaned_data.get('orden')
             # el campo de item varia segun el inline (vuelo, paquete, destino)
             item = form.cleaned_data.get('vuelo') or form.cleaned_data.get('paquete') or form.cleaned_data.get('destino')
-            
+
             if orden is not None and orden <= 0:
                 raise ValidationError("El orden debe ser mayor a 0.")
-                
+
             if orden is not None:
                 if orden in ordenes:
                     raise ValidationError(f"El orden {orden} esta repetido. Cada elemento debe tener un orden unico.")
                 ordenes.append(orden)
-                
+
             if item is not None:
                 if item in items:
                     raise ValidationError(f"El elemento {item} esta repetido. No puedes destacar el mismo elemento dos veces.")
@@ -700,32 +734,73 @@ class OrdenVueloDestacadoInline(admin.TabularInline):
     model = OrdenVueloDestacado
     formset = BaseDestacadoInlineFormSet
     extra = 1
-    classes = ('collapse',)
+    show_change_link = True
     autocomplete_fields = ['vuelo']
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'vuelo':
+            kwargs['queryset'] = Vuelo.objects.filter(
+                destacado=True, disponible=True
+            ).select_related('aerolinea', 'origen', 'destino')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 class OrdenPaqueteDestacadoInline(admin.TabularInline):
     model = OrdenPaqueteDestacado
     formset = BaseDestacadoInlineFormSet
     extra = 1
-    classes = ('collapse',)
+    show_change_link = True
     autocomplete_fields = ['paquete']
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'paquete':
+            kwargs['queryset'] = PaqueteTuristico.objects.filter(
+                destacado=True, activo=True
+            ).select_related('region', 'pais_destino')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 class OrdenDestinoDestacadoInline(admin.TabularInline):
     model = OrdenDestinoDestacado
     formset = BaseDestacadoInlineFormSet
     extra = 1
-    classes = ('collapse',)
+    show_change_link = True
     autocomplete_fields = ['destino']
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'destino':
+            kwargs['queryset'] = Destino.objects.filter(
+                destacado=True, activo=True
+            ).select_related('pais', 'ciudad')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 @admin.register(ConfiguracionDestacados)
 class ConfiguracionDestacadosAdmin(admin.ModelAdmin):
     inlines = [OrdenVueloDestacadoInline, OrdenPaqueteDestacadoInline, OrdenDestinoDestacadoInline]
-    
+
     def has_add_permission(self, request):
         # Evitar crear más de una configuración
         if self.model.objects.exists():
             return False
         return super().has_add_permission(request)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # Agregar help_text informativo a los campos de límite
+        if 'limite_vuelos' in form.base_fields:
+            form.base_fields['limite_vuelos'].help_text = (
+                "Cantidad máxima de vuelos destacados a mostrar en la API. "
+                "Los vuelos deben estar marcados como 'Destacado' en su panel para aparecer aquí."
+            )
+        if 'limite_paquetes' in form.base_fields:
+            form.base_fields['limite_paquetes'].help_text = (
+                "Cantidad máxima de paquetes destacados a mostrar en la API. "
+                "Los paquetes deben estar marcados como 'Destacado' en su panel para aparecer aquí."
+            )
+        if 'limite_destinos' in form.base_fields:
+            form.base_fields['limite_destinos'].help_text = (
+                "Cantidad máxima de destinos destacados a mostrar en la API. "
+                "Los destinos deben estar marcados como 'Destacado' en su panel para aparecer aquí."
+            )
+        return form
 
 admin.site.register(TipoPaquete)
 admin.site.register(Temporada)

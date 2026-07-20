@@ -86,4 +86,42 @@ document.addEventListener('DOMContentLoaded', function() {
             nochesInput.dispatchEvent(new Event('input'));
         }
     }
+
+    // =====================================================
+    // FIX: Reinicializar Select2 cuando se cambian tabs de Jazzmin
+    // =====================================================
+    // Jazzmin convierte los inlines en tabs. Cuando un tab está oculto,
+    // los widgets Select2 dentro de él no se inicializan correctamente.
+    // Al mostrar el tab, necesitamos forzar la reinicialización.
+    document.addEventListener('shown.bs.tab', function(e) {
+        setTimeout(function() {
+            const activePane = document.querySelector('.tab-pane.active');
+            if (activePane) {
+                // Re-inicializar cualquier Select2 que no se haya inicializado
+                if (typeof $ !== 'undefined') {
+                    activePane.querySelectorAll('select[data-select2-id]').forEach(function(el) {
+                        const $el = $(el);
+                        if (!$el.data('select2')) {
+                            $el.select2({
+                                dropdownAutoWidth: true,
+                                width: '100%'
+                            });
+                        } else {
+                            // Si ya existe pero estaba oculto, re-calcular dimensiones
+                            $el.select2('destroy');
+                            $el.select2({
+                                dropdownAutoWidth: true,
+                                width: '100%'
+                            });
+                        }
+                    });
+                }
+
+                // Forzar visibilidad de los inline-related dentro del tab activo
+                activePane.querySelectorAll('.inline-related').forEach(function(el) {
+                    el.style.display = '';
+                });
+            }
+        }, 150); // Pequeño delay para que el DOM termine de renderizar
+    });
 });
