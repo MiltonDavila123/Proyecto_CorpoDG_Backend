@@ -866,6 +866,32 @@ class ReservaAdminBase(admin.ModelAdmin):
                           f"{actualizadas} reserva(s) marcada(s) como revisada(s).",
                           messages.SUCCESS)
 
+    @admin.action(description='Descargar seleccionadas como CSV')
+    def exportar_csv(self, request, queryset):
+        import csv
+        import json as _json
+        from django.http import HttpResponse
+
+        campos = [f for f in self.model._meta.fields]
+        hoy = timezone.localdate().isoformat()
+        nombre_archivo = f"{self.model._meta.model_name}_{hoy}.csv"
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+        response.write('\ufeff')  # BOM para que Excel abra bien los acentos
+
+        writer = csv.writer(response, delimiter=';')
+        writer.writerow([f.verbose_name for f in campos])
+        for reserva in queryset:
+            fila = []
+            for f in campos:
+                valor = getattr(reserva, f.name)
+                if isinstance(valor, (dict, list)):
+                    valor = _json.dumps(valor, ensure_ascii=False)
+                fila.append('' if valor is None else valor)
+            writer.writerow(fila)
+        return response
+
     def estado_coloreado(self, obj):
         color = '#27ae60' if obj.estado == 'CONFIRMADA' else '#c0392b'
         return format_html('<b style="color:{}">{}</b>', color, obj.estado)
@@ -909,7 +935,7 @@ class ReservaAdminBase(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
         return redirect(reverse('admin:%s_%s_cancelar' % info,
                                 args=[queryset.first().pk]))
-    actions = ['cancelar_reserva', 'marcar_revisadas']
+    actions = ['cancelar_reserva', 'marcar_revisadas', 'exportar_csv']
 
     def cancelar_view(self, request, reserva_id):
         reserva = self.get_object(request, reserva_id)
@@ -972,8 +998,9 @@ class ReservaVueloAdmin(ReservaAdminBase):
                     'sandbox', 'fecha_creacion']
     list_editable = ['revisada']
     list_filter = ['revisada', 'estado', 'sandbox', 'moneda', 'fecha_creacion']
+    # 'pasajeros' (JSON) permite buscar por nombre y apellido del pasajero
     search_fields = ['pnr', 'booking_ref', 'stripe_session_id', 'email',
-                     'telefono', 'ruta']
+                     'telefono', 'ruta', 'pasajeros']
     date_hierarchy = 'fecha_creacion'
     fieldsets = (
         ('Reserva', {
@@ -1007,8 +1034,9 @@ class ReservaPaqueteAdmin(ReservaAdminBase):
                     'estado_coloreado', 'revisada', 'sandbox', 'fecha_creacion']
     list_editable = ['revisada']
     list_filter = ['revisada', 'estado', 'sandbox', 'moneda', 'fecha_creacion']
+    # 'viajeros' (JSON) permite buscar por nombre y apellido del viajero
     search_fields = ['localizador', 'stripe_session_id', 'email', 'telefono',
-                     'paquete_titulo']
+                     'paquete_titulo', 'viajeros']
     date_hierarchy = 'fecha_creacion'
     fieldsets = (
         ('Reserva', {
