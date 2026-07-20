@@ -620,6 +620,58 @@ class OrdenDestinoDestacado(models.Model):
 
 
 # =====================================================
+# CONFIGURACIÓN DE NOTIFICACIONES (Singleton)
+# =====================================================
+
+class ConfiguracionNotificaciones(models.Model):
+    """Configura a qué correo(s) llegan las notificaciones de contacto y reservas."""
+    email_principal = models.EmailField(
+        "Correo principal de notificaciones",
+        max_length=120,
+        default='miltondaviladt@gmail.com',
+        help_text="Correo al que llegan los mensajes de contacto y los avisos de nuevas reservas",
+    )
+    emails_adicionales = models.TextField(
+        "Correos adicionales",
+        blank=True,
+        help_text="Correos extra separados por comas (opcional). Ej: ventas@corpodg.com, gerencia@corpodg.com",
+    )
+    notificar_contacto = models.BooleanField(
+        "Notificar formulario de contacto", default=True,
+        help_text="Enviar correo cuando un cliente use el formulario de contacto",
+    )
+    notificar_reservas = models.BooleanField(
+        "Notificar nuevas reservas", default=True,
+        help_text="Enviar correo cuando se confirme una reserva de vuelo o paquete",
+    )
+
+    class Meta:
+        verbose_name = "Configuración de Notificaciones"
+        verbose_name_plural = "Configuración de Notificaciones (Correos)"
+
+    def __str__(self):
+        return f"Notificaciones -> {self.email_principal}"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def get_destinatarios(self):
+        """Lista de correos destino: principal + adicionales (sin vacíos ni duplicados)."""
+        emails = [self.email_principal.strip()] if self.email_principal else []
+        for e in (self.emails_adicionales or '').split(','):
+            e = e.strip()
+            if e and e not in emails:
+                emails.append(e)
+        return emails
+
+
+# =====================================================
 # RESERVAS CONFIRMADAS (persistencia de bookings)
 # =====================================================
 
@@ -645,6 +697,10 @@ class ReservaVuelo(models.Model):
     datos = models.JSONField("Reserva completa (JSON)", default=dict, blank=True)
     notas_gestion = models.TextField("Notas de gestión", blank=True,
                                      help_text="Notas internas del asesor sobre esta reserva")
+    revisada = models.BooleanField(
+        "Revisada", default=False,
+        help_text="Marca la reserva como revisada para quitarla de la notificación del panel",
+    )
     fecha_creacion = models.DateTimeField("Fecha de creación", auto_now_add=True)
     fecha_cancelacion = models.DateTimeField("Fecha de cancelación", null=True, blank=True)
     cancelada_por = models.ForeignKey(
@@ -688,6 +744,10 @@ class ReservaPaquete(models.Model):
     datos = models.JSONField("Reserva completa (JSON)", default=dict, blank=True)
     notas_gestion = models.TextField("Notas de gestión", blank=True,
                                      help_text="Notas internas del asesor sobre esta reserva")
+    revisada = models.BooleanField(
+        "Revisada", default=False,
+        help_text="Marca la reserva como revisada para quitarla de la notificación del panel",
+    )
     fecha_creacion = models.DateTimeField("Fecha de creación", auto_now_add=True)
     fecha_cancelacion = models.DateTimeField("Fecha de cancelación", null=True, blank=True)
     cancelada_por = models.ForeignKey(

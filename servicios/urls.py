@@ -34,6 +34,7 @@ urlpatterns = [
     path('paquetes/booking/voucher/',  views.PaqueteVoucherView.as_view(),  name='paquete_voucher'),
     path('chatbot/', views.ChatbotView.as_view(), name='chatbot'),
     path('health/', views.health_check, name='health_check'),
+    path('admin-notificaciones/', views.admin_notificaciones, name='admin_notificaciones'),
     path('seed/', views.seed_database, name='seed_database'),
     # Endpoints AJAX para admin
     path('admin-ajax/paises-por-region/<int:region_id>/', views.paises_por_region, name='ajax_paises'),

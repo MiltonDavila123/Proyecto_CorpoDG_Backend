@@ -814,9 +814,25 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils import timezone
-from .models import ReservaVuelo, ReservaPaquete
+from .models import ReservaVuelo, ReservaPaquete, ConfiguracionNotificaciones
 
 ASESOR_GROUP = 'Asesor'
+
+
+@admin.register(ConfiguracionNotificaciones)
+class ConfiguracionNotificacionesAdmin(admin.ModelAdmin):
+    """Configura a qué correo(s) llegan contacto y avisos de reservas (solo Admin)."""
+    list_display = ['email_principal', 'emails_adicionales',
+                    'notificar_contacto', 'notificar_reservas']
+
+    def has_add_permission(self, request):
+        # Singleton: evitar crear más de una configuración
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 def es_asesor(user):
@@ -839,8 +855,16 @@ class ReservaAdminBase(admin.ModelAdmin):
         return False
 
     def get_readonly_fields(self, request, obj=None):
-        # Todo readonly excepto las notas de gestión
-        return [f.name for f in self.model._meta.fields if f.name != 'notas_gestion']
+        # Todo readonly excepto las notas de gestión y el check de revisada
+        editables = ('notas_gestion', 'revisada')
+        return [f.name for f in self.model._meta.fields if f.name not in editables]
+
+    @admin.action(description='Marcar como revisada(s)')
+    def marcar_revisadas(self, request, queryset):
+        actualizadas = queryset.update(revisada=True)
+        self.message_user(request,
+                          f"{actualizadas} reserva(s) marcada(s) como revisada(s).",
+                          messages.SUCCESS)
 
     def estado_coloreado(self, obj):
         color = '#27ae60' if obj.estado == 'CONFIRMADA' else '#c0392b'
@@ -885,7 +909,7 @@ class ReservaAdminBase(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
         return redirect(reverse('admin:%s_%s_cancelar' % info,
                                 args=[queryset.first().pk]))
-    actions = ['cancelar_reserva']
+    actions = ['cancelar_reserva', 'marcar_revisadas']
 
     def cancelar_view(self, request, reserva_id):
         reserva = self.get_object(request, reserva_id)
@@ -944,9 +968,10 @@ class ReservaAdminBase(admin.ModelAdmin):
 @admin.register(ReservaVuelo)
 class ReservaVueloAdmin(ReservaAdminBase):
     list_display = ['pnr', 'ruta', 'email', 'telefono', 'n_pasajeros',
-                    'monto', 'moneda', 'estado_coloreado', 'sandbox',
-                    'fecha_creacion']
-    list_filter = ['estado', 'sandbox', 'moneda', 'fecha_creacion']
+                    'monto', 'moneda', 'estado_coloreado', 'revisada',
+                    'sandbox', 'fecha_creacion']
+    list_editable = ['revisada']
+    list_filter = ['revisada', 'estado', 'sandbox', 'moneda', 'fecha_creacion']
     search_fields = ['pnr', 'booking_ref', 'stripe_session_id', 'email',
                      'telefono', 'ruta']
     date_hierarchy = 'fecha_creacion'
@@ -966,7 +991,7 @@ class ReservaVueloAdmin(ReservaAdminBase):
             'fields': ('fecha_cancelacion', 'cancelada_por'),
         }),
         ('Gestión', {
-            'fields': ('notas_gestion',),
+            'fields': ('revisada', 'notas_gestion'),
         }),
         ('Datos completos', {
             'fields': ('datos',),
@@ -979,8 +1004,9 @@ class ReservaVueloAdmin(ReservaAdminBase):
 class ReservaPaqueteAdmin(ReservaAdminBase):
     list_display = ['localizador', 'paquete_titulo', 'email', 'telefono',
                     'n_personas', 'fecha_viaje', 'monto', 'moneda',
-                    'estado_coloreado', 'sandbox', 'fecha_creacion']
-    list_filter = ['estado', 'sandbox', 'moneda', 'fecha_creacion']
+                    'estado_coloreado', 'revisada', 'sandbox', 'fecha_creacion']
+    list_editable = ['revisada']
+    list_filter = ['revisada', 'estado', 'sandbox', 'moneda', 'fecha_creacion']
     search_fields = ['localizador', 'stripe_session_id', 'email', 'telefono',
                      'paquete_titulo']
     date_hierarchy = 'fecha_creacion'
@@ -1000,7 +1026,7 @@ class ReservaPaqueteAdmin(ReservaAdminBase):
             'fields': ('fecha_cancelacion', 'cancelada_por'),
         }),
         ('Gestión', {
-            'fields': ('notas_gestion',),
+            'fields': ('revisada', 'notas_gestion'),
         }),
         ('Datos completos', {
             'fields': ('datos',),

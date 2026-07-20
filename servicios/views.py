@@ -946,3 +946,21 @@ def seed_database(request):
     cmd._create_paquetes()
     count = PaqueteTuristico.objects.filter(activo=True).count()
     return JsonResponse({"status": "seed complete", "paquetes": count})
+
+# =====================================================
+# NOTIFICACIONES DEL PANEL ADMIN (reservas sin revisar)
+# =====================================================
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+@staff_member_required
+def admin_notificaciones(request):
+    """Conteo de reservas sin revisar, para la campana/banner del panel admin."""
+    from .models import ReservaVuelo, ReservaPaquete
+    vuelos = ReservaVuelo.objects.filter(revisada=False).count()
+    paquetes = ReservaPaquete.objects.filter(revisada=False).count()
+    return JsonResponse({
+        "reservas_vuelo": vuelos,
+        "reservas_paquete": paquetes,
+        "total": vuelos + paquetes,
+    })

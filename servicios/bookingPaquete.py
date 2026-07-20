@@ -43,8 +43,6 @@ from .bookingFlight import (
 )
 
 
-_COPIA_ADMIN = "miltondaviladt@gmail.com"
-
 # Cache keys / TTL
 _INTENT_KEY = "paquete_intent:{sid}"
 _RESULT_KEY = "paquete_result:{sid}"
@@ -339,7 +337,7 @@ def _guardar_reserva_bd(session_id, reserva, intent):
             id=paquete_info.get("id")
         ).first()
 
-        ReservaPaquete.objects.get_or_create(
+        obj, creada = ReservaPaquete.objects.get_or_create(
             stripe_session_id=session_id,
             defaults={
                 "localizador": reserva.get("localizador") or "",
@@ -356,6 +354,21 @@ def _guardar_reserva_bd(session_id, reserva, intent):
                 "datos": reserva,
             },
         )
+
+        # Avisar al correo configurado en el admin (solo la primera vez)
+        if creada:
+            from .notifications import notificar_nueva_reserva_async
+            notificar_nueva_reserva_async(
+                tipo="paquete",
+                codigo=obj.localizador,
+                email_cliente=email,
+                telefono_cliente=telefono,
+                monto=obj.monto,
+                moneda=obj.moneda,
+                detalle=obj.paquete_titulo,
+                detalle_extra={"Personas": obj.n_personas,
+                               "Fecha de viaje": obj.fecha_viaje or "No indicada"},
+            )
 
         # Registrar/actualizar también al cliente para su gestión
         if email:
@@ -460,9 +473,11 @@ def _enviar_voucher_email(reserva, intent):
         return
     try:
         from .paqueteDocs import enviar_correo_paquete
-        destinatarios = [_COPIA_ADMIN]
+        from .notifications import obtener_destinatarios_notificacion
+        # Copia a los correos de administración configurados en el admin
+        destinatarios = obtener_destinatarios_notificacion()
         contacto_email = (intent.get("contacto") or {}).get("email")
-        if contacto_email and contacto_email != _COPIA_ADMIN:
+        if contacto_email and contacto_email not in destinatarios:
             destinatarios.insert(0, contacto_email)
         res = enviar_correo_paquete(reserva, destinatarios=destinatarios)
         reserva["correo"] = {

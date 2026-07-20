@@ -314,7 +314,7 @@ def _guardar_reserva_bd(session_id, reserva, intent):
         email = contacto.get("email") or pago.get("email") or ""
         telefono = contacto.get("phone") or ""
 
-        ReservaVuelo.objects.get_or_create(
+        obj, creada = ReservaVuelo.objects.get_or_create(
             stripe_session_id=session_id,
             defaults={
                 "pnr": reserva.get("confirmationId") or resumen.get("pnr") or "",
@@ -331,6 +331,21 @@ def _guardar_reserva_bd(session_id, reserva, intent):
                 "datos": reserva,
             },
         )
+
+        # Avisar al correo configurado en el admin (solo la primera vez)
+        if creada:
+            from .notifications import notificar_nueva_reserva_async
+            notificar_nueva_reserva_async(
+                tipo="vuelo",
+                codigo=obj.pnr,
+                email_cliente=email,
+                telefono_cliente=telefono,
+                monto=obj.monto,
+                moneda=obj.moneda,
+                detalle=obj.ruta,
+                detalle_extra={"Pasajeros": obj.n_pasajeros,
+                               "Referencia": obj.booking_ref},
+            )
 
         # Registrar/actualizar también al cliente para su gestión
         if email:
@@ -393,11 +408,11 @@ def _enviar_voucher_email(reserva, intent):
         return
     try:
         from .bookingDocs import enviar_correo_reserva
-        # Siempre incluir copia a la cuenta de administración
-        _COPIA_ADMIN = "miltondaviladt@gmail.com"
-        destinatarios = [_COPIA_ADMIN]
+        from .notifications import obtener_destinatarios_notificacion
+        # Siempre incluir copia a los correos de administración configurados
+        destinatarios = obtener_destinatarios_notificacion()
         contacto_email = (intent.get("contacto") or {}).get("email")
-        if contacto_email and contacto_email != _COPIA_ADMIN:
+        if contacto_email and contacto_email not in destinatarios:
             destinatarios.insert(0, contacto_email)
         res = enviar_correo_reserva(reserva, destinatarios=destinatarios)
         reserva["correo"] = {

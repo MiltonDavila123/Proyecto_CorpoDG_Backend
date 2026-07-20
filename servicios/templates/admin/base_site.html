@@ -24,7 +24,88 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Banner de notificación de nuevas reservas */
+    #corpodg-notif-reservas {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 18px;
+      z-index: 9999;
+      max-width: 320px;
+      background: #1a365d;
+      color: #fff;
+      border-left: 5px solid #ed8936;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      padding: 14px 16px;
+      font-size: 0.85rem;
+    }
+    #corpodg-notif-reservas strong { color: #ed8936; }
+    #corpodg-notif-reservas a {
+      color: #fff;
+      text-decoration: underline;
+    }
+    #corpodg-notif-reservas .notif-close {
+      position: absolute;
+      top: 4px;
+      right: 8px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.7);
+      background: none;
+      border: none;
+      font-size: 1rem;
+    }
   </style>
+
+  <script>
+    // Notificación de reservas sin revisar (para asesores y admin)
+    (function () {
+      function pintarNotificacion(data) {
+        var banner = document.getElementById('corpodg-notif-reservas');
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.id = 'corpodg-notif-reservas';
+          document.body.appendChild(banner);
+        }
+        if (!data || !data.total) {
+          banner.style.display = 'none';
+          return;
+        }
+        var partes = [];
+        if (data.reservas_vuelo) {
+          partes.push('<a href="/admin/servicios/reservavuelo/?revisada__exact=0">' +
+                      data.reservas_vuelo + ' de vuelo</a>');
+        }
+        if (data.reservas_paquete) {
+          partes.push('<a href="/admin/servicios/reservapaquete/?revisada__exact=0">' +
+                      data.reservas_paquete + ' de paquete</a>');
+        }
+        banner.innerHTML =
+          '<button type="button" class="notif-close" title="Ocultar">&times;</button>' +
+          '🔔 <strong>' + data.total + ' reserva(s) sin revisar</strong><br>' +
+          'Pendientes: ' + partes.join(' y ') + '.';
+        banner.style.display = 'block';
+        banner.querySelector('.notif-close').onclick = function () {
+          banner.style.display = 'none';
+        };
+      }
+
+      function consultar() {
+        fetch('/api/admin-notificaciones/', {credentials: 'same-origin'})
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(pintarNotificacion)
+          .catch(function () {});
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', consultar);
+      } else {
+        consultar();
+      }
+      setInterval(consultar, 60000); // refrescar cada minuto
+    })();
+  </script>
 {% endblock %}
 
 {% block branding %}

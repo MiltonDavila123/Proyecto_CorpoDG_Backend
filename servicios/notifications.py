@@ -153,6 +153,28 @@ def enviar_whatsapp_contacto(cliente_nombre, cliente_email, cliente_telefono, me
 # FUNCIONES DE CORREO ELECTRÓNICO
 # =============================================================================
 
+# Fallback si aún no existe la configuración en la BD
+_DESTINATARIOS_FALLBACK = ['miltondaviladt@gmail.com', 'milton.davila.torres@udla.edu.ec']
+
+
+def obtener_config_notificaciones():
+    """Retorna la configuración de notificaciones o None si no está disponible."""
+    try:
+        from .models import ConfiguracionNotificaciones
+        return ConfiguracionNotificaciones.load()
+    except Exception:  # noqa: BLE001 (BD no migrada, etc.)
+        return None
+
+
+def obtener_destinatarios_notificacion():
+    """Correos configurados en el admin para recibir notificaciones."""
+    config = obtener_config_notificaciones()
+    if config:
+        destinatarios = config.get_destinatarios()
+        if destinatarios:
+            return destinatarios
+    return list(_DESTINATARIOS_FALLBACK)
+
 def enviar_correo_html(destinatarios, asunto, mensaje_texto, mensaje_html, 
                        from_email=None, adjuntar_logo=True, adjuntos=None):
     """
@@ -232,13 +254,18 @@ def enviar_correo_contacto(cliente_nombre, cliente_email, cliente_telefono, mens
         cliente_email (str): Email del cliente
         cliente_telefono (str): Teléfono del cliente
         mensaje (str): Mensaje del cliente
-        destinatarios (list, optional): Lista de emails. Default: ['miltondaviladt@gmail.com']
-    
+        destinatarios (list, optional): Lista de emails. Default: los correos
+            configurados en el admin (Configuración de Notificaciones).
+
     Returns:
         dict: {'success': bool, 'message': str}
     """
     if destinatarios is None:
-        destinatarios = ['miltondaviladt@gmail.com', 'milton.davila.torres@udla.edu.ec']
+        config = obtener_config_notificaciones()
+        if config and not config.notificar_contacto:
+            return {'success': False,
+                    'message': 'Notificaciones de contacto desactivadas en el admin'}
+        destinatarios = obtener_destinatarios_notificacion()
     
     mensaje_texto = f"""
 NUEVO CONTACTO:
@@ -357,3 +384,111 @@ def notificar_contacto(cliente_nombre, cliente_email, cliente_telefono, mensaje,
         )
     
     return resultado
+
+
+# =============================================================================
+# NOTIFICACIÓN DE NUEVAS RESERVAS (al correo configurado en el admin)
+# =============================================================================
+
+def enviar_correo_nueva_reserva(tipo, codigo, email_cliente, telefono_cliente,
+                                monto, moneda, detalle, detalle_extra=None):
+    """
+    Notifica al correo configurado en el admin que se confirmó una reserva.
+
+    Args:
+        tipo (str): 'vuelo' o 'paquete'
+        codigo (str): PNR (vuelo) o localizador (paquete)
+        email_cliente (str): Email del cliente
+        telefono_cliente (str): Teléfono del cliente
+        monto (float): Monto total pagado
+        moneda (str): Moneda del pago
+        detalle (str): Descripción corta (ruta del vuelo o título del paquete)
+        detalle_extra (dict, optional): Pares extra {etiqueta: valor} para la tabla
+
+    Returns:
+        dict: {'success': bool, 'message': str}
+    """
+    config = obtener_config_notificaciones()
+    if config and not config.notificar_reservas:
+        return {'success': False,
+                'message': 'Notificaciones de reservas desactivadas en el admin'}
+    destinatarios = obtener_destinatarios_notificacion()
+
+    tipo_display = 'VUELO' if tipo == 'vuelo' else 'PAQUETE'
+    filas = {
+        'Tipo de reserva': tipo_display,
+        'Código': codigo,
+        'Detalle': detalle,
+        'Email del cliente': email_cliente or 'No indicado',
+        'Teléfono del cliente': telefono_cliente or 'No indicado',
+        'Monto pagado': f"{monto} {moneda}",
+    }
+    if detalle_extra:
+        filas.update(detalle_extra)
+
+    mensaje_texto = f"NUEVA RESERVA DE {tipo_display} CONFIRMADA:\n\n"
+    mensaje_texto += "\n".join(f"{k}: {v}" for k, v in filas.items())
+    mensaje_texto += "\n\nRevisa el panel de administración para gestionarla."
+
+    filas_html = "".join(
+        f'<tr>'
+        f'<td style="padding: 10px; background-color: #f9f9f9; font-weight: bold; width: 35%;">{k}:</td>'
+        f'<td style="padding: 10px;">{v}</td>'
+        f'</tr>'
+        for k, v in filas.items()
+    )
+    mensaje_html = f"""
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="background-color: #1a365d; padding: 20px; text-align: center;">
+            <img src="cid:logo_corpodg" alt="CORPODG Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+            <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 16px; font-weight: bold;">
+                🎉 Nueva reserva de {tipo_display} confirmada
+            </p>
+        </div>
+        <div style="padding: 30px;">
+            <h2 style="color: #333; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">
+                Reserva {codigo}
+            </h2>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                {filas_html}
+            </table>
+            <p style="color: #555;">Ingresa al panel de administración
+               (Reservas de {'Vuelos' if tipo == 'vuelo' else 'Paquetes'})
+               para revisarla y gestionarla.</p>
+        </div>
+        <div style="background-color: #333; padding: 20px; text-align: center;">
+            <p style="color: #ffffff; margin: 0; font-size: 12px;">© 2026 CorpoDG - Todos los derechos reservados</p>
+            <p style="color: #B8860B; margin: 10px 0 0 0; font-size: 11px;">Correo automático de notificación de reservas</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+    return enviar_correo_html(
+        destinatarios=destinatarios,
+        asunto=f'NUEVA RESERVA DE {tipo_display} - {codigo}',
+        mensaje_texto=mensaje_texto,
+        mensaje_html=mensaje_html,
+        adjuntar_logo=True,
+    )
+
+
+def notificar_nueva_reserva_async(tipo, codigo, email_cliente, telefono_cliente,
+                                  monto, moneda, detalle, detalle_extra=None):
+    """Envía la notificación de nueva reserva en un hilo de fondo (best-effort)."""
+    import threading
+
+    def _worker():
+        try:
+            enviar_correo_nueva_reserva(tipo, codigo, email_cliente,
+                                        telefono_cliente, monto, moneda,
+                                        detalle, detalle_extra)
+        except Exception:  # noqa: BLE001
+            pass
+
+    threading.Thread(target=_worker, daemon=True).start()
