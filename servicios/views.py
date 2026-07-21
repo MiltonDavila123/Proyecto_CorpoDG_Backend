@@ -955,14 +955,16 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 @staff_member_required
 def admin_notificaciones(request):
-    """Conteo de reservas sin revisar, para la campana/banner del panel admin."""
-    from .models import ReservaVuelo, ReservaPaquete
+    """Conteo de reservas sin revisar y solicitudes sin atender, para la campana/banner del panel admin."""
+    from .models import ReservaVuelo, ReservaPaquete, Solicitud
     vuelos = ReservaVuelo.objects.filter(revisada=False).count()
     paquetes = ReservaPaquete.objects.filter(revisada=False).count()
+    solicitudes = Solicitud.objects.filter(atendido=False).count()
     return JsonResponse({
         "reservas_vuelo": vuelos,
         "reservas_paquete": paquetes,
-        "total": vuelos + paquetes,
+        "solicitudes": solicitudes,
+        "total": vuelos + paquetes + solicitudes,
     })
 
 

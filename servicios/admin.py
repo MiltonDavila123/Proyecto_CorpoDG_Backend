@@ -840,13 +840,37 @@ def es_asesor(user):
     return user.is_active and user.groups.filter(name=ASESOR_GROUP).exists()
 
 
+def puede_gestionar_reservas(user):
+    """La gestión de reservas es exclusiva de los Asesores.
+
+    Los superusuarios conservan el acceso (soporte); cualquier otro
+    administrador/staff no ve ni gestiona las reservas.
+    """
+    return user.is_active and (user.is_superuser or es_asesor(user))
+
+
 class ReservaAdminBase(admin.ModelAdmin):
     """Base para reservas: solo lectura (excepto notas), sin alta ni borrado.
+
+    La gestión de reservas es exclusiva del grupo 'Asesor' (y superusuarios):
+    los demás administradores no ven estas secciones en el panel.
 
     La cancelación es exclusiva del grupo 'Asesor' y exige confirmar
     con la contraseña del usuario. Cancela (cambio de estado), no borra:
     el registro se conserva como historial.
     """
+
+    def has_module_permission(self, request):
+        return (puede_gestionar_reservas(request.user)
+                and super().has_module_permission(request))
+
+    def has_view_permission(self, request, obj=None):
+        return (puede_gestionar_reservas(request.user)
+                and super().has_view_permission(request, obj))
+
+    def has_change_permission(self, request, obj=None):
+        return (puede_gestionar_reservas(request.user)
+                and super().has_change_permission(request, obj))
 
     def has_add_permission(self, request):
         return False
