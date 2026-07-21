@@ -254,6 +254,20 @@ a:hover {
   color: #e8e5db !important;
 }
 
+/* Fix: los autocompletar (select2) de "Orden de Paquetes" y "Orden de Destinos"
+   están dentro de pestañas ocultas al cargar la página; select2 mide el ancho
+   mientras el elemento está oculto y lo deja en ~0 (se ve "roto"). La pestaña
+   "Orden de Vuelos" está visible al cargar, por eso esa sí se ve bien.
+   Forzamos ancho completo para que todas se vean igual. */
+.select2-container {
+  width: 100% !important;
+  min-width: 240px;
+}
+.inline-group .select2-container,
+.tab-content .select2-container {
+  max-width: 100%;
+}
+
 .select2-container--default .select2-selection--single .select2-selection__rendered {
   color: #e8e5db !important;
 }
